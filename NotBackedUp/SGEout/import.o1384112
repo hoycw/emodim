@@ -1,0 +1,22 @@
+CP24
+SBJ01_import_data('CP24', 'main_ft')
+31282
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017a (9.2.0.556344) 64-bit (glnxa64)
+                               March 27, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+>> the call to "ft_selectdata" took 20 seconds and required the additional allocation of an estimated 542 MB
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 2 MB
+the call to "ft_selectdata" took 1 seconds and required the additional allocation of an estimated 539 MB
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 27 MB
+the call to "ft_selectdata" took 1 seconds and required the additional allocation of an estimated 420 MB
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 0 MB
+the call to "ft_selectdata" took 1 seconds and required the additional allocation of an estimated 189 MB
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 0 MB
+>> 

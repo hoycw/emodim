@@ -1,0 +1,10 @@
+{Error using run (line 41)
+/home/knight/emodim/scripts/proc_vars/main_ft_proc_vars.m not found.
+
+Error in SBJ01_import_data (line 15)
+eval(proc_vars_cmd);
+} 
+
+real	0m30.551s
+user	0m12.527s
+sys	0m0.893s

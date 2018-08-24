@@ -1,0 +1,30 @@
+CP24
+SBJ00_cleaning_prep('CP24', '1by1')
+40067
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017a (9.2.0.556344) 64-bit (glnxa64)
+                               March 27, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+>> ============== Processing CP24, CP24_Dec8_stroop_raw_R1.mat ==============
+============== Plotting PSDs CP24, CP24_Dec8_stroop_raw_R1.mat ==============
+============== Bandstop filtering CP24, CP24_Dec8_stroop_raw_R1.mat ==============
+the call to "ft_selectdata" took 1 seconds and required the additional allocation of an estimated 3 MB
+preprocessing
+preprocessing trial 1 from 1
+the call to "ft_preprocessing" took 34 seconds and required the additional allocation of an estimated 47 MB
+============== Saving /home/knight/emodim/data/CP24/02_preproc/CP24_preclean_R1.mat, CP24_Dec8_stroop_raw_R1.mat ==============
+============== Processing CP24, CP24_Dec8_stroop_raw_R2.mat ==============
+============== Plotting PSDs CP24, CP24_Dec8_stroop_raw_R2.mat ==============
+============== Bandstop filtering CP24, CP24_Dec8_stroop_raw_R2.mat ==============
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 0 MB
+preprocessing
+preprocessing trial 1 from 1
+the call to "ft_preprocessing" took 26 seconds and required the additional allocation of an estimated 3 MB
+============== Saving /home/knight/emodim/data/CP24/02_preproc/CP24_preclean_R2.mat, CP24_Dec8_stroop_raw_R2.mat ==============
+>> 

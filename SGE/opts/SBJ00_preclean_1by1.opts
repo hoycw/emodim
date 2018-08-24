@@ -1,0 +1,5 @@
+-o /home/knight/emodim/scripts/NotBackedUp/SGEout
+-e /home/knight/emodim/scripts/NotBackedUp/SGEout
+-v plot_psd="1by1"
+-l mem_free=32G
+-N precln

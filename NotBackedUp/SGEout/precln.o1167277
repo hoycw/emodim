@@ -1,0 +1,46 @@
+IR68
+SBJ00_cleaning_prep('IR68', '1by1')
+33032
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017a (9.2.0.556344) 64-bit (glnxa64)
+                               March 27, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+>> ============== Processing IR68, 2018012413_0001.besa ==============
+[Warning: all channels must have unique labels, creating unique labels] 
+ In '/home/knight/hoycw/Apps/fieldtrip/fileio/ft_read_header.m' at line 2559
+ In '/home/knight/hoycw/Apps/fieldtrip/ft_preprocessing.m' at line 397
+
+processing channel { 'DC01' 'DC02' 'DC03' 'DC04' 'LAM1' 'LAM2' 'LAM3' 'LAM4' 'LAM5' 'LAM6' 'LAM7' 'LAM8' 'LAM9' 'LAM10' 'LHH1' 'LHH2' 'LHH3' 'LHH4' 'LHH5' 'LHH6' 'LHH7' 'LHH8' 'LHH9' 'LHH10' 'LTH1' 'LTH2' 'LTH3' 'LTH4' 'LTH5' 'LTH6' 'LTH7' 'LTH8' 'LTH9' 'LTH10' 'XREF' 'EKG' 'AIN1' 'AIN2' 'AIN3' 'AIN4' 'AIN5' 'AIN6' 'AIN7' 'AIN8' 'AIN9' 'AIN10' 'MIN1' 'MIN2' 'MIN3' 'MIN4' 'MIN5' 'MIN6' 'MIN7' 'MIN8' 'MIN9' 'MIN10' 'PIN1' 'PIN2' 'PIN3' 'PIN4' 'PIN5' 'PIN6' 'PIN7' 'PIN8' 'PIN9' 'PIN10' 'LOF1' 'LOF2' 'LOF3' 'LOF4' 'LOF5' 'LOF6' 'LOF7' 'LOF8' 'LOF9' 'LOF10' 'LAC1' 'LAC2' 'LAC3' 'LAC4' 'LAC5' 'LAC6' 'LAC7' 'LAC8' 'LAC9' 'LAC10' 'LPC1' 'LPC2' 'LPC3' 'LPC4' 'LPC5' 'LPC6' 'LPC7' 'LPC8' 'LPC9' 'LPC10' 'FZ' 'CZ' 'OZ' 'C3' 'C4' 'GRND' 'LUE' 'LLE' 'RUE' 'RLE' 'LTH1-1' 'LTH2-1' 'LTH3-1' 'LTH4-1' 'LTH5-1' 'LTH6-1' 'LTH7-1' 'LTH8-1' 'LHH1-1' 'LHH2-1' 'LHH3-1' 'LHH4-1' 'LHH5-1' 'LHH6-1' 'LHH7-1' 'LHH8-1' 'LAM1-1' 'LAM2-1' 'LAM3-1' 'LAM4-1' 'LAM5-1' 'LAM6-1' 'LAM7-1' 'LAM8-1' 'LAM9-1' 'LAM10-1' 'LPL1' 'LPL2' 'LPL3' 'LPL4' 'LPL5' 'LPL6' 'LPL7' 'LPL8' 'LPL9' 'LPL10' 'LOF1-1' 'LOF2-1' 'LOF3-1' 'LOF4-1' 'LOF5-1' 'LOF6-1' 'LOF7-1' 'LOF8-1' 'LAC1-1' 'LAC2-1' 'LAC3-1' 'LAC4-1' 'LAC5-1' 'LAC6-1' 'LAC7-1' 'LAC8-1' }
+reading and preprocessing
+reading and preprocessing trial 1 from 1
+the call to "ft_preprocessing" took 3396 seconds and required the additional allocation of an estimated 8357 MB
+============== Plotting PSDs IR68, 2018012413_0001.besa ==============
+the input is raw data with 158 channels and 1 trials
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 1 MB
+resampling data
+resampling data in trial 1 from 1
+original sampling rate = 5000 Hz
+new sampling rate = 1000 Hz
+the call to "ft_resampledata" took 88 seconds and required the additional allocation of an estimated 5 MB
+============== Bandstop filtering IR68, 2018012413_0001.besa ==============
+[Warning: the trial definition in the configuration is inconsistent with the
+actual data] 
+[Warning: reconstructing sampleinfo by assuming that the trials are consecutive
+segments of a continuous recording] 
+> In fixsampleinfo (line 94)
+  In ft_datatype_raw (line 147)
+  In ft_checkdata (line 264)
+  In ft_preprocessing (line 281)
+  In SBJ00_cleaning_prep (line 96)
+the call to "ft_selectdata" took 0 seconds and required the additional allocation of an estimated 51 MB
+preprocessing
+preprocessing trial 1 from 1
+the call to "ft_preprocessing" took 73 seconds and required the additional allocation of an estimated 52 MB
+============== Saving /home/knight/emodim/data/IR68/02_preproc/IR68_preclean.mat, 2018012413_0001.besa ==============
+>> 
