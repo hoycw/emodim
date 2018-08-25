@@ -9,10 +9,10 @@ end
 % Basics
 %--------------------------------------
 SBJ_vars.SBJ = 'CP24';
-SBJ_vars.raw_file = {'CP24_Dec8_stroop_raw_R1.mat','CP24_Dec8_stroop_raw_R2.mat'};
+SBJ_vars.raw_file = {'CP24_Dec8_emodim_raw_R1.mat','CP24_Dec8_emodim_raw_R2.mat'};
 SBJ_vars.block_name = {'R1','R2'};
 
-SBJ_vars.dirs.SBJ     = [root_dir 'data/' SBJ_vars.SBJ '/'];
+SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
 SBJ_vars.dirs.import  = [SBJ_vars.dirs.SBJ '01_import/'];
 SBJ_vars.dirs.preproc = [SBJ_vars.dirs.SBJ '02_preproc/'];

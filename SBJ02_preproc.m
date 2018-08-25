@@ -11,16 +11,16 @@ psd_line     = 'yes';          % plot psds after filtering out line noise?
 psd_fig_type = 'jpg';
 
 % Directories
-if exist('/home/knight/emodim/','dir');root_dir='/home/knight/emodim/';ft_dir=['/home/knight/hoycw/Apps/fieldtrip/'];
+if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'hoycw/Apps/fieldtrip/'];
 else root_dir='/Volumes/hoycw_clust/';ft_dir='/Users/colinhoy/Code/Apps/fieldtrip/';end
-addpath(genpath([root_dir 'scripts/utils/']));
+addpath(genpath([root_dir 'emodim/scripts/utils/']));
 addpath(ft_dir);
 ft_defaults
 
 %% Load data
 fprintf('============== Loading Data %s ==============\n',SBJ);
-eval(['run ' root_dir 'scripts/SBJ_vars/' SBJ '_vars.m']);
-eval(['run ' root_dir 'scripts/proc_vars/' pipeline_id '_proc_vars.m']);
+eval(['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m']);
+eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
 
 data_all = {};
 for b_ix = 1:numel(SBJ_vars.block_name)

@@ -2,16 +2,16 @@
 % Extract data with fieldtrip and save out by data type
 function SBJ01_import_data(SBJ,pipeline_id)
 
-if exist('/home/knight/emodim/','dir');root_dir='/home/knight/emodim/';ft_dir=['/home/knight/hoycw/Apps/fieldtrip/'];
-else root_dir='/Volumes/hoycw_clust/emodim/';ft_dir='/Users/colinhoy/Code/Apps/fieldtrip/';end
-addpath([root_dir 'scripts/utils/']);
+if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'hoycw/Apps/fieldtrip/'];
+else root_dir='/Volumes/hoycw_clust/';ft_dir='/Users/colinhoy/Code/Apps/fieldtrip/';end
+addpath([root_dir 'emodim/scripts/utils/']);
 addpath(ft_dir);
 ft_defaults
 
 %% Load and preprocess the data
-SBJ_vars_cmd = ['run ' root_dir 'scripts/SBJ_vars/' SBJ '_vars.m'];
+SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
-proc_vars_cmd = ['run ' root_dir 'scripts/proc_vars/' pipeline_id '_proc_vars.m'];
+proc_vars_cmd = ['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m'];
 eval(proc_vars_cmd);
 
 %% Process channel labels

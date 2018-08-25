@@ -12,7 +12,7 @@ SBJ_vars.SBJ = 'IR78';
 SBJ_vars.raw_file = {'2018062715_0046.besa'};   %_0044.besa and _0045.besa have partial B1s
 SBJ_vars.block_name = {''};
 
-SBJ_vars.dirs.SBJ     = [root_dir 'data/' SBJ_vars.SBJ '/'];
+SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
 SBJ_vars.dirs.import  = [SBJ_vars.dirs.SBJ '01_import/'];
 SBJ_vars.dirs.preproc = [SBJ_vars.dirs.SBJ '02_preproc/'];
