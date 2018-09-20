@@ -66,11 +66,11 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 %SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
 
 SBJ_vars.ref_exclude = {...
-    'LTO2',...% spiking
     'RT06','RTO7',...% HF noise
     'ROF2','ROF3','LOF2','LOF3',...% EOG like fluctuations
     }; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'LTO2',...% spiking
     'RLF1','RLF2','RTO4',...% epileptic
     'LLF*','LLFP*',...% noisy (on second amplifier)
     'DC01','DC03','DC04','E','EEG Mark1','EEG Mark2','-','Events/Markers'...% Not real data

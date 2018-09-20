@@ -64,6 +64,9 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'LAM7','LAM8','LAM9','LAM10','LHH8','LHH9','LHH10','LTH8','LTH9','LTH10',...%epileptic
+    'AIN8','AIN9','AIN10',...%out of brain
+    'AIN5'...% loose
     };
 SBJ_vars.ch_lab.eeg = {};
 % SBJ_vars.ch_lab.CZ_lap_ref = {};
