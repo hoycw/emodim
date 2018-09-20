@@ -52,9 +52,9 @@ SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_el
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {};
-SBJ_vars.ch_lab.probe_type = {};
-SBJ_vars.ch_lab.ref_type   = {};
+SBJ_vars.ch_lab.probes     = {'LAM','LHH','LTH','AIN','MIN','PIN','LOF','LAC','LPC'};
+SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
+SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
@@ -64,15 +64,16 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    '*-1',...%bad duplicate channels
     'LAM7','LAM8','LAM9','LAM10','LHH8','LHH9','LHH10','LTH8','LTH9','LTH10',...%epileptic
     'AIN8','AIN9','AIN10',...%out of brain
     'AIN5'...% loose
     };
-SBJ_vars.ch_lab.eeg = {};
+SBJ_vars.ch_lab.eeg = {'FZ','CZ','OZ','C3','C4'};
 % SBJ_vars.ch_lab.CZ_lap_ref = {};
-SBJ_vars.ch_lab.eog = {};
-SBJ_vars.ch_lab.photod = {};
-SBJ_vars.ch_lab.mic    = {};
+SBJ_vars.ch_lab.eog = {'LUE','LLE','RUE','RLE'};
+SBJ_vars.ch_lab.photod = {'DC01'};
+%SBJ_vars.ch_lab.mic    = {};
 
 %--------------------------------------
 % Line Noise Parameters
