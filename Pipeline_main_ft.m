@@ -69,7 +69,12 @@ bad_epochs = out.artfctdef.visual.artifact;
 save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','bad_epochs');
 
 %% ========================================================================
-%   Step 5a- Manually Clean Photodiode Trace: Load & Plot
+%   Step 5- Process the behavioral log files
+%  ========================================================================
+% SBJ03_behav_parse(SBJ,block_ix) or some other python call?
+
+%% ========================================================================
+%   Step 6a- Manually Clean Photodiode Trace: Load & Plot
 %  ========================================================================
 % Load data
 for b_ix = 1:numel(SBJ_vars.block_name)
@@ -86,14 +91,14 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     plot(evnt.time{1},evnt.trial{1});
     
     %% ========================================================================
-    %   Step 5b- Manually Clean Photodiode Trace: Mark Sections to Correct
+    %   Step 6b- Manually Clean Photodiode Trace: Mark Sections to Correct
     %  ========================================================================
     % Create correction times and values in a separate file in emodim/scripts/SBJ_evnt_clean/
     SBJ_evnt_clean_cmd = ['run ' root_dir 'emodim/scripts/SBJ_evnt_clean/' SBJ '_evnt_clean_params',block_suffix,'.m'];
     eval(SBJ_evnt_clean_cmd);
     
     %% ========================================================================
-    %   Step 5c- Manually Clean Photodiode Trace: Apply Corrections
+    %   Step 6c- Manually Clean Photodiode Trace: Apply Corrections
     %  ========================================================================
     photod_ix = strmatch(SBJ_vars.ch_lab.photod,evnt.label);
     % Correct baseline shift
@@ -121,15 +126,15 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     save(out_filename, 'evnt', 'ignore_trials');
     
     %% ========================================================================
-    %   Step 5d- Parse Event Traces into Behavioral Data
+    %   Step 6d- Parse Event Traces into Behavioral Data
     %  ========================================================================
-    SBJ03_photo_parse(SBJ,b_ix,1,1)
+    SBJ04_photo_parse(SBJ,b_ix,1,1)
     % Save the two figures coming from this function in data/SBJ/03_events/
     %   i.e., ${SBJ}_photodiode_segmentation.fig & ${SBJ}_events.fig
 end
 
 %% ========================================================================
-%   Step 6- Create einfo based on ROIs
+%   Step 7- Create einfo based on ROIs
 %  ========================================================================
 % look at recon and create spreadsheet of general ROI, WM/GM, etc.
 %   save that as tsv
@@ -138,7 +143,7 @@ fn_compile_elec_struct(SBJ,pipeline_id,'mni')
 % fn_compile_einfo(SBJ,pipeline_id)
 
 %% ========================================================================
-%   Step 7- Reject Bad Trials Based on Behavior and Bob
+%   Step 8- Reject Bad Trials Based on Behavior and Bob
 %  ========================================================================
 clear data trial_info
 % Load manually corrected trial_info
@@ -207,7 +212,7 @@ clear ti block_lens block_times block_trlcnt block_blkcnt
 trial_info_clean = SBJ05_reject_behavior(SBJ,trial_info,pipeline_id);
 
 %% ========================================================================
-%   Step 8a- Prepare Variance Estimates for Variance-Based Trial Rejection
+%   Step 9a- Prepare Variance Estimates for Variance-Based Trial Rejection
 %  ========================================================================
 % Load data for visualization
 % load(strcat(preproc_dir,SBJ,'_proc_vars.mat'));
@@ -278,7 +283,7 @@ fprintf(r_file,'================================================================
 fclose(r_file);
 
 %% ========================================================================
-%   Step 8b- Choose Thresholds for Variance-Based Trial Rejection
+%   Step 9b- Choose Thresholds for Variance-Based Trial Rejection
 %  ========================================================================
 % Visualize data to set limits for variance-based rejection
 cfg_reject = [];
@@ -289,7 +294,7 @@ ft_rejectvisual(cfg_reject,trials);
 ft_rejectvisual(cfg_reject,trials_dif);
 
 %% ========================================================================
-%   Step 9a- Update Rejection parameters and electrodes based on variance
+%   Step 10a- Update Rejection parameters and electrodes based on variance
 %  ========================================================================
 % Comment in evernote note on bad trials and channels!
 % Then the following variables should be written into SBJ_vars:
@@ -325,7 +330,7 @@ trials_dif = ft_preprocessing(cfg,trials);
 
 
 %% ========================================================================
-%   Step 9b- Automatically Reject Bad Trials Based on Variance
+%   Step 10b- Automatically Reject Bad Trials Based on Variance
 %  ========================================================================
 % Run KLA artifact rejection based on robust variance estimates
 % If too many/few trials are rejected, adjust artifact_params and rerun
@@ -360,7 +365,7 @@ ft_databrowser(cfg, trials);
 ft_databrowser(cfg, trials_dif);
 
 %% ========================================================================
-%   Step 10- Compile Variance-Based Trial Rejection and Save Results
+%   Step 11- Compile Variance-Based Trial Rejection and Save Results
 %  ========================================================================
 % Re-load SBJ_vars after updating artifact field
 clear SBJ_vars

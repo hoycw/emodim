@@ -1,4 +1,4 @@
-function SBJ03_photo_parse(SBJ, block, plot_it, save_it)
+function SBJ04_photo_parse(SBJ, block, plot_it, save_it)
 % INPUTS:
 %   SBJ [str] - uniquely identifies the subject, e.g., 'IR54'
 %   block [int] - index of which block of data should be analyzed
