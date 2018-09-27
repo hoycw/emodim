@@ -215,8 +215,12 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     
     % Sort channels alphabetically
     data = fn_reorder_data(data, {});
-    eeg = fn_reorder_data(eeg, {});
-    eog = fn_reorder_data(eog, {});
+    if ~isempty(SBJ_vars.ch_lab.eeg)
+        eeg = fn_reorder_data(eeg, {});
+    end
+    if ~isempty(SBJ_vars.ch_lab.eog)
+        eog = fn_reorder_data(eog, {});
+    end
     
     %% Save data
     nrl_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat');
