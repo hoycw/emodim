@@ -159,6 +159,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         cfg.resamplefs = proc_vars.resample_freq;
         cfg.detrend = 'no';
         data = ft_resampledata(cfg, data);
+        evnt = ft_resampledata(cfg, evnt);  % only photodiode, so 1 kHz is okay
         if ~isempty(SBJ_vars.ch_lab.eeg)
             eeg = ft_resampledata(cfg, eeg);
         end

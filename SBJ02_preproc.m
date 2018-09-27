@@ -62,55 +62,76 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     
     %% Rereference
     fprintf('============== Re-Referencing %s ==============\n',SBJ);
-    if numel(SBJ_vars.ch_lab.ref_type)~=numel(SBJ_vars.ch_lab.probes)
-        error('ERROR: Mismatched number of probes and reference types in SBJ_vars');
-    end
-    left_out_ch = {};
-    for d = 1:numel(SBJ_vars.ch_lab.probes)
+    if all(strcmp(SBJ_vars.ch_lab.ref_type,'CARall'))
+        % CAR across all channels! (likely for CPMC data)
         cfg = [];
-        cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), data.label);
-        probe_data = ft_selectdata(cfg,data);   % Grab data from this probe to plot in PSD comparison
-        
-        % Create referencing scheme
-        if strcmp(SBJ_vars.ch_lab.ref_type{d},'BP')
-            cfg.montage.labelold = cfg.channel;
-            [cfg.montage.labelnew, cfg.montage.tra, left_out_ch{d}] = fn_create_ref_scheme_bipolar(cfg.channel);
-        elseif strcmp(SBJ_vars.ch_lab.ref_type{d},'CAR')
-            cfg.reref      = 'yes';
-            cfg.refchannel = setdiff(probe_data.label,SBJ_vars.ref_exclude);
-            cfg.refmethod  = 'avg';
-            left_out_ch{d} = {};    % CAR is applied to all channels
-        elseif strcmp(SBJ_vars.ch_lab.ref_type{d},'CMR')
-            cfg.reref      = 'yes';
-            cfg.refchannel = setdiff(probe_data.label,SBJ_vars.ref_exclude);
-            cfg.refmethod  = 'median';
-            left_out_ch{d} = {};    % CAR is applied to all channels
-        else
-            error(strcat('ERROR: Unrecognized reference type ',SBJ_vars.ch_lab.ref_type{d},...
-                ' for probe ',SBJ_vars.ch_lab.probes{d}));
-        end
+        cfg.reref      = 'yes';
+        cfg.refchannel = setdiff(data.label,SBJ_vars.ref_exclude);
+        cfg.refmethod  = 'avg';
         cfg.updatesens = 'yes';
-        data_reref{d} = ft_preprocessing(cfg, data);
+        data_reref = ft_preprocessing(cfg, data);
+        data = data_reref;
+        left_out_ch = {};    % CAR is applied to all channels
         
         if strcmp(psd_reref,'yes')
             psd_dir = strcat(SBJ_vars.dirs.preproc,'PSDs/bp.reref/');
             if ~exist(psd_dir,'dir')
                 mkdir(psd_dir);
             end
-            fn_plot_PSD_1by1_compare_save(probe_data.trial{1},data_reref{d}.trial{1},...
-                probe_data.label,data_reref{d}.label,data_reref{d}.fsample,...
+            fn_plot_PSD_1by1_compare_save(data.trial{1},data_reref.trial{1},...
+                data.label,data_reref.label,data_reref.fsample,...
                 strcat(psd_dir,SBJ,'_PSD_bp.reref',block_suffix),'bp','bp.reref',psd_fig_type);
         end
+    elseif numel(SBJ_vars.ch_lab.ref_type)==numel(SBJ_vars.ch_lab.probes)
+        left_out_ch = {};
+        for d = 1:numel(SBJ_vars.ch_lab.probes)
+            cfg = [];
+            cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), data.label);
+            probe_data = ft_selectdata(cfg,data);   % Grab data from this probe to plot in PSD comparison
+            
+            % Create referencing scheme
+            if strcmp(SBJ_vars.ch_lab.ref_type{d},'BP')
+                cfg.montage.labelold = cfg.channel;
+                [cfg.montage.labelnew, cfg.montage.tra, left_out_ch{d}] = fn_create_ref_scheme_bipolar(cfg.channel);
+            elseif strcmp(SBJ_vars.ch_lab.ref_type{d},'CAR')
+                cfg.reref      = 'yes';
+                cfg.refchannel = setdiff(probe_data.label,SBJ_vars.ref_exclude);
+                cfg.refmethod  = 'avg';
+                left_out_ch{d} = {};    % CAR is applied to all channels
+            elseif strcmp(SBJ_vars.ch_lab.ref_type{d},'CMR')
+                cfg.reref      = 'yes';
+                cfg.refchannel = setdiff(probe_data.label,SBJ_vars.ref_exclude);
+                cfg.refmethod  = 'median';
+                left_out_ch{d} = {};    % CAR is applied to all channels
+            else
+                error(strcat('ERROR: Unrecognized reference type ',SBJ_vars.ch_lab.ref_type{d},...
+                    ' for probe ',SBJ_vars.ch_lab.probes{d}));
+            end
+            cfg.updatesens = 'yes';
+            data_reref{d} = ft_preprocessing(cfg, data);
+            
+            if strcmp(psd_reref,'yes')
+                psd_dir = strcat(SBJ_vars.dirs.preproc,'PSDs/bp.reref/');
+                if ~exist(psd_dir,'dir')
+                    mkdir(psd_dir);
+                end
+                fn_plot_PSD_1by1_compare_save(probe_data.trial{1},data_reref{d}.trial{1},...
+                    probe_data.label,data_reref{d}.label,data_reref{d}.fsample,...
+                    strcat(psd_dir,SBJ,'_PSD_bp.reref',block_suffix),'bp','bp.reref',psd_fig_type);
+            end
+        end
+        clear data_bp probe_data
+        
+        %Concatenate together again
+        cfg = [];
+        % cfg.appendsens = 'yes';
+        data = ft_appenddata(cfg,data_reref{:});
+        % Somehow, data.fsample is lost in certain cases here (new ft version I think):
+        data.fsample = data_reref{1}.fsample;
+        data_reref = data;
+    else
+        error('ERROR: Mismatched number of probes and reference types in SBJ_vars');
     end
-    clear data_bp probe_data
-    
-    %Concatenate together again
-    cfg = [];
-    % cfg.appendsens = 'yes';
-    data = ft_appenddata(cfg,data_reref{:});
-    % Somehow, data.fsample is lost in certain cases here (new ft version I think):
-    data.fsample = data_reref{1}.fsample;
-    data_reref = data;
     
     % Print left out channels, add to SBJ_vars
     if ~isempty([left_out_ch{:}])

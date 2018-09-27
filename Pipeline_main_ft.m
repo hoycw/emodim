@@ -40,7 +40,37 @@ eval(SBJ_vars_cmd);
 % SBJ01_import_data(SBJ,proc_vars.resample_freq);
 
 %% ========================================================================
-%   Step 4a- Manually Clean Photodiode Trace: Load & Plot
+%   Step 4- Preprocess Neural Data
+%  ========================================================================
+SBJ02_preproc(SBJ,pipeline_id)
+
+%% ========================================================================
+%   Step 5- Second visual cleaning of preprocessed data
+%  ========================================================================
+load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
+bad_at = [];
+for b_ix = 1:numel(SBJ_vars.block_name)
+    if numel(SBJ_vars.raw_file)>1
+        block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
+    else
+        block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
+    end
+    bad_preclean = load(strcat(SBJ_vars.dirs.events,SBJ,'_bob_bad_epochs_preclean',block_suffix,'.mat'));
+    if ~isempty(bad_preclean.bad_epochs)
+        bad_at = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
+            strcat(SBJ_vars.dirs.preproc,SBJ,'_preclean',block_suffix,'.mat'),1);
+    end
+end
+load(strcat(root_dir,'emodim/scripts/utils/cfg_plot.mat'));
+% If you want to see preclean bad_epochs:
+% cfg_plot.artfctdef.visual.artifact = bad_at;
+out = ft_databrowser(cfg_plot,data);
+
+bad_epochs = out.artfctdef.visual.artifact;
+save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','bad_epochs');
+
+%% ========================================================================
+%   Step 5a- Manually Clean Photodiode Trace: Load & Plot
 %  ========================================================================
 % Load data
 for b_ix = 1:numel(SBJ_vars.block_name)
@@ -57,49 +87,46 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     plot(evnt.time{1},evnt.trial{1});
     
     %% ========================================================================
-    %   Step 4b- Manually Clean Photodiode Trace: Mark Sections to Correct
+    %   Step 5b- Manually Clean Photodiode Trace: Mark Sections to Correct
     %  ========================================================================
-    % Create correction times and values in a separate file in ~/PRJ_Stroop/scripts/SBJ_evnt_clean/
-    SBJ_evnt_clean_cmd = ['run ' root_dir 'PRJ_Stroop/scripts/SBJ_evnt_clean/' SBJ '_evnt_clean_params',block_suffix,'.m'];
+    % Create correction times and values in a separate file in emodim/scripts/SBJ_evnt_clean/
+    SBJ_evnt_clean_cmd = ['run ' root_dir 'emodim/scripts/SBJ_evnt_clean/' SBJ '_evnt_clean_params',block_suffix,'.m'];
     eval(SBJ_evnt_clean_cmd);
     
     %% ========================================================================
-    %   Step 4c- Manually Clean Photodiode Trace: Apply Corrections
+    %   Step 5c- Manually Clean Photodiode Trace: Apply Corrections
     %  ========================================================================
-    photod_ix = strmatch(SBJ_vars.ch_lab.photod,hdr.channel_labels);
+    photod_ix = strmatch(SBJ_vars.ch_lab.photod,evnt.label);
     % Correct baseline shift
     for shift_ix = 1:length(bsln_shift_times)
-        epoch_idx = floor(bsln_shift_times{shift_ix}(1)*hdr.sample_rate):floor(bsln_shift_times{shift_ix}(2)*hdr.sample_rate);
+        epoch_idx = floor(bsln_shift_times{shift_ix}(1)*evnt.fsample):floor(bsln_shift_times{shift_ix}(2)*evnt.fsample);
         epoch_idx(epoch_idx<1) = [];
         evnt(photod_ix,epoch_idx) = evnt(photod_ix,epoch_idx) - bsln_shift_val(shift_ix);
     end
     % zero out drifts
     for zero_ix = 1:length(bsln_times)
-        epoch_idx = floor(bsln_times{zero_ix}(1)*hdr.sample_rate):floor(bsln_times{zero_ix}(2)*hdr.sample_rate);
+        epoch_idx = floor(bsln_times{zero_ix}(1)*evnt.fsample):floor(bsln_times{zero_ix}(2)*evnt.fsample);
         epoch_idx(epoch_idx<1) = [];
         evnt(photod_ix,epoch_idx) = bsln_val;
     end
     
     % level out stimulus periods
     for stim_ix = 1:length(stim_times)
-        epoch_idx = floor(stim_times{stim_ix}(1)*hdr.sample_rate):floor(stim_times{stim_ix}(2)*hdr.sample_rate);
+        epoch_idx = floor(stim_times{stim_ix}(1)*evnt.fsample):floor(stim_times{stim_ix}(2)*evnt.fsample);
         epoch_idx(epoch_idx<1) = [];
         evnt(photod_ix,epoch_idx) = stim_yval(stim_ix);
     end
     
     % Save corrected data
     out_filename = [SBJ_vars.dirs.preproc SBJ '_evnt_clean',block_suffix,'.mat'];
-    save(out_filename, 'evnt', 'hdr', 'ignore_trials', 'photod_ix');
+    save(out_filename, 'evnt', 'ignore_trials');
     
     %% ========================================================================
-    %   Step 5- Parse Event Traces into Behavioral Data
+    %   Step 5d- Parse Event Traces into Behavioral Data
     %  ========================================================================
-    if proc_vars.resample_freq~=1000
-        error('ERROR!!! SBJ02_behav_parse assumes 1 kHz neural sampling rate!!!\n');
-    end
-    SBJ02_behav_parse(SBJ,b_ix,proc_vars.rt_bounds,1,1)
-    % Be sure to save the two figures coming from this function!
-    %   i.e., SBJ_photodiode_segmentation.fig & SBJ_events.fig
+    SBJ03_photo_parse(SBJ,b_ix,1,1)
+    % Save the two figures coming from this function in data/SBJ/03_events/
+    %   i.e., ${SBJ}_photodiode_segmentation.fig & ${SBJ}_events.fig
 end
 
 %% ========================================================================
@@ -112,52 +139,7 @@ fn_compile_elec_struct(SBJ,pipeline_id,'mni')
 % fn_compile_einfo(SBJ,pipeline_id)
 
 %% ========================================================================
-%   Step 7- Manually Correct Reaction Times
-%  ========================================================================
-% Send to Rana, get her to create the basic excel sheet
-% double check it!
-
-% Do this separately for each block
-b_ix = 1;
-if numel(SBJ_vars.raw_file)>1
-    block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
-else
-    block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
-end
-
-% Before running this function, open SBJ_events.fig
-% run with default parameters (outlier_thresh=0.1s), not saving plot or trial_info
-outlier_thresh  = 0.15;
-save_plot       = 0;
-save_trial_info = 0;
-SBJ03_RT_manual_adjustments(SBJ,b_ix,outlier_thresh,save_plot,save_trial_info)
-% Check any big discrepancies between auto and manual RTs
-% Fix any RTs manually if necessary
-
-% Run again after verifying accuracy of manual RTs, saving this time
-save_plot       = 1;
-save_trial_info = 1;
-SBJ03_RT_manual_adjustments(SBJ,b_ix,outlier_thresh,save_plot,save_trial_info)
-
-%% ========================================================================
-%   Step 8- Preprocess Neural Data
-%  ========================================================================
-SBJ04_preproc(SBJ,pipeline_id)
-
-% Second visual cleaning
-load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
-bad_preclean = load(strcat(SBJ_vars.dirs.events,SBJ,'_bob_bad_epochs_preclean',block_suffix,'.mat'));
-bad_at = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
-                                            strcat(SBJ_vars.dirs.preproc,SBJ,'_preclean',block_suffix,'.mat'),1);
-load(strcat(root_dir,'PRJ_Stroop/scripts/utils/cfg_plot.mat'));
-% cfg_plot.artfctdef.visual.artifact = bad_at;
-out = ft_databrowser(cfg_plot,data);
-
-bad_epochs = out.artfctdef.visual.artifact;
-save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','bad_epochs');
-
-%% ========================================================================
-%   Step 9- Reject Bad Trials Based on Behavior and Bob
+%   Step 7- Reject Bad Trials Based on Behavior and Bob
 %  ========================================================================
 clear data trial_info
 % Load manually corrected trial_info
@@ -226,7 +208,7 @@ clear ti block_lens block_times block_trlcnt block_blkcnt
 trial_info_clean = SBJ05_reject_behavior(SBJ,trial_info,pipeline_id);
 
 %% ========================================================================
-%   Step 10a- Prepare Variance Estimates for Variance-Based Trial Rejection
+%   Step 8a- Prepare Variance Estimates for Variance-Based Trial Rejection
 %  ========================================================================
 % Load data for visualization
 % load(strcat(preproc_dir,SBJ,'_proc_vars.mat'));
@@ -297,7 +279,7 @@ fprintf(r_file,'================================================================
 fclose(r_file);
 
 %% ========================================================================
-%   Step 10b- Choose Thresholds for Variance-Based Trial Rejection
+%   Step 8b- Choose Thresholds for Variance-Based Trial Rejection
 %  ========================================================================
 % Visualize data to set limits for variance-based rejection
 cfg_reject = [];
@@ -308,7 +290,7 @@ ft_rejectvisual(cfg_reject,trials);
 ft_rejectvisual(cfg_reject,trials_dif);
 
 %% ========================================================================
-%   Step 11a- Update Rejection parameters and electrodes based on variance
+%   Step 9a- Update Rejection parameters and electrodes based on variance
 %  ========================================================================
 % Comment in evernote note on bad trials and channels!
 % Then the following variables should be written into SBJ_vars:
@@ -324,7 +306,7 @@ ft_rejectvisual(cfg_reject,trials_dif);
 
 % Re-load SBJ_vars after updating artifact field
 clear SBJ_vars
-clear_cmd = ['clear ' root_dir 'PRJ_Stroop/scripts/SBJ_vars/' SBJ '_vars.m'];
+clear_cmd = ['clear ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(clear_cmd); %needed to delete cached version
 eval(SBJ_vars_cmd);
 
@@ -344,7 +326,7 @@ trials_dif = ft_preprocessing(cfg,trials);
 
 
 %% ========================================================================
-%   Step 11b- Automatically Reject Bad Trials Based on Variance
+%   Step 9b- Automatically Reject Bad Trials Based on Variance
 %  ========================================================================
 % Run KLA artifact rejection based on robust variance estimates
 % If too many/few trials are rejected, adjust artifact_params and rerun
@@ -379,7 +361,7 @@ ft_databrowser(cfg, trials);
 ft_databrowser(cfg, trials_dif);
 
 %% ========================================================================
-%   Step 12- Compile Variance-Based Trial Rejection and Save Results
+%   Step 10- Compile Variance-Based Trial Rejection and Save Results
 %  ========================================================================
 % Re-load SBJ_vars after updating artifact field
 clear SBJ_vars

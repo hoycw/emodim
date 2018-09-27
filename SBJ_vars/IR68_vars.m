@@ -84,7 +84,7 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-SBJ_vars.analysis_time = {{}};
+SBJ_vars.analysis_time = {{[25 1330]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

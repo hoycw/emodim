@@ -57,7 +57,8 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preo
 
 SBJ_vars.ch_lab.probes     = {'RMT','RTO','RIHA','RIHP','ROF','RLF','LMT','LTO','LIHA','LIHP','LOF'};%,'LLFP','LLF'};
 SBJ_vars.ch_lab.probe_type = {'ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog'};
-SBJ_vars.ch_lab.ref_type   = {'CAR','CAR','CAR','CAR','CAR','CAR','CAR','CAR','CAR','CAR','CAR'};%,'CAR','CAR'};
+SBJ_vars.ch_lab.ref_type   = {'CARall','CARall','CARall','CARall','CARall','CARall',...
+                                'CARall','CARall','CARall','CARall','CARall'};
 SBJ_vars.ch_lab.ROI        = {'RIHA*','RIHP*','ROF*','RLF*','LIHA*','LIHP*','LOF*'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
@@ -66,8 +67,11 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 %SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
 
 SBJ_vars.ref_exclude = {...
-    'RT06','RTO7',...% HF noise
-    'ROF2','ROF3','LOF2','LOF3',...% EOG like fluctuations
+    'RTO1',...% anti-correlated with RTO2 and all other channels
+    'RTO2','RTO3',...% still correlations about like EOG-ish channels
+    'ROF1','ROF2','ROF3','LOF2','LOF3','LOF4',...% EOG big stuff, weak correlations
+    'RTO6','RTO7',...% HF noise
+    'RTO8'...% occassional spikes
     }; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LTO2',...% spiking
