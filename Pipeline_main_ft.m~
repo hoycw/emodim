@@ -64,7 +64,7 @@ load(strcat(root_dir,'emodim/scripts/utils/cfg_plot.mat'));
 % cfg_plot.artfctdef.visual.artifact = bad_at;
 out = ft_databrowser(cfg_plot,data);
 
-% Save out the bad_epochs from the preprocessed data
+% Save out the bad_epochs from the preprocesse
 bad_epochs = out.artfctdef.visual.artifact;
 save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','bad_epochs');
 

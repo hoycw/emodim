@@ -216,7 +216,6 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     % Sort channels alphabetically
     data = fn_reorder_data(data, {});
     eeg = fn_reorder_data(eeg, {});
-    eog = fn_reorder_data(eog, {});
     
     %% Save data
     nrl_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat');
