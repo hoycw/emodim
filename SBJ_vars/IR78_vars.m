@@ -1,4 +1,4 @@
-%% ${SBJ} Processing Variables
+%% IR78 Processing Variables
 [root_dir, ft_dir] = fn_get_root_dir();
 if isempty(strfind(path,'fieldtrip'))
     addpath(ft_dir);
@@ -52,24 +52,24 @@ SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_el
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {};
-SBJ_vars.ch_lab.probe_type = {};
-SBJ_vars.ch_lab.ref_type   = {};
+SBJ_vars.ch_lab.probes     = {'LOF','LSM','LPC','LAC','LTH','LHH','LAM','RSM','2MEG','MEG','ROF','RPC','RAC','RTH','RHH','RAM'};
+SBJ_vars.ch_lab.probe_type = {'SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG'};
+SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
-%SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
+SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'REF','EKG','E','DC02','DC03','DC04',...% not real data
+    'Z','Gnd','EKG'...% not real data
     };
-SBJ_vars.ch_lab.eeg = {};
-% SBJ_vars.ch_lab.CZ_lap_ref = {};
-SBJ_vars.ch_lab.eog = {};
-SBJ_vars.ch_lab.photod = {};
-SBJ_vars.ch_lab.mic    = {};
+SBJ_vars.ch_lab.eeg = {'FZ','CZ','OZ','C3','C4'};
+SBJ_vars.ch_lab.eog = {'LUC','LLC','RUC','RLC'};
+SBJ_vars.ch_lab.photod = {'DC01'};
 
 %--------------------------------------
 % Line Noise Parameters
@@ -80,7 +80,8 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-SBJ_vars.analysis_time = {{}};
+% first trial is at 36 s (weird blip befor that at 34s
+SBJ_vars.analysis_time = {{[24 1836]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

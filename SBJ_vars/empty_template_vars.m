@@ -66,10 +66,8 @@ SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     };
 SBJ_vars.ch_lab.eeg = {};
-% SBJ_vars.ch_lab.CZ_lap_ref = {};
 SBJ_vars.ch_lab.eog = {};
 SBJ_vars.ch_lab.photod = {};
-SBJ_vars.ch_lab.mic    = {};
 
 %--------------------------------------
 % Line Noise Parameters

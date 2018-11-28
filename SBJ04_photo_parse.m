@@ -49,7 +49,7 @@ fprintf('\t\tFound %d trials in photodiode channel\n', length(video_onsets));
 %% Read in log file
 % Open file
 fprintf('\tReading log file\n');
-log_h = fopen([SBJ_vars.dirs.events SBJ '_eventInfo.txt'], 'r');
+log_h = fopen([SBJ_vars.dirs.events SBJ '_eventInfo' block_suffix '.txt'], 'r');
 
 % Parse log file
 file_contents = textscan(log_h, '%f %d', 'Delimiter', ',', 'MultipleDelimsAsOne', 1);
@@ -72,9 +72,9 @@ fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
 
 % % Compare onset differences between photodiode and log times
-% dphoto = diff(video_onsets/evnt.fsample);
-% dlog   = diff(trial_info.log_onset_time);
-% ddif   = dphoto-dlog;
+dphoto = diff(video_onsets/evnt.fsample);
+dlog   = diff(trial_info.log_onset_time);
+ddif   = dphoto-dlog;
 
 % If log and photodiode have different n_trials, plot and error out
 if (length(trial_info.video) ~= length(video_onsets))
