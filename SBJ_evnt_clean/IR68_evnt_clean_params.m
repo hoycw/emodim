@@ -2,7 +2,9 @@
 % This photodiode trace requires no fixing! Yay!
 
 % Mark trials to ignore e.g., interruptions
-ignore_trials = []; % all trials good in this patient
+ignore_trials = [1 2 279 280]; 
+% first two trials in logs were before restart, and a repeated
+% last two trials were first ones in last block, which was interrupted immediately
 
 % Set zero/baseline during a block
 bsln_val = 0;   % somehow we already demeaned this photodiode channel...

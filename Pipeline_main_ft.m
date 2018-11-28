@@ -16,7 +16,7 @@ ft_defaults
 
 %% ========================================================================
 % Step 0 - Processing Variables
-SBJ = '';
+% SBJ = '';
 
 pipeline_id = 'main_ft';
 eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
@@ -45,23 +45,41 @@ SBJ02_preproc(SBJ,pipeline_id)
 %% ========================================================================
 %   Step 4- Second visual cleaning of preprocessed data
 %  ========================================================================
+% Load preprocessed data (all blocks combined)
 load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
-bad_at = [];
+% Load bad_epochs from preclean data and adjust to analysis_time
+bad_at = {};
+block_len = zeros(size(SBJ_vars.block_name));
 for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.raw_file)>1
         block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
+        % Get block length to adjust times to fit combined preproc file
+        for ep_ix = 1:numel(SBJ_vars.analysis_time{b_ix})
+            block_len(b_ix) = block_len(b_ix)+diff(SBJ_vars.analysis_time{b_ix}{ep_ix});
+        end
     else
         block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
     end
     bad_preclean = load(strcat(SBJ_vars.dirs.events,SBJ,'_bob_bad_epochs_preclean',block_suffix,'.mat'));
+    % Adjust to analysis_time
     if ~isempty(bad_preclean.bad_epochs)
-        bad_at = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
+        bad_at{b_ix} = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
             strcat(SBJ_vars.dirs.preproc,SBJ,'_preclean',block_suffix,'.mat'),1);
     end
 end
+% Adjust for block combinations
+for b_ix = 2:numel(SBJ_vars.block_name)
+    bad_at{b_ix} = bad_at{b_ix}+block_len(1:b_ix-1)*data.fsample;
+end
+bad_at = vertcat(bad_at{:});
+
+% Plot data with bad_epochs highlighted
 load(strcat(root_dir,'emodim/scripts/utils/cfg_plot.mat'));
 % If you want to see preclean bad_epochs:
-% cfg_plot.artfctdef.visual.artifact = bad_at;
+cfg_plot.artfctdef.visual.artifact = bad_at;
+if isfield(data,'sampleinfo')
+    data = rmfield(data,'sampleinfo');
+end
 out = ft_databrowser(cfg_plot,data);
 
 % Save out the bad_epochs from the preprocessed data
@@ -138,12 +156,11 @@ end
 %  ========================================================================
 % look at recon and create spreadsheet of general ROI, WM/GM, etc.
 %   save that as tsv
-fn_compile_elec_struct(SBJ,pipeline_id,'pat')
-fn_compile_elec_struct(SBJ,pipeline_id,'mni')
-% fn_compile_einfo(SBJ,pipeline_id)
+% fn_compile_elec_struct(SBJ,pipeline_id,'pat')
+% fn_compile_elec_struct(SBJ,pipeline_id,'mni')
 
 %% ========================================================================
-%   Step 8- Reject Bad Trials Based on Behavior and Bob
+%   Step 8- Combine Blocks and Bad Epochs
 %  ========================================================================
 clear data trial_info
 % Load manually corrected trial_info
@@ -163,7 +180,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     else
         block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
     end
-    ti{b_ix} = load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_manual',block_suffix,'.mat'));
+    ti{b_ix} = load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_auto',block_suffix,'.mat'));
     block_trlcnt(b_ix) = numel(ti{b_ix}.trial_info.trial_n);
     block_blkcnt(b_ix) = max(ti{b_ix}.trial_info.block_n);
     

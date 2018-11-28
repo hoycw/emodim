@@ -16,7 +16,7 @@ ft_defaults
 
 %% ========================================================================
 % Step 0 - Processing Variables
-SBJ = '';
+% SBJ = '';
 
 pipeline_id = 'main_ft';
 eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
@@ -45,20 +45,33 @@ SBJ02_preproc(SBJ,pipeline_id)
 %% ========================================================================
 %   Step 4- Second visual cleaning of preprocessed data
 %  ========================================================================
+% Load preprocessed data (all blocks combined)
 load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
-bad_at = [];
+% Load bad_epochs from preclean data and adjust to analysis_time
+bad_at = {};
+block_len = zeros(size(SBJ_vars.block_name));
 for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.raw_file)>1
         block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
     else
         block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
+        % Get block length to adjust times to fit combined preproc file
+        for ep_ix = 1:numel(SBJ_vars.analysis_time{b_ix})
+            block_len(b_ix) = block_len(b_ix)+diff(SBJ_vars.analysis_time{b_ix}{ep_ix});
+        end
     end
     bad_preclean = load(strcat(SBJ_vars.dirs.events,SBJ,'_bob_bad_epochs_preclean',block_suffix,'.mat'));
+    % Adjust to analysis_time
     if ~isempty(bad_preclean.bad_epochs)
-        bad_at = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
+        bad_at{b_ix} = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
             strcat(SBJ_vars.dirs.preproc,SBJ,'_preclean',block_suffix,'.mat'),1);
     end
 end
+% Adjust for block combinations
+for b_ix = 2:numel(SBJ_vars.block_name)
+    bad_at{b_ix} = 
+end
+bad_at = vertcat(bad_at{:});
 load(strcat(root_dir,'emodim/scripts/utils/cfg_plot.mat'));
 % If you want to see preclean bad_epochs:
 % cfg_plot.artfctdef.visual.artifact = bad_at;
@@ -138,12 +151,11 @@ end
 %  ========================================================================
 % look at recon and create spreadsheet of general ROI, WM/GM, etc.
 %   save that as tsv
-fn_compile_elec_struct(SBJ,pipeline_id,'pat')
-fn_compile_elec_struct(SBJ,pipeline_id,'mni')
-% fn_compile_einfo(SBJ,pipeline_id)
+% fn_compile_elec_struct(SBJ,pipeline_id,'pat')
+% fn_compile_elec_struct(SBJ,pipeline_id,'mni')
 
 %% ========================================================================
-%   Step 8- Reject Bad Trials Based on Behavior and Bob
+%   Step 8- Combine Blocks and Bad Epochs
 %  ========================================================================
 clear data trial_info
 % Load manually corrected trial_info
@@ -163,7 +175,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     else
         block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
     end
-    ti{b_ix} = load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_manual',block_suffix,'.mat'));
+    ti{b_ix} = load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_auto',block_suffix,'.mat'));
     block_trlcnt(b_ix) = numel(ti{b_ix}.trial_info.trial_n);
     block_blkcnt(b_ix) = max(ti{b_ix}.trial_info.block_n);
     
@@ -212,7 +224,7 @@ clear ti block_lens block_times block_trlcnt block_blkcnt
 trial_info_clean = SBJ05_reject_behavior(SBJ,trial_info,pipeline_id);
 
 %% ========================================================================
-%   Step 8a- Prepare Variance Estimates for Variance-Based Trial Rejection
+%   Step 9a- Prepare Variance Estimates for Variance-Based Trial Rejection
 %  ========================================================================
 % Load data for visualization
 % load(strcat(preproc_dir,SBJ,'_proc_vars.mat'));
@@ -283,7 +295,7 @@ fprintf(r_file,'================================================================
 fclose(r_file);
 
 %% ========================================================================
-%   Step 8b- Choose Thresholds for Variance-Based Trial Rejection
+%   Step 9b- Choose Thresholds for Variance-Based Trial Rejection
 %  ========================================================================
 % Visualize data to set limits for variance-based rejection
 cfg_reject = [];
@@ -294,7 +306,7 @@ ft_rejectvisual(cfg_reject,trials);
 ft_rejectvisual(cfg_reject,trials_dif);
 
 %% ========================================================================
-%   Step 9a- Update Rejection parameters and electrodes based on variance
+%   Step 10a- Update Rejection parameters and electrodes based on variance
 %  ========================================================================
 % Comment in evernote note on bad trials and channels!
 % Then the following variables should be written into SBJ_vars:
@@ -330,7 +342,7 @@ trials_dif = ft_preprocessing(cfg,trials);
 
 
 %% ========================================================================
-%   Step 9b- Automatically Reject Bad Trials Based on Variance
+%   Step 10b- Automatically Reject Bad Trials Based on Variance
 %  ========================================================================
 % Run KLA artifact rejection based on robust variance estimates
 % If too many/few trials are rejected, adjust artifact_params and rerun
@@ -365,7 +377,7 @@ ft_databrowser(cfg, trials);
 ft_databrowser(cfg, trials_dif);
 
 %% ========================================================================
-%   Step 10- Compile Variance-Based Trial Rejection and Save Results
+%   Step 11- Compile Variance-Based Trial Rejection and Save Results
 %  ========================================================================
 % Re-load SBJ_vars after updating artifact field
 clear SBJ_vars

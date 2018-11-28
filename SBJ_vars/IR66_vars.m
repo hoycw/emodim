@@ -52,9 +52,9 @@ SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_el
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {};
-SBJ_vars.ch_lab.probe_type = {};
-SBJ_vars.ch_lab.ref_type   = {};
+SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RPC','LAM','LHH','LTH','LAC','LOF','LPC'};
+SBJ_vars.ch_lab.probe_type = {'SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG'};
+SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
@@ -64,12 +64,14 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'LHH1','LHH2','LHH3','LTH1','LTH2','LTH3','LTH4',...% epileptic
+    'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, trying to save RAM1, RAM2
+    'DC01','DC03','DC04',...% empty analogs
+    'GND','EKG'...% not real data
     };
-SBJ_vars.ch_lab.eeg = {};
-% SBJ_vars.ch_lab.CZ_lap_ref = {};
-SBJ_vars.ch_lab.eog = {};
-SBJ_vars.ch_lab.photod = {};
-SBJ_vars.ch_lab.mic    = {};
+SBJ_vars.ch_lab.eeg = {'FZ','CZ','OZ','C3','C4'};
+SBJ_vars.ch_lab.eog = {'LUE','LLE','RUE','RLE'};
+SBJ_vars.ch_lab.photod = {'DC02'};
 
 %--------------------------------------
 % Line Noise Parameters
@@ -80,7 +82,7 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-SBJ_vars.analysis_time = {{}};
+SBJ_vars.analysis_time = {{[20 1300]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

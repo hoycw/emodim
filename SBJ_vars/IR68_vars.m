@@ -84,6 +84,8 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
+% behavioral log shows 1st 2 videos repeated, task was restarted
+% task was interrupted after first 2 trials in block 5, so cut those 2 off
 SBJ_vars.analysis_time = {{[25 1330]}};
 
 %--------------------------------------

@@ -47,41 +47,49 @@ video_onsets = find(data_shades>0)'; % 1 to 2 is video onset. Transpose to make 
 fprintf('\t\tFound %d trials in photodiode channel\n', length(video_onsets));
 
 %% Read in log file
-% @Regina: this is where you load your csv-ish file from the behavioral data
-% % Open file
-% fprintf('\tReading log file\n');
-% log_h = fopen(log_filename, 'r');
-% 
-% % Parse log file
-% file_contents = textscan(log_h, '%d %d %s %s %s %s %f %f %f', 'HeaderLines', 5, 'Delimiter', '\t', 'MultipleDelimsAsOne', 1);
+% Open file
+fprintf('\tReading log file\n');
+log_h = fopen([SBJ_vars.dirs.events SBJ '_eventInfo.txt'], 'r');
+
+% Parse log file
+file_contents = textscan(log_h, '%f %d', 'Delimiter', ',', 'MultipleDelimsAsOne', 1);
 % trial_info.block_n = file_contents{1};
 % trial_info.trial_n = file_contents{2};
-% trial_info.video = file_contents{3};
-% trial_info.log_onset_time = file_contents{9};
-% fprintf('\t\tFound %d trials in log file\n', length(trial_info.trial_n));
+trial_info.video = file_contents{2};
+trial_info.log_onset_time = file_contents{1};
+fprintf('\t\tFound %d trials in log file\n', length(trial_info.video));
 
 % Remove trials to ignore
 % trial_info.block_n(ignore_trials) = [];
 % trial_info.trial_n(ignore_trials) = [];
-% trial_info.video(ignore_trials) = [];
-% trial_info.log_onset_time(ignore_trials) = [];
-% trial_info.ignore_trials = ignore_trials;
+trial_info.video(ignore_trials) = [];
+trial_info.log_onset_time(ignore_trials) = [];
+trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 
-% % If log and photodiode have different n_trials, plot and error out
-% if(length(trial_info.trial_n) ~= length(video_onsets))
-%     % Plot photodiode data
-%     plot_photo = data_photo_orig - min(data_photo_orig);
-%     plot_photo = plot_photo / (max(plot_photo)-min(plot_photo));
-%     plot_photo = plot_photo + 0.25;
-%     plot(plot_photo, 'k'); hold on;
-%     % Plot video onsets
-%     for video_n = 1:length(video_onsets)
-%         plot([video_onsets(video_n) video_onsets(video_n)],[1.30 1.40],'r','LineWidth',2);
-%         plot([video_onsets(video_n) video_onsets(video_n)],[-0.35 0.35],'r','LineWidth',2);
-%     end
-%     error('\nNumber of trials in log is different from number of trials found in event channel\n\n');
-% end
+% Add in first video with no photodiode
+%   `ffmpeg -i 0008.mp4` says duration = 2.1 s
+video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
+
+% % Compare onset differences between photodiode and log times
+% dphoto = diff(video_onsets/evnt.fsample);
+% dlog   = diff(trial_info.log_onset_time);
+% ddif   = dphoto-dlog;
+
+% If log and photodiode have different n_trials, plot and error out
+if (length(trial_info.video) ~= length(video_onsets))
+    % Plot photodiode data
+    plot_photo = data_photo_orig - min(data_photo_orig);
+    plot_photo = plot_photo / (max(plot_photo)-min(plot_photo));
+    plot_photo = plot_photo + 0.25;
+    plot(plot_photo, 'k'); hold on;
+    % Plot video onsets
+    for video_n = 1:length(video_onsets)
+        plot([video_onsets(video_n) video_onsets(video_n)],[1.30 1.40],'r','LineWidth',2);
+        plot([video_onsets(video_n) video_onsets(video_n)],[-0.35 0.35],'r','LineWidth',2);
+    end
+    error('\nNumber of trials in log is different from number of trials found in event channel\n\n');
+end
 
 trial_info.video_onsets = video_onsets;
 
