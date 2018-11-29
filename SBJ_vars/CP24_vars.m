@@ -93,9 +93,9 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-% R1: first event ~110s, last ~1058s
+% R1: first event ~13s then ends ~330s, then again ~480s until ~1428s
 % R2: first event ~97s, last ~472s
-SBJ_vars.analysis_time = {{[100 1075]},{[85 485]}};
+SBJ_vars.analysis_time = {{[0 1439]},{[85 485]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters
