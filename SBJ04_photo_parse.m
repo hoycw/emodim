@@ -46,6 +46,14 @@ data_shades = [diff(data_shades) 0]; % Add a point because diff removes one
 video_onsets = find(data_shades>0)'; % 1 to 2 is video onset. Transpose to make column vector
 fprintf('\t\tFound %d trials in photodiode channel\n', length(video_onsets));
 
+% Add in first video with no photodiode
+%   `ffmpeg -i 0008.mp4` says duration = 2.1 s; actual photodiode in IR78 said 2.167s
+first_len = diff(video_onsets(1:2));
+if (first_len > 2.200*evnt.fsample) && (first_len < 2.050*evnt.fsample) % if the first video is NOT there
+    video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
+    fprintf('\t\tAdded back missing first video to make total videos found in photodiode: %d\n',length(video_onsets));
+end
+
 %% Read in log file
 % Open file
 fprintf('\tReading log file\n');
@@ -67,14 +75,11 @@ trial_info.log_onset_time(ignore_trials) = [];
 trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 
-% Add in first video with no photodiode
-%   `ffmpeg -i 0008.mp4` says duration = 2.1 s
-video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
-
 % % Compare onset differences between photodiode and log times
 dphoto = diff(video_onsets/evnt.fsample);
 dlog   = diff(trial_info.log_onset_time);
 ddif   = dphoto-dlog;
+fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(ddif));
 
 % If log and photodiode have different n_trials, plot and error out
 if (length(trial_info.video) ~= length(video_onsets))

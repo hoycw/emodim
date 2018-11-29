@@ -1,8 +1,9 @@
-%% Photodiode Trace Cleaning Parameters: IR68
+%% Photodiode Trace Cleaning Parameters: IR78
 % This photodiode trace requires no fixing! Yay!
+%   Actually, it has some weird baseline shifts, but the algorithm handles them fine so onsets are good
 
 % Mark trials to ignore e.g., interruptions
-ignore_trials = [277 278]; 
+ignore_trials = []; 
 % first two trials in logs were before restart, and a repeated
 % last two trials were first ones in last block, which was interrupted immediately
 
