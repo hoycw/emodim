@@ -49,7 +49,7 @@ fprintf('\t\tFound %d trials in photodiode channel\n', length(video_onsets));
 % Add in first video with no photodiode
 %   `ffmpeg -i 0008.mp4` says duration = 2.1 s; actual photodiode in IR78 said 2.167s
 first_len = diff(video_onsets(1:2));
-if (first_len > 2.200*evnt.fsample) && (first_len < 2.050*evnt.fsample) % if the first video is NOT there
+if (first_len > 2.200*evnt.fsample) || (first_len < 2.050*evnt.fsample) % if the first video is NOT there
     video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
     fprintf('\t\tAdded back missing first video to make total videos found in photodiode: %d\n',length(video_onsets));
 end

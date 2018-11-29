@@ -1,3 +1,4 @@
+video_onsets_orig = video_onsets;
 dphoto = diff(video_onsets);
 
 log_times = trial_info.log_onset_time;
@@ -15,11 +16,11 @@ end
 
 log_times = trial_info.log_onset_time;
 log_times = log_times-log_times(end);
-video_onsets = (video_onsets_orig-video_onsets_orig(end))/1000;
+video_times = (video_onsets_orig-video_onsets_orig(end))/1000;
 
-log_match = zeros([numel(video_onsets) 1]);
-for pv = 1:numel(video_onsets)
-    diff_vec = log_times-video_onsets(pv);
+log_match = zeros([numel(video_times) 1]);
+for pv = 1:numel(video_times)
+    diff_vec = log_times-video_times(pv);
     [~,log_match(pv)] = min(abs(diff_vec));
 end
 
