@@ -59,7 +59,7 @@ SBJ_vars.ch_lab.probes     = {'RMT','RTO','RIHA','RIHP','ROF','RLF','LMT','LTO',
 SBJ_vars.ch_lab.probe_type = {'ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog','ecog'};
 SBJ_vars.ch_lab.ref_type   = {'CARall','CARall','CARall','CARall','CARall','CARall',...
                                 'CARall','CARall','CARall','CARall','CARall'};
-SBJ_vars.ch_lab.ROI        = {'RIHA*','RIHP*','ROF*','RLF*','LIHA*','LIHP*','LOF*'};
+SBJ_vars.ch_lab.ROI        = {'all'};%'RIHA*','RIHP*','ROF*','RLF*','LIHA*','LIHP*','LOF*'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'

@@ -241,17 +241,15 @@ cfg.channel = SBJ_vars.ch_lab.ROI;
 data = ft_selectdata(cfg,data);
 
 % Segment into trials
-% if strcmp(proc_vars.event_type,'stim')
-%     events = trial_info_clean.word_onset;
-% elseif strcmp(proc_vars.event_type,'resp')
-%     events = trial_info_clean.resp_onset;
-% else
-%     error(strcat('ERROR: unknown event_type ',proc_vars.event_type));
-% end
-event_times = [data.time{1}(2):proc_vars.trial_lim_s(2):data.time{1}(end)-proc_vars.trial_lim_s(2)]';
-events = int32(event_times*data.fsample);
-trials = fn_ft_cut_trials_equal_len(data,events,...
-    ones(size(events)),proc_vars.trial_lim_s*data.fsample);
+if strcmp(proc_vars.event_type,'stim')
+    events = trial_info_clean.word_onset;
+elseif strcmp(proc_vars.event_type,'resp')
+    events = trial_info_clean.resp_onset;
+else
+    error(strcat('ERROR: unknown event_type ',proc_vars.event_type));
+end
+trials = fn_ft_cut_trials_equal_len(data,events',...
+    ones(size(events))',proc_vars.trial_lim_s*data.fsample);
 
 % Compute Derivative
 cfg = [];
