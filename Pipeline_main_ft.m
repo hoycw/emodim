@@ -47,36 +47,14 @@ SBJ02_preproc(SBJ,pipeline_id)
 %  ========================================================================
 % Load preprocessed data (all blocks combined)
 load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
+
 % Load bad_epochs from preclean data and adjust to analysis_time
-bad_at = {};
-block_len = zeros(size(SBJ_vars.block_name));
-for b_ix = 1:numel(SBJ_vars.block_name)
-    if numel(SBJ_vars.raw_file)>1
-        block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
-        % Get block length to adjust times to fit combined preproc file
-        for ep_ix = 1:numel(SBJ_vars.analysis_time{b_ix})
-            block_len(b_ix) = block_len(b_ix)+diff(SBJ_vars.analysis_time{b_ix}{ep_ix});
-        end
-    else
-        block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
-    end
-    bad_preclean = load(strcat(SBJ_vars.dirs.events,SBJ,'_bob_bad_epochs_preclean',block_suffix,'.mat'));
-    % Adjust to analysis_time
-    if ~isempty(bad_preclean.bad_epochs)
-        bad_at{b_ix} = fn_convert_epochs_full2at(bad_preclean.bad_epochs,SBJ_vars.analysis_time{b_ix},...
-            strcat(SBJ_vars.dirs.preproc,SBJ,'_preclean',block_suffix,'.mat'),1);
-    end
-end
-% Adjust for block combinations
-for b_ix = 2:numel(SBJ_vars.block_name)
-    bad_at{b_ix} = bad_at{b_ix}+block_len(1:b_ix-1)*data.fsample;
-end
-bad_at = vertcat(bad_at{:});
+preclean_ep_at = fn_compile_epochs_full2at(SBJ,pipeline_id);
 
 % Plot data with bad_epochs highlighted
 load(strcat(root_dir,'emodim/scripts/utils/cfg_plot.mat'));
 % If you want to see preclean bad_epochs:
-cfg_plot.artfctdef.visual.artifact = bad_at;
+cfg_plot.artfctdef.visual.artifact = preclean_ep_at;
 if isfield(data,'sampleinfo')
     data = rmfield(data,'sampleinfo');
 end
@@ -191,7 +169,7 @@ end
 if numel(ti)<2
     trial_info = ti{1}.trial_info;
 else
-    !!! fix this stuff
+    error('fix this stuff');
     trial_info = ti{1}.trial_info;
     % Add properties of the individual blocks
     trial_info.run_len        = block_lens;
@@ -225,9 +203,6 @@ else
 end
 clear ti block_lens block_times block_trlcnt block_blkcnt
 
-% Toss trials based on behavior and cleaning with Bob
-trial_info_clean = SBJ05_reject_behavior(SBJ,trial_info,pipeline_id);
-
 %% ========================================================================
 %   Step 9a- Prepare Variance Estimates for Variance-Based Trial Rejection
 %  ========================================================================
@@ -241,13 +216,6 @@ cfg.channel = SBJ_vars.ch_lab.ROI;
 data = ft_selectdata(cfg,data);
 
 % Segment into trials
-% if strcmp(proc_vars.event_type,'stim')
-%     events = trial_info_clean.word_onset;
-% elseif strcmp(proc_vars.event_type,'resp')
-%     events = trial_info_clean.resp_onset;
-% else
-%     error(strcat('ERROR: unknown event_type ',proc_vars.event_type));
-% end
 event_times = [data.time{1}(2):proc_vars.trial_lim_s(2):data.time{1}(end)-proc_vars.trial_lim_s(2)]';
 events = int32(event_times*data.fsample);
 trials = fn_ft_cut_trials_equal_len(data,events,...
@@ -288,8 +256,21 @@ fprintf('\tTrial Variance: %i\n',bad_var_trl);
 fprintf('\tTrial Diff Variance: %i\n',bad_var_dif_trl);
 fprintf('==============================================================================================\n');
 
+% Report on trials from cleaning bad_epochs
+% Load bad_epochs from preclean data and adjust to analysis_time
+preclean_ep_at = fn_compile_epochs_full2at(SBJ,pipeline_id);
+preproc_bad_ep = load([SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat']);
+
+preclean_bad = fn_find_trials_overlap_epochs(preclean_ep_at,1:size(data.trial{1},2),events,proc_vars.trial_lim_s*data.fsample);
+preproc_bad  = fn_find_trials_overlap_epochs(preproc_bad_ep.bad_epochs,1:size(data.trial{1},2),events,proc_vars.trial_lim_s*data.fsample);
+fprintf('Visual Data Cleaning:\n');
+fprintf('\tVisual Preclean: %i\n',preclean_bad);
+fprintf('\tVisual Preproc:  %i\n',preproc_bad);
+fprintf('==============================================================================================\n');
+
+
 % Save results
-var_rej_filename = [SBJ_vars.dirs.events SBJ '_variance_rejection_results.txt'];
+var_rej_filename = [SBJ_vars.dirs.events SBJ '_var_rej_simple_results.txt'];
 r_file = fopen(var_rej_filename,'a');
 fprintf(r_file,'===============================================================================================\n');
 fprintf(r_file,'Simple Variance Rejection:\n');
@@ -298,6 +279,10 @@ fprintf(r_file,'\tChannel Variance Names: %s\n',bad_var_ch{:});
 fprintf(r_file,'\tChannel Diff Variance Names: %s\n',bad_var_dif_ch{:});
 fprintf(r_file,'\tTrial Variance: %i\n',bad_var_trl);
 fprintf(r_file,'\tTrial Diff Variance: %i\n',bad_var_dif_trl);
+fprintf(r_file,'==============================================================================================\n');
+fprintf(r_file,'Visual Data Cleaning:\n');
+fprintf(r_file,'\tVisual Preclean: %i\n',preclean_bad);
+fprintf(r_file,'\tVisual Preproc:  %i\n',preproc_bad);
 fprintf(r_file,'==============================================================================================\n');
 fclose(r_file);
 
@@ -317,15 +302,10 @@ ft_rejectvisual(cfg_reject,trials_dif);
 %  ========================================================================
 % Comment in evernote note on bad trials and channels!
 % Then the following variables should be written into SBJ_vars:
-
-% Update SBJ_vars.ch_lab.var_rej field!
-
-% % Choose thresholds based on plots above
-% artifact_params.std_limit_raw = 7;
-% artifact_params.hard_threshold_raw = 300; % based on maxabs()
-% 
-% artifact_params.std_limit_diff = 7;
-% artifact_params.hard_threshold_diff = 100; % based on maxabs() for trials_dif
+%   artifact_params.std_limit_raw = 7;
+%   artifact_params.hard_threshold_raw = 300; % based on maxabs()
+%   artifact_params.std_limit_diff = 7;
+%   artifact_params.hard_threshold_diff = 100; % based on maxabs() for trials_dif
 
 % Re-load SBJ_vars after updating artifact field
 clear SBJ_vars
@@ -340,7 +320,7 @@ cfg = [];
 cfg.channel = SBJ_vars.ch_lab.ROI;
 data = ft_selectdata(cfg,data);
 trials = fn_ft_cut_trials_equal_len(data,events,...
-    trial_info_clean.condition_n',proc_vars.trial_lim_s*data.fsample);
+    ones(size(events)),proc_vars.trial_lim_s*data.fsample);
 
 % Compute Derivative
 cfg = [];
@@ -368,20 +348,23 @@ report.hard_thresh = 2; % print total rejected and trial numbers
 report.std_thresh  = 1; % print only total rejected
 report.std_plot    = 1; % plot the std distribution and threshold
 
-trial_info_KLA_clean = SBJ06_reject_artifacts_KLA_report(trials,trial_info_clean,...
+trial_info.pseudo_trials = events;
+trial_info.trial_n = [1:size(events,1)]';
+trial_info_KLA = SBJ05_reject_artifacts_KLA_report(trials,trial_info,...
                                         SBJ_vars.artifact_params,plot_ch,report);
 
-bad_samples = NaN([size(trial_info_KLA_clean.bad_trials.var,1) 2]);
-for t_ix = 1:size(bad_samples,1)
-    bad_samples(t_ix,:) = trials.sampleinfo(trial_info_clean.trial_n==trial_info_KLA_clean.bad_trials.var(t_ix),:);
-end
+% Select bad trials to view
+cfgs = [];
+cfgs.trials = trial_info_KLA.bad_trials.KLA_raw;
+kla_raw = ft_selectdata(cfgs,trials);
+cfgs.trials = trial_info_KLA.bad_trials.KLA_diff;
+kla_diff = ft_selectdata(cfgs,trials_dif);
 cfg = [];
 cfg.continuous = 'no';
 cfg.viewmode = 'vertical';
-cfg.artfctdef.visual.artifact = bad_samples;
-ft_databrowser(cfg, trials);
+ft_databrowser(cfg, kla_raw);
 
-ft_databrowser(cfg, trials_dif);
+ft_databrowser(cfg, kla_diff);
 
 %% ========================================================================
 %   Step 11- Compile Variance-Based Trial Rejection and Save Results
@@ -392,8 +375,8 @@ eval(clear_cmd); %needed to delete cached version
 eval(SBJ_vars_cmd);
 
 clear trial_info
-trial_info = trial_info_clean;
 % Document bad trials
+trial_info.pseudo_trials = events;
 trial_info.bad_trials.variance = SBJ_vars.trial_reject_n';
 trial_info.bad_trials.all = sort([trial_info.bad_trials.all; trial_info.bad_trials.variance]);
 

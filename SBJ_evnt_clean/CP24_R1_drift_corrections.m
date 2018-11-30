@@ -22,3 +22,9 @@ line4  = coeff4(1)*[x4(1):x4(2)] + coeff4(2);
 
 new(x3(1):x3(2)) = new(x3(1):x3(2))-line3;
 new(x4(1):x4(2)) = new(x4(1):x4(2))-line4;
+
+% Add in missing videos
+% video 16: mean duration in IR66 and IR68 = 19345
+%   video 15 onset = 49404
+new(49404,49404+19345) = 362.6;
+% video 52: mean duration in IR66 anbd IR68 = 
