@@ -70,8 +70,8 @@ trial_info_clean = trial_info;
 trial_info_clean.artifact_params = artifact_struct;
 
 % Document bad trials
-var_reject_raw_ix = setdiff(trial_info.trial_n,ok_epochs_raw)';
-var_reject_diff_ix = setdiff(trial_info.trial_n,ok_epochs_diff)';
+var_reject_raw_ix = setdiff(trial_info.trial_n,ok_epochs_raw);
+var_reject_diff_ix = setdiff(trial_info.trial_n,ok_epochs_diff);
 trial_info_clean.bad_trials.KLA_raw = var_reject_raw_ix;
 trial_info_clean.bad_trials.KLA_diff = var_reject_diff_ix;
 trial_info_clean.bad_trials.KLA_all = sort(unique([trial_info_clean.bad_trials.KLA_raw; trial_info_clean.bad_trials.KLA_diff]));
