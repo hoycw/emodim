@@ -24,7 +24,17 @@ new(x3(1):x3(2)) = new(x3(1):x3(2))-line3;
 new(x4(1):x4(2)) = new(x4(1):x4(2))-line4;
 
 % Add in missing videos
-% video 16: mean duration in IR66 and IR68 = 19345
-%   video 15 onset = 49404
-new(49404,49404+19345) = 362.6;
-% video 52: mean duration in IR66 anbd IR68 = 
+% video 16:
+%   diff(IR66_video_onsets)(15:18) = [1951,7120,2635];
+%   diff(IR68_video_onsets)(15:18) = [1918,7153,2635];
+%   diff(CP24_video_onsets)(15:17) = [9245,2627]; NOTE: back 1 because of missing video 16
+%   CP24_video_onsets(50) = 61056
+%   mean([1951,1918]) = 1935
+new(61056+1935:61056+1935+200) = 362.6;
+% video 52:
+%   diff(IR66_video_onsets)(51:53) = [1584,5370,2634];
+%   diff(IR68_video_onsets)(51:53) = [1601,5369,2635];
+%   diff(CP24_video_onsets)(50:51) = [7216,2644]; NOTE: back 1 because of missing video 16
+%   CP24_video_onsets(50) = 248992
+%   mean([1601,1584]) = 1593
+new(248992+1593:248992+1593+200) = 362.6;

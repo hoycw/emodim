@@ -63,14 +63,14 @@ log_h = fopen([SBJ_vars.dirs.events SBJ '_eventInfo' block_suffix '.txt'], 'r');
 file_contents = textscan(log_h, '%f %d', 'Delimiter', ',', 'MultipleDelimsAsOne', 1);
 % trial_info.block_n = file_contents{1};
 % trial_info.trial_n = file_contents{2};
-trial_info.video = file_contents{2};
+trial_info.video_id = file_contents{2};
 trial_info.log_onset_time = file_contents{1};
-fprintf('\t\tFound %d trials in log file\n', length(trial_info.video));
+fprintf('\t\tFound %d trials in log file\n', length(trial_info.video_id));
 
 % Remove trials to ignore
 % trial_info.block_n(ignore_trials) = [];
 % trial_info.trial_n(ignore_trials) = [];
-trial_info.video(ignore_trials) = [];
+trial_info.video_id(ignore_trials) = [];
 trial_info.log_onset_time(ignore_trials) = [];
 trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
@@ -82,7 +82,7 @@ ddif   = dphoto-dlog;
 fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(ddif));
 
 % If log and photodiode have different n_trials, plot and error out
-if (length(trial_info.video) ~= length(video_onsets))
+if (length(trial_info.video_id) ~= length(video_onsets))
     % Plot photodiode data
     plot_photo = data_photo_orig - min(data_photo_orig);
     plot_photo = plot_photo / (max(plot_photo)-min(plot_photo));

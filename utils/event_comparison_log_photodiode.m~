@@ -18,8 +18,8 @@ for i = 1:n_gone
 end
 
 log_times = trial_info.log_onset_time;
-log_times = log_times-log_times(1);
-video_times = (video_onsets_orig-video_onsets_orig(1))/evnt.fsample;
+log_times = log_times-log_times(end);
+video_times = (video_onsets_orig-video_onsets_orig(end))/1000;
 
 log_match = zeros([numel(video_times) 1]);
 for pv = 1:numel(video_times)
