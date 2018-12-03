@@ -1,9 +1,0 @@
-{Undefined function or variable 'fn_ch_lab_negate'.
-
-Error in SBJ01_import_data (line 42)
-bad_ch_neg = fn_ch_lab_negate(SBJ_vars.ch_lab.bad);
-} 
-
-real	22m19.512s
-user	0m15.088s
-sys	0m1.456s
