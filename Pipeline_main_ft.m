@@ -381,5 +381,5 @@ bad_epochs_final = out.artfctdef.visual.artifact;
 
 % Add final set of bad epochs
 trial_info.bad_epochs = out.artfctdef.visual.artifact;
-save(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'),'trial_info');
+save(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'),'-v7.3','trial_info');
 
