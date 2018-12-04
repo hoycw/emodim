@@ -68,18 +68,20 @@ trial_info.log_onset_time = file_contents{1};
 fprintf('\t\tFound %d trials in log file\n', length(trial_info.video_id));
 
 % Remove trials to ignore
-% trial_info.block_n(ignore_trials) = [];
-% trial_info.trial_n(ignore_trials) = [];
 trial_info.video_id(ignore_trials) = [];
 trial_info.log_onset_time(ignore_trials) = [];
 trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 
 % % Compare onset differences between photodiode and log times
+log_times = trial_info.log_onset_time-trial_info.log_onset_time(1);
+video_times = (video_onsets-video_onsets(1))/evnt.fsample;
+donsets = log_times-video_times;
 dphoto = diff(video_onsets/evnt.fsample);
 dlog   = diff(trial_info.log_onset_time);
 ddif   = dphoto-dlog;
-fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(ddif));
+fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(donsets));
+fprintf('\tMax difference in photodiode - log event durations = %f\n',max(ddif));
 
 % If log and photodiode have different n_trials, plot and error out
 if (length(trial_info.video_id) ~= length(video_onsets))
