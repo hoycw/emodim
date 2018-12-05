@@ -146,6 +146,7 @@ ti = {};
 block_sz   = zeros([numel(SBJ_vars.block_name) 1]);
 block_times  = zeros([numel(SBJ_vars.block_name) 1]);
 block_trlcnt = zeros([numel(SBJ_vars.block_name) 1]);
+block_blkcnt = zeros([numel(SBJ_vars.block_name) 1]);
 for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.raw_file)>1
         block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
@@ -168,13 +169,12 @@ end
 if numel(ti)<2
     trial_info = ti{1}.trial_info;
 else
+    error('fix this stuff');
     trial_info = ti{1}.trial_info;
     % Add properties of the individual blocks
     trial_info.run_sz         = block_sz;
     trial_info.run_time       = block_times;
     trial_info.run_trial_info = ti;     % Keep the original trial_info structs from each run
-    
-    trial_info.ignore_trials = {trial_info.ignore_trials};
     for b_ix = 2:numel(SBJ_vars.block_name)
         % Concatenate fields that don't need modification
         trial_info.video_id       = vertcat(trial_info.video_id,ti{b_ix}.trial_info.video_id);
@@ -184,7 +184,11 @@ else
         % Modify then concatenate onset indices
         trial_info.video_onsets = vertcat(trial_info.video_onsets,...
                                           ti{b_ix}.trial_info.video_onsets+sum(block_sz(1:b_ix-1)));
-        trial_info.ignore_trials = horzcat(trial_info.ignore_trials,ti{b_ix}.trial_info.ignore_trials);
+        if SBJ_vars.restart{b_ix}
+            trial_info.ignore_trials = horzcat(trial_info.ignore_trials,ti{b_ix}.trial_info.ignore_trials);
+        else
+            trial_info.ignore_trials = horzcat(trial_info.ignore_trials,ti{b_ix}.trial_info.ignore_trials+trial_info.);
+        end
     end
 end
 clear ti block_lens block_times block_trlcnt block_blkcnt
