@@ -39,6 +39,10 @@ data_photo = data_photo - min(data_photo);
 fprintf('\tReading photodiode data\n');
 min_event_length = 0.8 * s_rate;    %trial must be at least 0.8 sec (actually ~1.5s?)
 [evnt_on, evnt_off, data_shades] = read_photodiode(data_photo, min_event_length, 2);  %2 different shades (bsln, evnt)
+if save_it
+    fig_fname = [SBJ_vars.dirs.events SBJ '_photo_segmentation.fig'];
+    saveas(gcf,fig_fname);
+end
 clear data_photo;
 
 % Diff to get edges which correspond to onsets and offsets
@@ -47,21 +51,31 @@ video_onsets = find(data_shades>0)'; % 1 to 2 is video onset. Transpose to make 
 fprintf('\t\tFound %d trials in photodiode channel\n', length(video_onsets));
 
 % Add in first video with no photodiode
-%   `ffmpeg -i 0008.mp4` says duration = 2.1 s; actual photodiode in IR78 said 2.167s
-first_len = diff(video_onsets(1:2));
-if (first_len > 2.200*evnt.fsample) || (first_len < 2.050*evnt.fsample) % if the first video is NOT there
-    video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
-    fprintf('\t\tAdded back missing first video to make total videos found in photodiode: %d\n',length(video_onsets));
+if SBJ_vars.restart{block}
+    %   `ffmpeg -i 0008.mp4` says duration = 2.1 s; actual photodiode in IR78 said 2.167s
+    first_len = diff(video_onsets(1:2));
+    if (first_len > 2.200*evnt.fsample) || (first_len < 2.050*evnt.fsample) % if the first video is NOT there
+        video_onsets = [video_onsets(1)-2.1*evnt.fsample; video_onsets];
+        fprintf('\t\tAdded back missing first video to make total videos found in photodiode: %d\n',length(video_onsets));
+    end
 end
 
 % Plot photodiode event durations to check consistency
 if plot_it
     figure;
-    dur = evnt_off-evnt_on;
+    dur = evnt_off{2}-evnt_on{2};
     plot(dur);
     ylabel('Photodiode Durations');
     xlabel('Trial');
     title(['[min, mean, max] = [' num2str(min(dur)) ',' num2str(mean(dur)) ',' num2str(max(dur)) ']']);
+    if any(dur<60)
+        warning(['WARNING!!! ' num2str(sum(dur<60)) ' photodiode events are less than 60 ms!']);
+        disp(dur(dur<60));
+    end
+    if save_it
+        fig_fname = [SBJ_vars.dirs.events SBJ '_photo_durations.png'];
+        saveas(gcf,fig_fname);
+    end
 end
 
 %% Read in log file
@@ -135,6 +149,11 @@ if(plot_it ~= 0)
         plot([trial_info.video_onsets(video_n) trial_info.video_onsets(video_n)]/s_rate,[-0.35 0.35],'b','LineWidth',2);
     end
     
+    if save_it
+        fig_fname = [SBJ_vars.dirs.events SBJ '_events.fig'];
+        saveas(gcf,fig_fname);
+    end
+    
     % Plot difference between log and photodiode
     figure; hold on;
     subplot(2,1,1);
@@ -148,6 +167,11 @@ if(plot_it ~= 0)
     ylabel('Log-Photo Durations');
     xlabel('Video');
     title(['max(abs(diff(durations))) = ' num2str(max(abs(ddif)))]);
+
+    if save_it
+        fig_fname = [SBJ_vars.dirs.events SBJ '_log_photo_QA.png'];
+        saveas(gcf,fig_fname);
+    end
 end
 
 end

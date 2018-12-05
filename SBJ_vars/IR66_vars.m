@@ -8,9 +8,10 @@ end
 %--------------------------------------
 % Basics
 %--------------------------------------
-SBJ_vars.SBJ = 'IR66';
-SBJ_vars.raw_file = {'2017121913_0025_alan.besa'};
+SBJ_vars.SBJ        = 'IR66';
+SBJ_vars.raw_file   = {'2017121913_0025_alan.besa'};
 SBJ_vars.block_name = {''};
+SBJ_vars.restart    = {0};
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
