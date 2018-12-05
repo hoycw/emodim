@@ -24,8 +24,8 @@ if length(bsln_shift_times)~=length(bsln_shift_val)
 end
 
 % Record within trial corrections
-stim_times = {};
-stim_yval = [];
+stim_times = {[308.848 308.977],[312.556 312.684]};
+stim_yval = [362.6, 362.6];
 if length(stim_times)~=length(stim_yval)
     error('Number of epochs and values for stimulus correction periods do not match.');
 end

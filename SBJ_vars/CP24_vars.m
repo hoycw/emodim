@@ -1,7 +1,7 @@
-%% ${SBJ} Processing Variables
-[root_dir, ft_dir] = fn_get_root_dir();
+%% CP24 Processing Variables
+[root_dir, app_dir] = fn_get_root_dir();
 if isempty(strfind(path,'fieldtrip'))
-    addpath(ft_dir);
+    addpath([app_dir 'fieldtrip/']);
     ft_defaults
 end
 

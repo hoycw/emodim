@@ -178,22 +178,14 @@ else
     for b_ix = 2:numel(SBJ_vars.block_name)
         % Concatenate fields that don't need modification
         %   Not modifying marker_time and onset_time (no idea what those are...)
-        trial_info.word          = vertcat(trial_info.word,ti{b_ix}.trial_info.word);
-        trial_info.color         = vertcat(trial_info.color,ti{b_ix}.trial_info.color);
-        trial_info.trialtype     = vertcat(trial_info.trialtype,ti{b_ix}.trial_info.trialtype);
-        trial_info.blocktype     = vertcat(trial_info.blocktype,ti{b_ix}.trial_info.blocktype);
-        trial_info.response_time = vertcat(trial_info.response_time,ti{b_ix}.trial_info.response_time);
-        trial_info.marker_time   = vertcat(trial_info.marker_time,ti{b_ix}.trial_info.marker_time);
-        trial_info.onset_time    = vertcat(trial_info.onset_time,ti{b_ix}.trial_info.onset_time);
-        trial_info.condition_n   = vertcat(trial_info.condition_n,ti{b_ix}.trial_info.condition_n);
-        trial_info.error         = vertcat(trial_info.error,ti{b_ix}.trial_info.error);
+        trial_info.video_id      = vertcat(trial_info.video_id,ti{b_ix}.trial_info.video_id);
         trial_info.run_n         = vertcat(trial_info.run_n,ti{b_ix}.trial_info.run_n);
         
         % Modify then concatenate counts and indices
         trial_info.block_n = vertcat(trial_info.block_n,ti{b_ix}.trial_info.block_n+sum(block_blkcnt(1:b_ix-1)));
         trial_info.trial_n = vertcat(trial_info.trial_n,ti{b_ix}.trial_info.trial_n+sum(block_trlcnt(1:b_ix-1)));
         trial_info.ignore_trials = horzcat(trial_info.ignore_trials,...
-            ti{b_ix}.trial_info.ignore_trials+sum(block_trlcnt(1:b_ix-1)));
+            ti{b_ix}.trial_info.ignore_trials);
         
         trial_info.word_onset = vertcat(trial_info.word_onset,...
             ti{b_ix}.trial_info.word_onset+sum(block_lens(1:b_ix-1)));

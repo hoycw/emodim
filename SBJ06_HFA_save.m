@@ -47,23 +47,23 @@ else
     error('Unknown HFA_type provided');
 end
 
-% %% Baseline Correction
-% fprintf('===================================================\n');
-% fprintf('---------------- Baseline Correction --------------\n');
-% fprintf('===================================================\n');
-% switch bsln_type
-%     case {'zboot', 'zscore'}
-%         hfa = fn_bsln_ft_tfr(hfa,bsln_lim,bsln_type,n_boots);
-%     case {'relchange', 'demean', 'my_relchange'}
-%         error(['bsln_type ' bsln_type ' is not compatible with one-sample t test bsln activation stats']);
-% %         cfgbsln = [];
-% %         cfgbsln.baseline     = bsln_lim;
-% %         cfgbsln.baselinetype = bsln_type;
-% %         cfgbsln.parameter    = 'powspctrm';
-% %         hfa = ft_freqbaseline(cfgbsln,hfa);
-%     otherwise
-%         error(['No baseline implemented for bsln_type: ' bsln_type]);
-% end
+%% Baseline Correction
+fprintf('===================================================\n');
+fprintf('---------------- Baseline Correction --------------\n');
+fprintf('===================================================\n');
+switch bsln_type
+    case {'zboot', 'zscore'}
+        hfa = fn_bsln_ft_tfr(hfa,bsln_lim,bsln_type,n_boots);
+    case {'relchange', 'demean', 'my_relchange'}
+        error(['bsln_type ' bsln_type ' is not compatible with one-sample t test bsln activation stats']);
+%         cfgbsln = [];
+%         cfgbsln.baseline     = bsln_lim;
+%         cfgbsln.baselinetype = bsln_type;
+%         cfgbsln.parameter    = 'powspctrm';
+%         hfa = ft_freqbaseline(cfgbsln,hfa);
+    otherwise
+        error(['No baseline implemented for bsln_type: ' bsln_type]);
+end
 
 %% Smooth Power Time Series
 if smooth_pow_ts
