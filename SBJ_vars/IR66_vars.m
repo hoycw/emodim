@@ -70,7 +70,7 @@ SBJ_vars.ch_lab.bad = {...
     'DC01','DC03','DC04',...% empty analogs
     'GND','REF','EKG'...% not real data
     };
-SBJ_vars.ch_lab.eeg = {'FZ','CZ','OZ','C3','C4'};
+SBJ_vars.ch_lab.eeg = {'FZ','CZ ','OZ','C3','C4'};
 SBJ_vars.ch_lab.eog = {'LUE','LLE','RUE','RLE'};
 SBJ_vars.ch_lab.photod = {'DC02'};
 
