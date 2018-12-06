@@ -208,8 +208,15 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     % Fix any mislabeled channels
     if isfield(SBJ_vars.ch_lab,'mislabel')
         for ch_ix = 1:numel(SBJ_vars.ch_lab.mislabel)
-            % Future edit: search for the bad label across data, eeg, evnt
-            data.label(strcmp(data.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1))) = SBJ_vars.ch_lab.mislabel{ch_ix}(2);
+            if any(strcmp(data.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1)))
+                data.label(strcmp(data.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1))) = SBJ_vars.ch_lab.mislabel{ch_ix}(2);
+            elseif any(strcmp(eeg.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1)))
+                eeg.label(strcmp(eeg.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1))) = SBJ_vars.ch_lab.mislabel{ch_ix}(2);
+            elseif any(strcmp(eog.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1)))
+                eog.label(strcmp(eog.label,SBJ_vars.ch_lab.mislabel{ch_ix}(1))) = SBJ_vars.ch_lab.mislabel{ch_ix}(2);
+            else
+                error(['Could not find mislabeled channel: ' SBJ_vars.ch_lab.mislabel{ch_ix}(1)]);
+            end
         end
     end
     

@@ -61,14 +61,14 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
-%SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
+SBJ_vars.ch_lab.mislabel = {{'CZ ','CZ'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LHH1','LHH2','LHH3','LTH1','LTH2','LTH3','LTH4',...% epileptic
     'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, trying to save RAM1, RAM2
     'DC01','DC03','DC04',...% empty analogs
-    'GND','EKG'...% not real data
+    'GND','REF','EKG'...% not real data
     };
 SBJ_vars.ch_lab.eeg = {'FZ','CZ','OZ','C3','C4'};
 SBJ_vars.ch_lab.eog = {'LUE','LLE','RUE','RLE'};

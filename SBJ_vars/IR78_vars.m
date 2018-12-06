@@ -53,7 +53,7 @@ SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_el
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {'LOF','LSM','LPC','LAC','LTH','LHH','LAM','RSM','2MEG','MEG','ROF','RPC','RAC','RTH','RHH','RAM'};
+SBJ_vars.ch_lab.probes     = {'LOF','LSM','LPC','LAC','LTH','LHH','LAM','RSM','MEG','SMG','ROF','RPC','RAC','RTH','RHH','RAM'};
 SBJ_vars.ch_lab.probe_type = {'SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {};
@@ -61,7 +61,8 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
-SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'}};
+SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'},{'2MEG1','SMG1'},{'2MEG2','SMG2'},{'2MEG3','SMG3'},{'2MEG4','SMG4'},...% avoid number in the label of second MEG probe
+                            {'2MEG5','SMG5'},{'2MEG6','SMG6'},{'2MEG7','SMG7'},{'2MEG8','SMG8'},{'2MEG9','SMG9'},{'2MEG10','SMG10'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
