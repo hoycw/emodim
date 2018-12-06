@@ -9,7 +9,7 @@ if isempty(labels)
         % Find name of the probe
         probes{l} = data.label{l}(regexp(data.label{l},'\D'));
         % Find number of each channel
-        lab_num(l) = data.label{l}(regexp(data.label{l},'\d'));
+        lab_num(l) = str2num(data.label{l}(regexp(data.label{l},'\d')));
     end
     probes_sorted = sort(unique(probes));
     
@@ -18,7 +18,7 @@ if isempty(labels)
     for p_ix = 1:numel(probes_sorted)
         cur_lab = data.label(strcmp(probes,probes_sorted{p_ix}));
         [~,sort_n_idx] = sort(lab_num(strcmp(probes,probes_sorted{p_ix})));
-        labels = [labels cur_lab(sort_n_idx)];
+        labels = [labels; cur_lab(sort_n_idx)];
     end
 end
 

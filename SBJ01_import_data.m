@@ -44,6 +44,7 @@ eeg_ch_neg = fn_ch_lab_negate(SBJ_vars.ch_lab.eeg);
 eog_ch_neg = fn_ch_lab_negate(SBJ_vars.ch_lab.eog);
 photod_ch_neg = fn_ch_lab_negate(SBJ_vars.ch_lab.photod);
 
+%% Process data
 for b_ix = 1:numel(SBJ_vars.block_name)
     %% Load Data
     if numel(SBJ_vars.raw_file)>1
@@ -223,10 +224,10 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     % Sort channels alphabetically
     data = fn_reorder_data(data, {});
     if ~isempty(SBJ_vars.ch_lab.eeg)
-        eeg = fn_reorder_data(eeg, {});
+        eeg = fn_reorder_data(eeg, sort(eeg.label));
     end
     if ~isempty(SBJ_vars.ch_lab.eog)
-        eog = fn_reorder_data(eog, {});
+        eog = fn_reorder_data(eog, sort(eog.label));
     end
     
     %% Save data
