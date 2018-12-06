@@ -10,8 +10,8 @@ for s = 1:numel(SBJs)
     fn_save_elec_atlas(SBJs{s},'main_ft','pat','','Dx');
     fn_save_elec_tissue(SBJs{s},'main_ft','pat','','Dx');
     fn_save_elec_tissue(SBJs{s},'main_ft','pat','','DK');
-    fn_save_elec_atlas(SBJs{s},'main_ft','mni','v','Yeo7');
-    fn_save_elec_atlas(SBJs{s},'main_ft','mni','v','Yeo17');
+%     fn_save_elec_atlas(SBJs{s},'main_ft','mni','v','Yeo7');
+%     fn_save_elec_atlas(SBJs{s},'main_ft','mni','v','Yeo17');
 end
 
 %% MNI Check

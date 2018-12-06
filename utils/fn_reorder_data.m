@@ -1,7 +1,6 @@
 function [ordered_data] = fn_reorder_data(data, labels)
 %% Re-order an data struct to match order of labels provided
 % If labels is empty, sort alphabetically
-
 if isempty(labels)
     probes  = cell(size(data.label));
     lab_num = zeros(size(data.label));

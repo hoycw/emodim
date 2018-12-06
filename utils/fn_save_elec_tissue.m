@@ -11,7 +11,6 @@ function fn_save_elec_tissue(SBJ, pipeline_id, view_space, reg_type, atlas_name)
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
-view_angle = [-90 0];
 if strcmp(reg_type,'v') || strcmp(reg_type,'s')
     reg_suffix = ['_' reg_type];
 else

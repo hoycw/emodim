@@ -5,13 +5,12 @@ function fn_save_elec_atlas(SBJ, pipeline_id, view_space, reg_type, atlas_name)
 %   pipeline_id [str] - name of analysis pipeline, used to pick elec file
 %   view_space [str] - {'pat', 'mni'}
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
-%   atlas_name [str] - {'DK','Dx'} are the only ones implemented so far
+%   atlas_name [str] - {'DK','Dx','Yeo7','Yeo17'} are the only ones implemented so far
 
 [root_dir, ~] = fn_get_root_dir();
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
-view_angle = [-90 0];
 if strcmp(reg_type,'v') || strcmp(reg_type,'s')
     reg_suffix = ['_' reg_type];
 else
