@@ -148,6 +148,19 @@ if any(danger_name)
     end
 end
 
+%% Add in L/R Hemisphere
+elec.hemi = repmat({'r'},size(elec.label));
+for e = 1:numel(elec.label)
+    if strfind(elec.label{e},'L')
+        elec.hemi{e} = 'l';
+    end
+end
+
+% Fix IR68 (only exception)
+if strcmp(SBJ,'IR68')
+    elec.hemi = repmat({'l'},size(elec.label));
+end
+
 %% Save data
 % Check if elec.cfg.previosu got ridiculously large, and keep only first
 var_stats = whos('elec');
