@@ -10,7 +10,7 @@ function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_l
 %   hemi [str] - {'l', 'r', 'b'} hemisphere to plot
 
 [root_dir, app_dir] = fn_get_root_dir(); ft_dir = [app_dir 'fieldtrip/'];
-SBJ_vars_cmd = ['run ' root_dir 'PRJ_Stroop/scripts/SBJ_vars/' SBJ '_vars.m'];
+SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
 view_angle = [-90 0];
@@ -56,7 +56,7 @@ elseif strcmp(view_space,'mni')
             %         mesh.coordsys = 'mni';
         elseif strcmp(reg_type,'s')
             if strcmp(hemi,'r') || strcmp(hemi,'l')
-                mesh = ft_read_headshape([root_dir 'PRJ_Stroop/data/atlases/freesurfer/fsaverage/' hemi 'h.pial']);
+                mesh = ft_read_headshape([root_dir 'emodim/data/atlases/freesurfer/fsaverage/' hemi 'h.pial']);
             elseif strcmp(hemi,'b')
                 error('hemisphere "b" not yet implemented for reg_type: "srf"!');
                 mesh = ft_read_headshape([ft_dir 'subjects/fsaverage/surf/' hemi 'h.pial']);
