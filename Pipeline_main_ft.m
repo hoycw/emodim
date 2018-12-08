@@ -14,6 +14,7 @@ addpath([root_dir 'emodim/scripts/utils/']);
 addpath(ft_dir);
 ft_defaults
 
+
 %% ========================================================================
 % Step 0 - Processing Variables
 % SBJ = '';
@@ -23,6 +24,7 @@ eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
 
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
+
 
 %% ========================================================================
 %   Step 1- Quick Import and Processing for Data Cleaning/Inspection
