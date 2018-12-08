@@ -368,6 +368,6 @@ out = ft_databrowser(cfg_plot,data);
 bad_epochs_final = out.artfctdef.visual.artifact;
 
 % Add final set of bad epochs
-trial_info.bad_epochs = out.artfctdef.visual.artifact;
+trial_info.bad_epochs = bad_epochs_final;
 save(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'),'-v7.3','trial_info');
 
