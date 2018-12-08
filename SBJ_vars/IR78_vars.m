@@ -11,7 +11,7 @@ end
 SBJ_vars.SBJ        = 'IR78';
 SBJ_vars.raw_file   = {'2018062715_0046.besa'};   %_0044.besa and _0045.besa have partial B1s
 SBJ_vars.block_name = {''};
-SBJ_vars.restart    = {0};
+SBJ_vars.restart    = {1};
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
@@ -56,7 +56,7 @@ SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_el
 SBJ_vars.ch_lab.probes     = {'LOF','LSM','LPC','LAC','LTH','LHH','LAM','RSM','MEG','SMG','ROF','RPC','RAC','RTH','RHH','RAM'};
 SBJ_vars.ch_lab.probe_type = {'SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
-SBJ_vars.ch_lab.ROI        = {};
+SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
