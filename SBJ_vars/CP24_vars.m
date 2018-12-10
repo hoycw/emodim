@@ -68,8 +68,7 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 %SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
 
 SBJ_vars.ref_exclude = {...
-    'RTO1',...% anti-correlated with RTO2 and all other channels
-    'RTO2','RTO3',...% still correlations about like EOG-ish channels
+    'RTO3',...% still correlations about like EOG-ish channels
     'ROF1','ROF2','ROF3','LOF2','LOF3','LOF4',...% EOG big stuff, weak correlations
     'RTO6','RTO7',...% HF noise
     'RTO8'...% occassional spikes
@@ -78,6 +77,7 @@ SBJ_vars.ch_lab.bad = {...
     'LTO2',...% spiking
     'RLF1','RLF2','RTO4',...% epileptic
     'LLF*','LLFP*',...% noisy (on second amplifier)
+    'RTO1','RTO2',...% flat channels, no signal
     'DC01','DC03','DC04','E','EEG Mark1','EEG Mark2','-','Events/Markers'...% Not real data
     };
 SBJ_vars.ch_lab.eeg = {};

@@ -1,4 +1,4 @@
-SBJs = {'IR68'};
+SBJs = {'CP24'};%IR68,
 
 %% Create basic elec structs
 fn_compile_elec_struct(SBJs{1},'main_ft','pat','');

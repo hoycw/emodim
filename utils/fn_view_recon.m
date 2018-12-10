@@ -1,4 +1,4 @@
-function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_labels, hemi)%, view_angle)
+function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_labels, hemi, plot_out)
 %% Plot a reconstruction with electrodes
 % INPUTS:
 %   SBJ [str] - subject ID to plot
@@ -22,6 +22,15 @@ end
 
 %% Load elec struct
 load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
+
+%% Remove electrodes that aren't in hemisphere
+if ~plot_out
+    if ~strcmp(hemi,'b')
+        hemi_out_elecs = elec.label(~strcmp(elec.hemi,hemi));
+    end
+    cfgs = []; cfgs.channel = [{'all'} fn_ch_lab_negate(hemi_out_elecs)];
+    elec = fn_select_elec(cfgs, elec);
+end
 
 %% Load brain recon
 if strcmp(view_space,'pat')

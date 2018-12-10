@@ -61,8 +61,9 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
-SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'},{'2MEG1','SMG1'},{'2MEG2','SMG2'},{'2MEG3','SMG3'},{'2MEG4','SMG4'},...% avoid number in the label of second MEG probe
-                            {'2MEG5','SMG5'},{'2MEG6','SMG6'},{'2MEG7','SMG7'},{'2MEG8','SMG8'},{'2MEG9','SMG9'},{'2MEG10','SMG10'}};
+SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'},{'2MEG1','SMG1'},{'2MEG2','SMG2'},{'2MEG3','SMG3'},...% remove # in label of 2nd MEG probe
+                            {'2MEG4','SMG4'},{'2MEG5','SMG5'},{'2MEG6','SMG6'},{'2MEG7','SMG7'},...
+                            {'2MEG8','SMG8'},{'2MEG9','SMG9'},{'2MEG10','SMG10'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...

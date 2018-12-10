@@ -240,8 +240,8 @@ fprintf('=======================================================================
 fprintf('Simple Variance Rejection:\n');
 fprintf('\tChannel Variance Names: %s\n',strjoin(bad_var_ch,' '));
 fprintf('\tChannel Diff Variance Names: %s\n',strjoin(bad_var_dif_ch,' '));
-fprintf('\tTrial Variance: %s\n',num2str(bad_var_trl));
-fprintf('\tTrial Diff Variance: %s\n',num2str(bad_var_dif_trl));
+fprintf('\tTrial Variance: %i\n',strjoin(num2str(bad_var_trl),' '));
+fprintf('\tTrial Diff Variance: %i\n',num2str(bad_var_dif_trl));
 fprintf('==============================================================================================\n');
 
 % Report on trials from cleaning bad_epochs
@@ -252,8 +252,8 @@ preproc_bad_ep = load([SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat']
 preclean_bad = fn_find_trials_overlap_epochs(preclean_ep_at,1:size(data.trial{1},2),events,proc_vars.trial_lim_s*data.fsample);
 preproc_bad  = fn_find_trials_overlap_epochs(preproc_bad_ep.bad_epochs,1:size(data.trial{1},2),events,proc_vars.trial_lim_s*data.fsample);
 fprintf('Visual Data Cleaning:\n');
-fprintf('\tVisual Preclean: %s\n',num2str(preclean_bad(:,1)'));
-fprintf('\tVisual Preproc:  %s\n',num2str(preproc_bad(:,1)'));
+fprintf('\tVisual Preclean: %i\n',preclean_bad);
+fprintf('\tVisual Preproc:  %i\n',preproc_bad);
 fprintf('==============================================================================================\n');
 
 %% ========================================================================
@@ -342,18 +342,18 @@ r_file = fopen(var_rej_filename,'a');
 fprintf(r_file,'===============================================================================================\n');
 fprintf(r_file,'Simple Variance Rejection:\n');
 fprintf(r_file,'Run Time: %s\n',datestr(datetime));
-fprintf(r_file,'\tChannel Variance Names: %s\n',strjoin(bad_var_ch,', '));
-fprintf(r_file,'\tChannel Diff Variance Names: %s\n',strjoin(bad_var_dif_ch,', '));
-fprintf(r_file,'\tTrial Variance: %s\n',num2str(bad_var_trl));
-fprintf(r_file,'\tTrial Diff Variance: %s\n',numstr(bad_var_dif_trl));
+fprintf(r_file,'\tChannel Variance Names: %s\n',bad_var_ch{:});
+fprintf(r_file,'\tChannel Diff Variance Names: %s\n',bad_var_dif_ch{:});
+fprintf(r_file,'\tTrial Variance: %i\n',bad_var_trl);
+fprintf(r_file,'\tTrial Diff Variance: %i\n',bad_var_dif_trl);
 fprintf(r_file,'==============================================================================================\n');
 fprintf(r_file,'Visual Data Cleaning:\n');
-fprintf(r_file,'\tVisual Preclean: %s\n',num2str(preclean_bad));
-fprintf(r_file,'\tVisual Preproc:  %s\n',num2str(preproc_bad));
+fprintf(r_file,'\tVisual Preclean: %i\n',preclean_bad);
+fprintf(r_file,'\tVisual Preproc:  %i\n',preproc_bad);
 fprintf(r_file,'==============================================================================================\n');
 fprintf(r_file,'KLA algorithm:\n');
-fprintf(r_file,'\tdata: %s\n',num2str(trial_info_KLA.bad_trials.KLA_raw));
-fprintf(r_file,'\tdiff(data):  %s\n',num2str(trial_info_KLA.bad_trials.KLA_diff));
+fprintf(r_file,'\tdata: %i\n',trial_info_KLA.bad_trials.KLA_raw);
+fprintf(r_file,'\tdiff(data):  %i\n',trial_info_KLA.bad_trials.KLA_diff);
 fprintf(r_file,'==============================================================================================\n');
 fclose(r_file);
 
