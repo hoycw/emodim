@@ -136,8 +136,10 @@ end
 %  ========================================================================
 % look at recon and create spreadsheet of general ROI, WM/GM, etc.
 %   save that as tsv
-% fn_compile_elec_struct(SBJ,pipeline_id,'pat')
-% fn_compile_elec_struct(SBJ,pipeline_id,'mni')
+% fn_compile_elec_struct(SBJ,'main_ft','pat','');
+% fn_compile_elec_struct(SBJ,'main_ft','mni','v');
+% fn_save_elec_atlas(SBJ,'main_ft','pat','','DK');
+% fn_save_elec_atlas(SBJ,'main_ft','pat','','Dx');
 
 %% ========================================================================
 %   Step 8- Combine Blocks and Bad Epochs
