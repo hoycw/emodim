@@ -31,6 +31,8 @@ for r = 1:n_rois
             RGB(r,:) = [128 0 0]./256;
         case 'TMP'          % Dark Gray
             RGB(r,:) = [0.2 0.2 0.2];
+        case 'MTL'          % Cyan
+            RGB(r,:) = [0 1 1];
         case 'FWM'          % White
             RGB(r,:) = [1 1 1];
             
@@ -90,6 +92,12 @@ for r = 1:n_rois
         case 'Precuneus'
             RGB(r,:) = [179 205 227]./256;
             
+            % MTL (Medial Temporal Lobe) - bright colors (for now?)
+        case 'HPC'
+            RGB(r,:) = [0 1 1];
+        case 'AMG'
+            RGB(r,:) = [1 0 1];
+
             % Weird Cases
         case ''
             RGB(r,:) = [0 0 0];

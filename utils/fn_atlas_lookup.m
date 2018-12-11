@@ -62,9 +62,13 @@ for e = 1:numel(elec.label);
         elec_lab.atlas_label{e}  = report.name{cnt_idx(1)};
         elec_lab.atlas_prob(e)   = report.count(cnt_idx(1))/sum(report.count);
         if numel(report.usedqueryrange{cnt_idx(1)})~=1
-            pause;
+            if numel([report.usedqueryrange{:}])>1
+                error('work around for missing usedQR didnt work!');
+            end
+            elec_lab.atlas_qryrng(e) = [report.usedqueryrange{:}];
+        else
+            elec_lab.atlas_qryrng(e) = report.usedqueryrange{cnt_idx(1)};
         end
-        elec_lab.atlas_qryrng(e) = report.usedqueryrange{cnt_idx(1)};
         elec_lab.atlas_qrysz(e)  = sum(report.count);
         % add additional labels if needed
         if numel(match_cnt)>1
