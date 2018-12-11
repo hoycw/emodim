@@ -6,9 +6,8 @@ if exist('/home/knight/','dir')
 elseif exist('/Volumes/hoycw_clust/','dir')
     root_dir = '/Volumes/hoycw_clust/';
     app_dir   = '/Users/colinhoy/Code/Apps/';
-elseif exist('/Users/lapate/','dir')
-    root_dir = '/Users/lapate/knight/';
-    app_dir = '/Users/lapate/knight/hoycw/Apps/';
+elseif exist('','dir')
+    
 else
     error('root directory not found. where are you running this?');
 end

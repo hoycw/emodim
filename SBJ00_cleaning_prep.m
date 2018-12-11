@@ -14,6 +14,7 @@ function SBJ00_cleaning_prep(SBJ,plot_psd)
 %   raw_psds/- PSDs of channels as determined by plot_psd
 
 if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'hoycw/Apps/fieldtrip/'];
+elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';ft_dir = '/Users/lapate/knight/hoycw/Apps/fieldtrip/';
 else root_dir='/Volumes/hoycw_clust/';ft_dir='/Users/colinhoy/Code/Apps/fieldtrip/';end
 addpath([root_dir 'emodim/scripts/utils/']);
 addpath(ft_dir);

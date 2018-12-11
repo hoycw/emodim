@@ -17,6 +17,7 @@ function [trial_info_clean] = SBJ05_reject_artifacts_KLA_report(trials, trial_in
 
 %% File paths
 if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'Apps/fieldtrip/'];
+elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';ft_dir = '/Users/lapate/knight/hoycw/Apps/fieldtrip/';
 else root_dir='/Volumes/hoycw_clust/';ft_dir='/Users/colinhoy/Code/Apps/fieldtrip/';end
 helper_function_dir_name = [root_dir 'PRJ_Stroop/scripts/_TOOLBOXES/'];
 if(~exist(fullfile(helper_function_dir_name)))
