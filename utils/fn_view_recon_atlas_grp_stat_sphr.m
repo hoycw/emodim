@@ -1,4 +1,4 @@
-function fn_view_recon_atlas_grp_stat_sphr(SBJs, pipeline_id, stat_id, an_id, ...
+function fn_view_recon_atlas_grp_stat_sphr(SBJs, pipeline_id, ...%stat_id, an_id, ...
                         reg_type, show_labels, hemi, atlas_id, roi_id, plot_out)%, view_angle)
 %% Plot a reconstruction with electrodes
 % INPUTS:
@@ -55,23 +55,23 @@ sig_report = fopen(sig_report_fname,'a');
 [roi_list, ~] = fn_roi_label_styles(roi_id);
 
 fprintf('Using atlas: %s\n',atlas_id);
-% if strcmp(atlas_id,'DK')                  
-%     atlas      = ft_read_atlas(SBJ_vars.recon.fs_DK); % Desikan-Killiany (+volumetric)
-%     atlas.coordsys = 'acpc';
-% elseif strcmp(atlas_id,'Dx')
-%     atlas      = ft_read_atlas(SBJ_vars.recon.fs_Dx); % Destrieux (+volumetric)
-%     atlas.coordsys = 'acpc';
-if strcmp(atlas_id,'Yeo7')
-    atlas = fn_read_atlas(atlas_id);
-    atlas.coordsys = 'mni';
-elseif strcmp(atlas_id,'Yeo17')
-    atlas = fn_read_atlas(atlas_id);
-    atlas.coordsys = 'mni';
-% else
-%     error(['atlas_name unknown: ' atlas_id]);
-end
-atlas.name = atlas_id;
-% elec.elecpos_fs   = elec.elecpos;
+% % if strcmp(atlas_id,'DK')                  
+% %     atlas      = ft_read_atlas(SBJ_vars.recon.fs_DK); % Desikan-Killiany (+volumetric)
+% %     atlas.coordsys = 'acpc';
+% % elseif strcmp(atlas_id,'Dx')
+% %     atlas      = ft_read_atlas(SBJ_vars.recon.fs_Dx); % Destrieux (+volumetric)
+% %     atlas.coordsys = 'acpc';
+% if strcmp(atlas_id,'Yeo7')
+%     atlas = fn_read_atlas(atlas_id);
+%     atlas.coordsys = 'mni';
+% elseif strcmp(atlas_id,'Yeo17')
+%     atlas = fn_read_atlas(atlas_id);
+%     atlas.coordsys = 'mni';
+% % else
+% %     error(['atlas_name unknown: ' atlas_id]);
+% end
+% atlas.name = atlas_id;
+% % elec.elecpos_fs   = elec.elecpos;
 
 %% Load elec struct
 elec_sbj = cell([numel(SBJs) numel(cond_lab)]);

@@ -75,6 +75,14 @@ SBJ_vars.ch_lab.eog = {'LUC','LLC','RUC','RLC'};
 SBJ_vars.ch_lab.photod = {'DC01'};
 
 %--------------------------------------
+% Preclean labels for colors
+%--------------------------------------
+bad_lab = {'LTH1','LTH2','LHH1','RTH2','RTH3','LAM1'};
+sus_lab = {'RHH2','RHH3','RHH4','RHH5','LHH2','LHH3','LHH4','LHH5','LAM2','RAM1','RAM2','RAM3'};
+out_lab = {'LIN10','FPZ','CZ','OZ','C3','C4','LUC','LLC','RUC','RLC'};
+jnk_lab = {'G','E','EKG','REF','DC01','DC02','DC03','DC04'};
+
+%--------------------------------------
 % Line Noise Parameters
 %--------------------------------------
 SBJ_vars.notch_freqs = [60 120 180 240 300];
