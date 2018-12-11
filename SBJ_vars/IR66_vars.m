@@ -57,7 +57,7 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_post
 %clear hdr;
 
 SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RPC','LAM','LHH','LTH','LAC','LOF','LPC'};
-SBJ_vars.ch_lab.probe_type = {'SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG','SEEG'};
+SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
