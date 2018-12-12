@@ -86,8 +86,6 @@ log_h = fopen([SBJ_vars.dirs.events SBJ '_eventInfo' block_suffix '.txt'], 'r');
 
 % Parse log file
 file_contents = textscan(log_h, '%f %d', 'Delimiter', ',', 'MultipleDelimsAsOne', 1);
-% trial_info.block_n = file_contents{1};
-% trial_info.trial_n = file_contents{2};
 trial_info.video_id = file_contents{2};
 trial_info.log_onset_time = file_contents{1};
 fprintf('\t\tFound %d trials in log file\n', length(trial_info.video_id));
@@ -98,7 +96,12 @@ trial_info.log_onset_time(ignore_trials) = [];
 trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 
-% % Compare onset differences between photodiode and log times
+% For IR74, use log time for 1st video to be consistent with other timing
+if strcmp(SBJ,'IR74')
+    video_onsets(1) = video_onsets(2)-diff(trial_info.log_onset_time(1:2))*evnt.fsample;
+end
+
+% Compare onset differences between photodiode and log times
 log_times = trial_info.log_onset_time-trial_info.log_onset_time(1);
 video_times = (video_onsets-video_onsets(1))/evnt.fsample;
 donsets = log_times-video_times;
@@ -118,7 +121,7 @@ if (length(trial_info.video_id) ~= length(video_onsets))
     plot(plot_photo, 'k');
     % Plot video onsets
     for video_n = 1:length(video_onsets)
-        plot([video_onsets(video_n) video_onsets(video_n)],[1.30 1.40],'r','LineWidth',2);
+        plot([video_onsets(video_n) video_onsets(video_n)],[1clo.30 1.40],'r','LineWidth',2);
         plot([video_onsets(video_n) video_onsets(video_n)],[-0.35 0.35],'r','LineWidth',2);
     end
     error('\nNumber of trials in log is different from number of trials found in event channel\n\n');

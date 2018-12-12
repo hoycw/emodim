@@ -81,7 +81,10 @@ stat_lab = {'OrigMean', 'ReginaMean', 'ReginaTimeAnn'};
 
 % Check elec match
 if numel(elec.label)~=numel(predCorr.(SBJ).label) || ~isempty(setdiff(elec.label,predCorr.(SBJ).label))
-    error('Mismatch in electrodes in stat and elec!');
+    warning('WARNING!!! Mismatch in electrodes in stat and elec!');
+    cfgs = []; cfgs.channel = predCorr.(SBJ).label;
+    elec = fn_select_elec(cfgs,elec);
+%     error('Mismatch in electrodes in stat and elec!');
 end
 
 % Get data and threshold
@@ -93,8 +96,8 @@ for st = 1:numel(stat_id)
 end
 
 % Find significant values
-sig = zeros([numel(elec.label) numel(stat_lab)]);
-cut = zeros([numel(elec.label) numel(stat_lab)]);
+sig  = zeros([numel(elec.label) numel(stat_lab)]);
+cut = zeros([numel(elec.label) numel(stat_lab) 2]); % Lower, Upper
 max_r = -1;
 min_r = 1;
 figure;
@@ -109,23 +112,25 @@ for st = 1:numel(stat_lab)
     % Check significance
     if thresh
         for e = 1:numel(elec.label)
-            boot_sort = sort(abs(boot{st}(:,e)),'descend');
-            cut(e,st) = boot_sort(int32(round(numel(boot_sort)*thresh)));
-            if abs(cors{st}(e))>boot_sort(int32(round(numel(boot_sort)*thresh)))
+            boot_sort = sort(boot{st}(:,e));
+            boot_cut_ix = int32(round(size(boot{st},1)*thresh/2));
+            cut(e,st,:) = [boot_sort(boot_cut_ix) boot_sort(end-boot_cut_ix)];
+            if cors{st}(e) <= cut(e,st,1) || cors{st}(e) >= cut(e,st,2)
                 sig(e,st) = 1;
             end
         end
     end
     % Plot the correlations vs. threshold
     subplot(numel(stat_lab),1,st);
-    plot(abs(cors{st}),'k');hold on;plot(cut(:,st),'r');
+    plot(cors{st},'k');hold on;plot(squeeze(cut(:,st,:)),'r');
     legend('Corr','Sig Thresh');
+    title(stat_lab{st});
+    % figure;for e = 1:numel(elec.label);histogram(boot{st}(:,e),30);hold on; line([cors{st}(e) cors{st}(e)],ylim,'Color','r');pause;hold off;end
 end
 
-
 % Map to colors
-inferno=inferno();
-cmap = colormap(inferno);
+% inferno=inferno();
+cmap = colormap(viridis());
 cmap_idx = linspace(min_r,max_r,size(cmap,1));
 
 elec_colors = cell(size(stat_lab));
@@ -139,7 +144,7 @@ end
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
 f = {};
-for st = 1:numel(stat_lab)
+for st = 1:0%1:numel(stat_lab)
     plot_name = [SBJ '_HFA_' stat_id{st} '_sigCorr'];
     f{st} = figure('Name',plot_name);
         
@@ -164,6 +169,9 @@ for st = 1:numel(stat_lab)
             ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors{st}(e,:), 'label', lab_arg);
         end
     end
+    colorbar;
+    colormap(cmap);
+    caxis([min_r max_r]);
     
     view(view_angle); material dull; lighting gouraud;
     l = camlight;
