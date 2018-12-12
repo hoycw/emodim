@@ -1,4 +1,4 @@
-function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi, thresh)%stat_id, an_id, 
+function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi)%stat_id, an_id, 
 %% Plot a reconstruction with electrodes colored according to statistics
 %   FUTURE 1: this is a static brain, need to adapt to a movie!
 %   FUTURE 2: add option for stat_var to be a cell with 2nd stat for edge
@@ -74,6 +74,7 @@ else
 end
 
 %% Load and process stats
+alpha = 0.05;
 % Load stats
 load([root_dir 'emodim/data/predCorr.mat']);
 stat_id  = {'OM','RM','RT'};
@@ -94,10 +95,8 @@ end
 
 % Find significant values
 sig = zeros([numel(elec.label) numel(stat_lab)]);
-cut = zeros([numel(elec.label) numel(stat_lab)]);
 max_r = -1;
 min_r = 1;
-figure;
 for st = 1:numel(stat_lab)
     % Get limits of colormap
     if max(cors{st})>max_r
@@ -107,21 +106,13 @@ for st = 1:numel(stat_lab)
         min_r = min(cors{st});
     end
     % Check significance
-    if thresh
-        for e = 1:numel(elec.label)
-            boot_sort = sort(abs(boot{st}(:,e)),'descend');
-            cut(e,st) = boot_sort(int32(round(numel(boot_sort)*thresh)));
-            if abs(cors{st}(e))>boot_sort(int32(round(numel(boot_sort)*thresh)))
-                sig(e,st) = 1;
-            end
+    for e = 1:numel(elec.label)
+        boot_sort = sort(abs(boot{st}(:,e)),'descend');
+        if cors{st}(e)>boot_sort(int32(round(numel(boot_sort)*alpha)))
+            sig(e,st) = 1;
         end
     end
-    % Plot the correlations vs. threshold
-    subplot(numel(stat_lab),1,st);
-    plot(abs(cors{st}),'k');hold on;plot(cut(:,st),'r');
-    legend('Corr','Sig Thresh');
 end
-
 
 % Map to colors
 inferno=inferno();
@@ -153,7 +144,7 @@ for st = 1:numel(stat_lab)
     % Plot electrodes on top
     cfgs = [];
     for e = 1:numel(elec.label)
-        if thresh==0 || sig(e,st)
+        if sig(e,st)
             cfgs.channel = elec.label{e};
             elec_tmp = fn_select_elec(cfgs, elec);
             if show_labels
@@ -161,7 +152,7 @@ for st = 1:numel(stat_lab)
             else
                 lab_arg = 'off';
             end
-            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors{st}(e,:), 'label', lab_arg);
+            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors{e,st}, 'label', lab_arg);
         end
     end
     

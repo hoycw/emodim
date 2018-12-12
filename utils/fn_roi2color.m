@@ -29,8 +29,8 @@ for r = 1:n_rois
             RGB(r,:) = [56 108 176]./256;
         case 'PAR'          % Maroon
             RGB(r,:) = [128 0 0]./256;
-        case 'TMP'          % Dark Gray
-            RGB(r,:) = [0.2 0.2 0.2];
+        case 'TMP'          % Yellow % Dark Gray
+            RGB(r,:) = [1 1 0];%[0.2 0.2 0.2];
         case 'MTL'          % Cyan
             RGB(r,:) = [0 1 1];
         case 'FWM'          % White
