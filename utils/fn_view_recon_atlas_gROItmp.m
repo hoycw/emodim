@@ -136,7 +136,7 @@ end
 h = figure;
 
 % Plot 3D mesh
-mesh_alpha = 0.8;
+mesh_alpha = 0.7;
 if any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
     mesh_alpha = 0.2;
 end
