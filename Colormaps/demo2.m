@@ -39,9 +39,9 @@ viridis=viridis();
 % colormap(jet);
 % colormap(parula);
 % colormap(magma);
-colormap(inferno);
+% colormap(inferno);
 % colormap(plasma);
-% colormap(viridis);
+colormap(viridis);
 
 %% Plot
 

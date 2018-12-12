@@ -1,4 +1,4 @@
-SBJs = {'CP24','IR68','IR66'};
+SBJs = {'CP24','IR68','IR66','IR74'};
 sig_method = 'prop_boot';
 thresh = 0.01;
 stat_id  = {'OM','RM','RT'};

@@ -97,13 +97,13 @@ end
 
 %% Load and process stats
 % Load stats
-load([root_dir 'emodim/data/predCorr.mat']);
+load([root_dir 'emodim/data/predCorrEpocEx.mat']);
 
 % Check elec match
-if numel(elec.label)~=numel(predCorr.(SBJ).label) || ~isempty(setdiff(elec.label,predCorr.(SBJ).label))
+if numel(elec.label)~=numel(predCorrEpocEx.(SBJ).label) || ~isempty(setdiff(elec.label,predCorrEpocEx.(SBJ).label))
     warning(['WARNING!!! Mismatch in electrodes in stat (n=' ...
-        num2str(numel(predCorr.(SBJ).label)) ') and elec (n=' num2str(numel(elec.label)) ')!']);
-    cfgs = []; cfgs.channel = predCorr.(SBJ).label;
+        num2str(numel(predCorrEpocEx.(SBJ).label)) ') and elec (n=' num2str(numel(elec.label)) ')!']);
+    cfgs = []; cfgs.channel = predCorrEpocEx.(SBJ).label;
     elec = fn_select_elec(cfgs,elec);
 %     error('Mismatch in electrodes in stat and elec!');
 end
@@ -112,8 +112,8 @@ end
 cors = cell(size(stat_lab));
 boot = cell(size(stat_lab));
 for st = 1:numel(stat_id)
-    cors{st}  = predCorr.(SBJ).(stat_lab{st}).Correlations;
-    boot{st}  = predCorr.(SBJ).(stat_lab{st}).Bootstrap;
+    cors{st}  = predCorrEpocEx.(SBJ).(stat_lab{st}).Correlations;
+    boot{st}  = predCorrEpocEx.(SBJ).(stat_lab{st}).Bootstrap;
 end
 
 % Find significant values
@@ -124,13 +124,6 @@ max_r = -1;
 min_r = 1;
 % figure('Name',[SBJ '_' sig_method]);
 for st = 1:numel(stat_lab)
-    % Get limits of colormap
-    if max(cors{st})>max_r
-        max_r = max(cors{st});
-    end
-    if min(cors{st})<min_r
-        min_r = min(cors{st});
-    end
     % Check significance
     if thresh
         fprintf('%s Significant Electrodes:\n\t',stat_lab{st});
@@ -141,6 +134,13 @@ for st = 1:numel(stat_lab)
                 if stat(e,st) <= thresh
                     sig(e,st) = 1;
                     fprintf('%s\t',elec.label{e});
+                    % Get limits of colormap
+                    if cors{st}(e)>max_r
+                        max_r = cors{st}(e);
+                    end
+                    if cors{st}(e)<min_r
+                        min_r = cors{st}(e);
+                    end
                 end
             elseif strcmp(sig_method,'norminv')
                 % STDs of bootstrap above 0
@@ -149,6 +149,13 @@ for st = 1:numel(stat_lab)
                 if cors{st}(e) >= stat(e,st)
                     sig(e,st) = 1;
                     fprintf('%s\t',elec.label{e});
+                    % Get limits of colormap
+                    if max(cors{st})>max_r
+                        max_r = max(cors{st});
+                    end
+                    if min(cors{st})<min_r
+                        min_r = min(cors{st});
+                    end
                 end
             end
             % Erroneous (thought it was permutation distribution)
@@ -160,6 +167,14 @@ for st = 1:numel(stat_lab)
 %             end
         end
         fprintf('\nTotal n_sig = %i / %i\n',sum(sig(:,st)),numel(cors{st}));
+    else
+        % Get limits of colormap
+        if max(cors{st})>max_r
+            max_r = max(cors{st});
+        end
+        if min(cors{st})<min_r
+            min_r = min(cors{st});
+        end
     end
     % Plot the correlations vs. threshold
 %     subplot(numel(stat_lab),1,st);
@@ -183,21 +198,25 @@ for st = 1:numel(stat_lab)
 %         pause;hold off;
 %     end
 end
-out_fname = [SBJ_vars.dirs.proc SBJ '_model_fit_corr_stats_' sig_method '_' num2str(thresh) '.mat'];
-save(out_fname,'-v7.3','sig','stat','cors','boot');
+if strcmp(hemi,'b')
+    out_fname = [SBJ_vars.dirs.proc SBJ '_model_fit_corr_stats_' sig_method '_' num2str(thresh) '.mat'];
+    save(out_fname,'-v7.3','sig','stat','cors','boot');
+end
 
 % Map to colors
 if strcmp(coloring,'cnts')
-    cmap = colormap(inferno());% viridis()
-    % cmap = colormap('cool');
+%     cmap = colormap(inferno());% viridis()
+    cmap = colormap('cool');
     cmap_idx = linspace(min_r,max_r,size(cmap,1));
     
     elec_colors = cell(size(stat_lab));
     for st = 1:numel(stat_lab)
         elec_colors{st} = zeros([numel(elec.label) 3]);
         for e = 1:numel(elec.label)
-            r_match = find(cmap_idx<=cors{st}(e));
-            elec_colors{st}(e,:) = cmap(r_match(end),:);
+            if sig(e,st)
+                r_match = find(cmap_idx<=cors{st}(e));
+                elec_colors{st}(e,:) = cmap(r_match(end),:);
+            end
         end
     end
 elseif strcmp(coloring,'mcmp')
@@ -207,7 +226,7 @@ end
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
 if strcmp(coloring,'cnts')
     f = {};
-    for st = 1:numel(stat_lab)
+    for st = 1%:numel(stat_lab)
         plot_name = [SBJ '_HFA_' stat_id{st} '_sigCorr'];
         f{st} = figure('Name',plot_name);
         
