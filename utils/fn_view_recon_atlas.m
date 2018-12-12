@@ -135,7 +135,7 @@ elseif any(strcmp(atlas_name,{'Yeo17'}))
 end
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
-cd ../../IR66/05    h = figure;
+h = figure;
 
 % Plot 3D mesh
 mesh_alpha = 0.8;
