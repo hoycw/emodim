@@ -1,4 +1,4 @@
-function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi, thresh)%stat_id, an_id, 
+function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi, thresh, sig_method)%stat_id, an_id, 
 %% Plot a reconstruction with electrodes colored according to statistics
 %   FUTURE 1: this is a static brain, need to adapt to a movie!
 %   FUTURE 2: add option for stat_var to be a cell with 2nd stat for edge
@@ -16,11 +16,16 @@ function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels,
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
 %   show_labels [0/1] - plot the electrode labels
 %   hemi [str] - {'l', 'r', 'b'} hemisphere to plot
+%   thresh [float] - alpha value (0.05)
+%   sig_method [str] - 'prop_boot' or 'norminv'
 
 [root_dir, app_dir] = fn_get_root_dir(); ft_dir = [app_dir 'fieldtrip/'];
 addpath([root_dir 'emodim/scripts/Colormaps/']);
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
+
+stat_id  = {'OM','RM','RT'};
+stat_lab = {'OrigMean', 'ReginaMean', 'ReginaTimeAnn'};
 
 ns_color = [0 0 0];
 view_angle = [-90 0];
@@ -76,12 +81,11 @@ end
 %% Load and process stats
 % Load stats
 load([root_dir 'emodim/data/predCorr.mat']);
-stat_id  = {'OM','RM','RT'};
-stat_lab = {'OrigMean', 'ReginaMean', 'ReginaTimeAnn'};
 
 % Check elec match
 if numel(elec.label)~=numel(predCorr.(SBJ).label) || ~isempty(setdiff(elec.label,predCorr.(SBJ).label))
-    warning('WARNING!!! Mismatch in electrodes in stat and elec!');
+    warning(['WARNING!!! Mismatch in electrodes in stat (n=' ...
+        numel(predCorr.(SBJ).label) ') and elec (n=' numel(elec.label) ')!']);
     cfgs = []; cfgs.channel = predCorr.(SBJ).label;
     elec = fn_select_elec(cfgs,elec);
 %     error('Mismatch in electrodes in stat and elec!');
@@ -97,10 +101,11 @@ end
 
 % Find significant values
 sig  = zeros([numel(elec.label) numel(stat_lab)]);
-cut = zeros([numel(elec.label) numel(stat_lab) 2]); % Lower, Upper
+stat = zeros([numel(elec.label) numel(stat_lab)]);
+% cut = zeros([numel(elec.label) numel(stat_lab) 2]); % Lower, Upper
 max_r = -1;
 min_r = 1;
-figure;
+% figure('Name',[SBJ '_' sig_method]);
 for st = 1:numel(stat_lab)
     % Get limits of colormap
     if max(cors{st})>max_r
@@ -111,26 +116,62 @@ for st = 1:numel(stat_lab)
     end
     % Check significance
     if thresh
+        fprintf('%s Significant Electrodes:\n\t',stat_lab{st});
         for e = 1:numel(elec.label)
-            boot_sort = sort(boot{st}(:,e));
-            boot_cut_ix = int32(round(size(boot{st},1)*thresh/2));
-            cut(e,st,:) = [boot_sort(boot_cut_ix) boot_sort(end-boot_cut_ix)];
-            if cors{st}(e) <= cut(e,st,1) || cors{st}(e) >= cut(e,st,2)
-                sig(e,st) = 1;
+            if strcmp(sig_method,'prop_boot')
+                % Proportion of bootstrap values above zero
+                stat(e,st) = 1-sum(boot{st}(:,e)>0)/size(boot{st},1);
+                if stat(e,st) <= thresh
+                    sig(e,st) = 1;
+                    fprintf('%s\t',elec.label{e});
+                end
+            elseif strcmp(sig_method,'norminv')
+                % STDs of bootstrap above 0
+                sd = std(boot{st}(:,e),0,1);
+                stat(e,st) = -norminv(thresh)*sd;
+                if cors{st}(e) >= stat(e,st)
+                    sig(e,st) = 1;
+                    fprintf('%s\t',elec.label{e});
+                end
             end
+            % Erroneous (thought it was permutation distribution)
+%             boot_sort = sort(boot{st}(:,e));
+%             boot_cut_ix = int32(round(size(boot{st},1)*thresh/2));
+%             cut(e,st,:) = [boot_sort(boot_cut_ix) boot_sort(end-boot_cut_ix)];
+%             if cors{st}(e) <= cut(e,st,1) || cors{st}(e) >= cut(e,st,2)
+%                 sig(e,st) = 1;
+%             end
         end
+        fprintf('\nTotal n_sig = %i\n',sum(sig(:,st)));
     end
     % Plot the correlations vs. threshold
-    subplot(numel(stat_lab),1,st);
-    plot(cors{st},'k');hold on;plot(squeeze(cut(:,st,:)),'r');
-    legend('Corr','Sig Thresh');
-    title(stat_lab{st});
-    % figure;for e = 1:numel(elec.label);histogram(boot{st}(:,e),30);hold on; line([cors{st}(e) cors{st}(e)],ylim,'Color','r');pause;hold off;end
+%     subplot(numel(stat_lab),1,st);
+%     if strcmp(sig_method,'norminv')
+%         scatter(1:numel(elec.label),cors{st},'k'); hold on;
+%         scatter(1:numel(elec.label),stat(:,st),'r');
+%         legend('r','SD thresh');
+%     elseif strcmp(sig_method,'prop_boot')
+%         plot(stat(:,st));hold on; line(xlim,[thresh thresh],'Color','r');
+%         ylabel('pval');
+%     end
+%     xlabel('elec#');
+% %     plot(cors{st},'k');hold on;plot(squeeze(cut(:,st,:)),'r');
+% %     legend('Corr','Sig Thresh');
+%     title([stat_lab{st} ':' num2str(sum(sig(:,st))) 'sig']);
+%     figure;
+%     for e = 1:numel(elec.label);
+%         histogram(boot{st}(:,e),30);hold on; 
+%         line([cors{st}(e) cors{st}(e)],ylim,'Color','r');
+%         title([stat_lab{st} ':' elec.label{e} ',sig=' num2str(sig(e,st)) ',' num2str(stat(e,st))]);
+%         pause;hold off;
+%     end
 end
+out_fname = [SBJ_vars.dirs.proc SBJ '_model_fit_corr_stats_' sig_method '_' num2str(thresh) '.mat'];
+save(out_fname,'-v7.3','sig','stat','cors','boot');
 
 % Map to colors
-% inferno=inferno();
-cmap = colormap(viridis());
+cmap = colormap(inferno());% viridis()
+% cmap = colormap('cool');
 cmap_idx = linspace(min_r,max_r,size(cmap,1));
 
 elec_colors = cell(size(stat_lab));
@@ -144,7 +185,7 @@ end
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
 f = {};
-for st = 1:0%1:numel(stat_lab)
+for st = 1:numel(stat_lab)
     plot_name = [SBJ '_HFA_' stat_id{st} '_sigCorr'];
     f{st} = figure('Name',plot_name);
         
@@ -181,83 +222,6 @@ for st = 1:0%1:numel(stat_lab)
     set(f{st}, 'windowkeypressfcn',   @cb_keyboard);
 end
 
-%% Plot SEEG data in 3D
-% % Create volumetric mask of ROIs from fs parcellation/segmentation
-% atlas = ft_read_atlas([SBJ_dir 'freesurfer/mri/aparc+aseg.mgz']);
-% atlas.coordsys = 'acpc';
-% cfg = [];
-% cfg.inputcoord = 'acpc';
-% cfg.atlas = atlas;
-% cfg.roi = {'Right-Hippocampus', 'Right-Amygdala'};
-% mask_rha = ft_volumelookup(cfg, atlas);
-
-%% EXTRA CRAP:
-% % Plot HFA from bipolar channels via clouds around electrode positions
-% cfg = [];
-% cfg.funparameter = 'powspctrm';
-% cfg.funcolorlim = [-.5 .5];
-% cfg.method = 'cloud';
-% cfg.slice = '3d';
-% cfg.nslices = 2;
-% cfg.facealpha = .25;
-% ft_sourceplot(cfg, freq_sel2, mesh_rha);
-% view([120 40]); lighting gouraud; camlight;
-%
-% % 2D slice version:
-% cfg.slice = '2d';
-% ft_sourceplot(cfg, freq_sel2, mesh_rha);
-%
-% %% View grid activity on cortical mesh
-% cfg = [];
-% cfg.funparameter = 'powspctrm';
-% cfg.funcolorlim = [-.5 .5];
-% cfg.method = 'surface';
-% cfg.interpmethod = 'sphere_weighteddistance';
-% cfg.sphereradius = 8;
-% cfg.camlight = 'no';
-% ft_sourceplot(cfg, freq_sel, pial_lh);
-%
-% %% Prepare and plot 2D layout
-% % Make layout
-% cfg = [];
-% cfg.headshape = pial_lh;
-% cfg.projection = 'orthographic';
-% cfg.channel = {'LPG*', 'LTG*'};
-% cfg.viewpoint = 'left';
-% cfg.mask = 'convex';
-% cfg.boxchannel = {'LTG30', 'LTG31'};
-% lay = ft_prepare_layout(cfg, freq);
-% % Plot interactive
-% cfg = [];
-% cfg.layout = lay;
-% cfg.showoutline = 'yes';
-% ft_multiplotTFR(cfg, freq_blc);
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SUBFUNCTION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function cb_keyboard(h, eventdata)
-
-if isempty(eventdata)
-    % determine the key that corresponds to the uicontrol element that was activated
-    key = get(h, 'userdata');
-else
-    % determine the key that was pressed on the keyboard
-    key = parseKeyboardEvent(eventdata);
-end
-% get focus back to figure
-if ~strcmp(get(h, 'type'), 'figure')
-    set(h, 'enable', 'off');
-    drawnow;
-    set(h, 'enable', 'on');
-end
-
-if strcmp(key, 'l') % reset the light position
-    delete(findall(h,'Type','light')) % shut out the lights
-    camlight; lighting gouraud; % add a new light from the current camera position
-end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SUBFUNCTION

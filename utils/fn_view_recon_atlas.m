@@ -52,6 +52,8 @@ if ~plot_out
     atlas_out_elecs = elec.label(strcmp(elec.atlas_label,'no_label_found'));
     if ~strcmp(hemi,'b')
         hemi_out_elecs = elec.label(~strcmp(elec.hemi,hemi));
+    else
+        hemi_out_elecs = {};
     end
     cfgs = []; cfgs.channel = [{'all'} fn_ch_lab_negate(atlas_out_elecs) fn_ch_lab_negate(hemi_out_elecs)];
     elec = fn_select_elec(cfgs, elec);
@@ -133,7 +135,7 @@ elseif any(strcmp(atlas_name,{'Yeo17'}))
 end
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
-h = figure;
+cd ../../IR66/05    h = figure;
 
 % Plot 3D mesh
 mesh_alpha = 0.8;
