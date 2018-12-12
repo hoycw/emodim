@@ -70,13 +70,13 @@ SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LHH1','LHH2','LHH3','LTH1','LTH2','LTH3','LTH4',...% epileptic
     'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, trying to save RAM1, RAM2
-    'LHH4','LHH10','LTH5','LTH6',...% tossed after looking at preproc
-    'LAM1','LAM2','LAM3','LAM4','LAM5','LAM6',...% tossed for spread after looking at preproc
-    'RAM1','RAM2',...% tossed after looking at preproc
     'LAC8','LAC9','LAC10',...% out of brain
     'DC01','DC03','DC04',...% empty analogs
     'GND','REF','EKG'...% not real data
     };
+%     'LHH4','LHH10','LTH5','LTH6',...% tossed after looking at preproc
+%     'LAM1','LAM2','LAM3','LAM4','LAM5','LAM6',...% tossed for spread after looking at preproc
+%     'RAM1','RAM2',...% tossed after looking at preproc
 SBJ_vars.ch_lab.eeg = {'FZ','CZ ','OZ','C3','C4'};
 SBJ_vars.ch_lab.eog = {'LUE','LLE','RUE','RLE'};
 SBJ_vars.ch_lab.photod = {'DC02'};
