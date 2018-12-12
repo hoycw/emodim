@@ -1,4 +1,4 @@
-function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi, thresh, sig_method)%stat_id, an_id, 
+function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels, hemi, plot_out, thresh, sig_method, coloring)%stat_id, an_id, 
 %% Plot a reconstruction with electrodes colored according to statistics
 %   FUTURE 1: this is a static brain, need to adapt to a movie!
 %   FUTURE 2: add option for stat_var to be a cell with 2nd stat for edge
@@ -16,8 +16,13 @@ function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels,
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
 %   show_labels [0/1] - plot the electrode labels
 %   hemi [str] - {'l', 'r', 'b'} hemisphere to plot
+%   plot_out [0/1] - exclude electrodes that don't match atlas or aren't in hemisphere
 %   thresh [float] - alpha value (0.05)
 %   sig_method [str] - 'prop_boot' or 'norminv'
+%   coloring [str] - type of coloring to use
+%       'cnts': a continuous inferno colormap for plotting R2 individual
+%           (one brain per model)
+%       'mcmp': model comparison, using sig across 3 models as colormap
 
 [root_dir, app_dir] = fn_get_root_dir(); ft_dir = [app_dir 'fieldtrip/'];
 addpath([root_dir 'emodim/scripts/Colormaps/']);
@@ -36,7 +41,19 @@ else
 end
 
 %% Load elec struct
-load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
+load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'_Dx_gROI.mat']);
+
+%% Remove electrodes that aren't in atlas ROIs
+if ~plot_out
+%     atlas_out_elecs = elec.label(strcmp(elec.atlas_label,'no_label_found'));
+    if ~strcmp(hemi,'b')
+        hemi_out_elecs = elec.label(~strcmp(elec.hemi,hemi));
+    else
+        hemi_out_elecs = {};
+    end
+    cfgs = []; cfgs.channel = [{'all'} fn_ch_lab_negate(hemi_out_elecs)];%fn_ch_lab_negate(atlas_out_elecs) 
+    elec = fn_select_elec(cfgs, elec);
+end
 
 %% Load brain recon
 if strcmp(view_space,'pat')
@@ -85,7 +102,7 @@ load([root_dir 'emodim/data/predCorr.mat']);
 % Check elec match
 if numel(elec.label)~=numel(predCorr.(SBJ).label) || ~isempty(setdiff(elec.label,predCorr.(SBJ).label))
     warning(['WARNING!!! Mismatch in electrodes in stat (n=' ...
-        numel(predCorr.(SBJ).label) ') and elec (n=' numel(elec.label) ')!']);
+        num2str(numel(predCorr.(SBJ).label)) ') and elec (n=' num2str(numel(elec.label)) ')!']);
     cfgs = []; cfgs.channel = predCorr.(SBJ).label;
     elec = fn_select_elec(cfgs,elec);
 %     error('Mismatch in electrodes in stat and elec!');
@@ -142,7 +159,7 @@ for st = 1:numel(stat_lab)
 %                 sig(e,st) = 1;
 %             end
         end
-        fprintf('\nTotal n_sig = %i\n',sum(sig(:,st)));
+        fprintf('\nTotal n_sig = %i / %i\n',sum(sig(:,st)),numel(cors{st}));
     end
     % Plot the correlations vs. threshold
 %     subplot(numel(stat_lab),1,st);
@@ -160,7 +177,7 @@ for st = 1:numel(stat_lab)
 %     title([stat_lab{st} ':' num2str(sum(sig(:,st))) 'sig']);
 %     figure;
 %     for e = 1:numel(elec.label);
-%         histogram(boot{st}(:,e),30);hold on; 
+%         histogram(boot{st}(:,e),30);hold on;
 %         line([cors{st}(e) cors{st}(e)],ylim,'Color','r');
 %         title([stat_lab{st} ':' elec.label{e} ',sig=' num2str(sig(e,st)) ',' num2str(stat(e,st))]);
 %         pause;hold off;
@@ -170,25 +187,66 @@ out_fname = [SBJ_vars.dirs.proc SBJ '_model_fit_corr_stats_' sig_method '_' num2
 save(out_fname,'-v7.3','sig','stat','cors','boot');
 
 % Map to colors
-cmap = colormap(inferno());% viridis()
-% cmap = colormap('cool');
-cmap_idx = linspace(min_r,max_r,size(cmap,1));
-
-elec_colors = cell(size(stat_lab));
-for st = 1:numel(stat_lab)
-    elec_colors{st} = zeros([numel(elec.label) 3]);
-    for e = 1:numel(elec.label)
-        r_match = find(cmap_idx<=cors{st}(e));
-        elec_colors{st}(e,:) = cmap(r_match(end),:);
+if strcmp(coloring,'cnts')
+    cmap = colormap(inferno());% viridis()
+    % cmap = colormap('cool');
+    cmap_idx = linspace(min_r,max_r,size(cmap,1));
+    
+    elec_colors = cell(size(stat_lab));
+    for st = 1:numel(stat_lab)
+        elec_colors{st} = zeros([numel(elec.label) 3]);
+        for e = 1:numel(elec.label)
+            r_match = find(cmap_idx<=cors{st}(e));
+            elec_colors{st}(e,:) = cmap(r_match(end),:);
+        end
     end
+elseif strcmp(coloring,'mcmp')
+    elec_colors = sig./1.5;
 end
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
-f = {};
-for st = 1:numel(stat_lab)
-    plot_name = [SBJ '_HFA_' stat_id{st} '_sigCorr'];
-    f{st} = figure('Name',plot_name);
+if strcmp(coloring,'cnts')
+    f = {};
+    for st = 1:numel(stat_lab)
+        plot_name = [SBJ '_HFA_' stat_id{st} '_sigCorr'];
+        f{st} = figure('Name',plot_name);
         
+        % Plot 3D mesh
+        mesh_alpha = 0.8;
+        if any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
+            mesh_alpha = 0.2;
+        end
+        ft_plot_mesh(mesh, 'facecolor', [0.781 0.762 0.664], 'EdgeColor', 'none', 'facealpha', mesh_alpha);
+        
+        % Plot electrodes on top
+        cfgs = [];
+        for e = 1:numel(elec.label)
+            if thresh==0 || sig(e,st)
+                cfgs.channel = elec.label{e};
+                elec_tmp = fn_select_elec(cfgs, elec);
+                if show_labels
+                    lab_arg = 'label';
+                else
+                    lab_arg = 'off';
+                end
+                ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors{st}(e,:), 'label', lab_arg);
+            end
+        end
+        colorbar;
+        colormap(cmap);
+        caxis([min_r max_r]);
+        
+        view(view_angle); material dull; lighting gouraud;
+        l = camlight;
+        fprintf(['To reset the position of the camera light after rotating the figure,\n' ...
+            'make sure none of the figure adjustment tools (e.g., zoom, rotate) are active\n' ...
+            '(i.e., uncheck them within the figure), and then hit ''l'' on the keyboard\n'])
+        set(f{st}, 'windowkeypressfcn',   @cb_keyboard);
+    end
+elseif strcmp(coloring,'mcmp')
+    plot_name = [SBJ '_HFA_' stat_id{:} '_sigCorr'];
+    f = figure('Name',plot_name);
+    
     % Plot 3D mesh
     mesh_alpha = 0.8;
     if any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
@@ -199,7 +257,7 @@ for st = 1:numel(stat_lab)
     % Plot electrodes on top
     cfgs = [];
     for e = 1:numel(elec.label)
-        if thresh==0 || sig(e,st)
+        if thresh==0 || any(sig(e,:))
             cfgs.channel = elec.label{e};
             elec_tmp = fn_select_elec(cfgs, elec);
             if show_labels
@@ -207,21 +265,42 @@ for st = 1:numel(stat_lab)
             else
                 lab_arg = 'off';
             end
-            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors{st}(e,:), 'label', lab_arg);
+            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_colors(e,:), 'label', lab_arg);
         end
     end
-    colorbar;
-    colormap(cmap);
-    caxis([min_r max_r]);
     
     view(view_angle); material dull; lighting gouraud;
     l = camlight;
     fprintf(['To reset the position of the camera light after rotating the figure,\n' ...
         'make sure none of the figure adjustment tools (e.g., zoom, rotate) are active\n' ...
         '(i.e., uncheck them within the figure), and then hit ''l'' on the keyboard\n'])
-    set(f{st}, 'windowkeypressfcn',   @cb_keyboard);
+    set(f, 'windowkeypressfcn',   @cb_keyboard);
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SUBFUNCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function cb_keyboard(h, eventdata)
+
+if isempty(eventdata)
+  % determine the key that corresponds to the uicontrol element that was activated
+  key = get(h, 'userdata');
+else
+  % determine the key that was pressed on the keyboard
+  key = parseKeyboardEvent(eventdata);
+end
+% get focus back to figure
+if ~strcmp(get(h, 'type'), 'figure')
+  set(h, 'enable', 'off');
+  drawnow;
+  set(h, 'enable', 'on');
+end
+
+if strcmp(key, 'l') % reset the light position
+  delete(findall(h,'Type','light')) % shut out the lights
+  camlight; lighting gouraud; % add a new light from the current camera position
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SUBFUNCTION
