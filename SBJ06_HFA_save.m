@@ -20,7 +20,7 @@ eval(an_vars_cmd);
 
 % Load Data
 load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
-load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'));
+% load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'));
 
 %% Select Channel(s)
 cfgs = [];
