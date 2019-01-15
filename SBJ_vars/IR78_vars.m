@@ -70,9 +70,9 @@ SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'},{'2MEG1','SMG1'},{'2MEG2','SMG2'},
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
-    'RTH4','RTH5','SMEG5','SMEG6','SMEG7','SMEG8','RAC8','RAC9','RAC10',...% spiking 
+    'RTH4','RTH5','SMG5','SMG6','SMG7','SMG8','RAC8','RAC9','RAC10',...% spiking 
     'RAM10','ROF10',...% secondary spiking
-    'MEG10','SMEG9','SMEG10','LAC9','LAC10','RPC10','RSM10',...% out of brain
+    'MEG10','SMG9','SMG10','LAC9','LAC10','RPC10','RSM10',...% out of brain
     'REF','EKG','E','DC02','DC03','DC04',...% not real data
     'Z','Gnd','EKG'...% not real data
     };

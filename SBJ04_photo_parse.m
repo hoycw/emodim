@@ -100,16 +100,12 @@ fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 if strcmp(SBJ,'IR74')
     video_onsets(1) = video_onsets(2)-diff(trial_info.log_onset_time(1:2))*evnt.fsample;
 end
-
-% Compare onset differences between photodiode and log times
-log_times = trial_info.log_onset_time-trial_info.log_onset_time(1);
-video_times = (video_onsets-video_onsets(1))/evnt.fsample;
-donsets = log_times-video_times;
-dphoto = diff(video_onsets/evnt.fsample);
-dlog   = diff(trial_info.log_onset_time);
-ddif   = dlog-dphoto;
-fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(abs(donsets)));
-fprintf('\tMax difference in photodiode - log event durations = %f\n',max(abs(ddif)));
+% For IR78, toss ignore_trials from video_onsets here rather than zeroing
+% to baseline in photodiode signal because it's messy and read_photodiode fails
+if strcmp(SBJ,'IR78')
+    video_onsets(ignore_trials) = [];
+    fprintf('IR78: Tossing %i trials from photod video_onsets\n',numel(ignore_trials));
+end
 
 % If log and photodiode have different n_trials, plot and error out
 if (length(trial_info.video_id) ~= length(video_onsets))
@@ -121,11 +117,21 @@ if (length(trial_info.video_id) ~= length(video_onsets))
     plot(plot_photo, 'k');
     % Plot video onsets
     for video_n = 1:length(video_onsets)
-        plot([video_onsets(video_n) video_onsets(video_n)],[1clo.30 1.40],'r','LineWidth',2);
+        plot([video_onsets(video_n) video_onsets(video_n)],[1.30 1.40],'r','LineWidth',2);
         plot([video_onsets(video_n) video_onsets(video_n)],[-0.35 0.35],'r','LineWidth',2);
     end
     error('\nNumber of trials in log is different from number of trials found in event channel\n\n');
 end
+
+% Compare onset differences between photodiode and log times
+log_times = trial_info.log_onset_time-trial_info.log_onset_time(1);
+video_times = (video_onsets-video_onsets(1))/evnt.fsample;
+donsets = log_times-video_times;
+dphoto = diff(video_onsets/evnt.fsample);
+dlog   = diff(trial_info.log_onset_time);
+ddif   = dlog-dphoto;
+fprintf('\tMax difference in photodiode - log event onsets = %f\n',max(abs(donsets)));
+fprintf('\tMax difference in photodiode - log event durations = %f\n',max(abs(ddif)));
 
 trial_info.video_onsets = video_onsets;
 
