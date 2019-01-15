@@ -70,10 +70,14 @@ SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LHH1','LHH2','LHH3','LTH1','LTH2','LTH3','LTH4',...% epileptic
     'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, trying to save RAM1, RAM2
+    'RAM1','LAM1','LAM2',...% rejected after preproc cleaning
     'LAC8','LAC9','LAC10',...% out of brain
     'DC01','DC03','DC04',...% empty analogs
     'GND','REF','EKG'...% not real data
     };
+% Original cleaning:
+%   NOTE: all except LAM1,2 and RAM1 were kept using channel specific epoch rejection,
+%           so the below were my original notes before that strategy.
 %     'LHH4','LHH10','LTH5','LTH6',...% tossed after looking at preproc
 %     'LAM1','LAM2','LAM3','LAM4','LAM5','LAM6',...% tossed for spread after looking at preproc
 %     'RAM1','RAM2',...% tossed after looking at preproc
