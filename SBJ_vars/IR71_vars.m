@@ -68,6 +68,7 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'HH1',... % epileptic
     'DC02','DC03','DC04',...% not real data
     'E','EKG','XREF','GRND'...% not real data
     };
