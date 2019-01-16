@@ -95,11 +95,11 @@ SBJ_vars.analysis_time = {{[24 1836]}};
 %--------------------------------------
 % Artifact Rejection Parameters
 %--------------------------------------
-% SBJ_vars.artifact_params.std_limit_raw = 7;
-% SBJ_vars.artifact_params.hard_threshold_raw = 1000;
+SBJ_vars.artifact_params.std_limit_raw = 10;
+SBJ_vars.artifact_params.hard_threshold_raw = 1000;
 
-% SBJ_vars.artifact_params.std_limit_diff = 7;
-% SBJ_vars.artifact_params.hard_threshold_diff = 100;
+SBJ_vars.artifact_params.std_limit_diff = 10;
+SBJ_vars.artifact_params.hard_threshold_diff = 60;
 
 %--------------------------------------
 % Trials to Reject

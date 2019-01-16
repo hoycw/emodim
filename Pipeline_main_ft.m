@@ -351,7 +351,7 @@ fprintf(r_file,'\tTrial Variance: %s\n',num2str(bad_var_trl));
 fprintf(r_file,'\tTrial Diff Variance: %s\n',numstr(bad_var_dif_trl));
 fprintf(r_file,'==============================================================================================\n');
 fprintf(r_file,'Visual Data Cleaning:\n');
-fprintf(r_file,'\tVisual Preclean: %s\n',num2str(preclean_bad));
+fprintf(r_file,'\tVisual Preclean: %s\n',num2str(preclean_bad));  
 fprintf(r_file,'\tVisual Preproc:  %s\n',num2str(preproc_bad));
 fprintf(r_file,'==============================================================================================\n');
 fprintf(r_file,'KLA algorithm:\n');
