@@ -327,7 +327,7 @@ trial_info_KLA = SBJ05_reject_artifacts_KLA_report(trials,trial_info,...
                                         SBJ_vars.artifact_params,plot_ch,report);
 
 % Select bad trials to view
-cfgs = [];
+cfgs = []; 
 cfgs.trials = trial_info_KLA.bad_trials.KLA_raw;
 kla_raw = ft_selectdata(cfgs,trials);
 cfgs.trials = trial_info_KLA.bad_trials.KLA_diff;
