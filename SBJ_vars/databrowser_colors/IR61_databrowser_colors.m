@@ -12,7 +12,7 @@ ft_defaults
 bad_lab = {'LTH1','LTH2','LHH1','LHH2','RTH4','RTH5','RHH3','RHH4'};
 sus_lab = {'LAM1','LAM2','LHH3','RAM2','RTH2','RTH3'};
 out_lab = {'LOF10','LAC10','RAM10','RHH1','RAC10','ROF10','RAM9','LAM9','LAM10','LHH10'};
-jnk_lab = {'---(13)','---(14)','---(17)','---(18)','FZ','CZ','C3','C4','OZ','FPZ','Z',...
+jnk_lab = {'LAM3','LUE','LLE','RUE','RLE','---(13)','---(14)','---(17)','---(18)','FZ','CZ','C3','C4','OZ','FPZ','Z',...
             'EKG','REF','DC01','DC02','DC03','DC04'};
 
 %% Load data 
