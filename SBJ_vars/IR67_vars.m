@@ -9,12 +9,13 @@ end
 % Basics
 %--------------------------------------
 SBJ_vars.SBJ        = 'IR67';
-SBJ_vars.raw_file   = {'IR67_NLX_macros.mat'};
+SBJ_vars.raw_file   = {'IR67_raw_emodim_clinical.mat'};
 SBJ_vars.block_name = {''};
 SBJ_vars.restart    = {1};
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
+SBJ_vars.dirs.SU      = [SBJ_vars.dirs.raw 'SU_2018-01-25_15-29-07/'];
 SBJ_vars.dirs.import  = [SBJ_vars.dirs.SBJ '01_import/'];
 SBJ_vars.dirs.preproc = [SBJ_vars.dirs.SBJ '02_preproc/'];
 SBJ_vars.dirs.events  = [SBJ_vars.dirs.SBJ '03_events/'];
@@ -40,12 +41,12 @@ SBJ_vars.dirs.raw_filename = strcat(SBJ_vars.dirs.raw,SBJ_vars.raw_file);
 
 SBJ_vars.recon.surf_l     = [SBJ_vars.dirs.recon 'Surfaces/' SBJ_vars.SBJ '_cortex_lh.mat'];
 SBJ_vars.recon.surf_r     = [SBJ_vars.dirs.recon 'Surfaces/' SBJ_vars.SBJ '_cortex_rh.mat'];
-SBJ_vars.recon.elec_pat   = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_elec_acpc_....mat'];
-SBJ_vars.recon.elec_mni_v = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_elec_mni_v.mat'];
-SBJ_vars.recon.elec_mni_s = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_elec_mni_s.mat'];
-SBJ_vars.recon.fs_T1      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_p...reop_T1.mgz'];
-SBJ_vars.recon.fs_DK      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_p...reop_aparc+aseg.mgz'];
-SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_p...reop_aparc.a2009s+aseg.mgz'];
+SBJ_vars.recon.elec_pat   = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_elec_acpc_f.mat'];
+SBJ_vars.recon.elec_mni_v = [SBJ_vars.dirs.recon 'Electrodes/' SBJ_vars.SBJ '_elec_mni_frv.mat'];
+SBJ_vars.recon.elec_mni_s = [];
+SBJ_vars.recon.fs_T1      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preop_T1.mgz'];
+SBJ_vars.recon.fs_DK      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preop_aparc+aseg.mgz'];
+SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preop_aparc.a2009s+aseg.mgz'];
 
 %--------------------------------------
 % Channel Selection
@@ -56,11 +57,15 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_p...
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {};
-SBJ_vars.ch_lab.probe_type = {};
-SBJ_vars.ch_lab.ref_type   = {};
-SBJ_vars.ch_lab.ROI        = {};
+SBJ_vars.ch_lab.probes     = {'addPeriVentriculr!','RAM','RHH','RTH','LAM','LHH','LTH'};
+SBJ_vars.ch_lab.probe_type = {'blah','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
+SBJ_vars.ch_lab.ref_type   = {'bs','BP','BP','BP','BP','BP','BP','BP'};
+SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
+SBJ_vars.ch_lab.wires      = {'mram','mrhh','mrth','mlam','mlhh','mlth'};
+SBJ_vars.ch_lab.wire_type  = {'su','su','su','su','su','su','su'};
+SBJ_vars.ch_lab.wire_ref   = {'','','','','','',''};
+SBJ_vars.ch_lab.wire_ROI   = {'all'};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
@@ -71,7 +76,7 @@ SBJ_vars.ch_lab.bad = {...
     };
 SBJ_vars.ch_lab.eeg = {};
 SBJ_vars.ch_lab.eog = {};
-SBJ_vars.ch_lab.photod = {};
+SBJ_vars.ch_lab.photod = {'PH_Diode'};
 
 %--------------------------------------
 % Line Noise Parameters
@@ -82,7 +87,8 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-SBJ_vars.analysis_time = {{}};
+% NLX photod: first event @ 17.6, last at 1671.5s
+SBJ_vars.analysis_time = {{[0.0 1685.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters
