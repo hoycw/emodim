@@ -16,6 +16,9 @@ proc_vars.lp_yn         = 'yes';
 proc_vars.lp_freq       = 300;            % [] skips this step
 proc_vars.notch_type    = 'bandstop';     % method for nothc filtering out line noise
 
+% Data alignment
+proc_vars.align_resamp_init = 0.05;      % initial step size in SECONDS to match NLX and clinical
+
 % cleanline   = 'yes';                % Use Tim Mullen's cleanline function
 % dft_yn      = 'no';
 % bs_yn       = 'no';                % Parameters for this in SBJ_vars

@@ -15,7 +15,7 @@ SBJ_vars.restart    = {1};
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
-SBJ_vars.dirs.SU      = [SBJ_vars.dirs.raw 'SU_2018-01-25_15-29-07/'];
+SBJ_vars.dirs.nlx     = [SBJ_vars.dirs.raw 'nlx_2018-01-25_15-29-07/'];
 SBJ_vars.dirs.import  = [SBJ_vars.dirs.SBJ '01_import/'];
 SBJ_vars.dirs.preproc = [SBJ_vars.dirs.SBJ '02_preproc/'];
 SBJ_vars.dirs.events  = [SBJ_vars.dirs.SBJ '03_events/'];
@@ -63,7 +63,7 @@ SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','
                               'seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP',...
                               'BP','BP','BP','BP','BP','BP','BP'};
-SBJ_vars.ch_lab.NLX        = [0,0,0,1,1,1,1,1,1,0,0,0,0,0,0];
+SBJ_vars.ch_lab.nlx        = [0,0,0,1,1,1,1,1,1,0,0,0,0,0,0];
 SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 SBJ_vars.ch_lab.wires      = {'mram','mrhh','mrth','mlam','mlhh','mlth'};
@@ -74,8 +74,9 @@ SBJ_vars.ch_lab.wire_ROI   = {'all'};
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.mislabel = {{'RLT12','FPG12'},{'IH;L8','IHL8'}};
-SBJ_vars.ch_lab.SU_suffix = '';
-SBJ_vars.ch_lab.SU_NK_align = '
+SBJ_vars.ch_lab.nlx_suffix   = '';
+SBJ_vars.ch_lab.nlx_nk_align = {'RIN4'};
+SBJ_vars.nlx_inverted        = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
