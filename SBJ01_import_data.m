@@ -70,8 +70,10 @@ for b_ix = 1:numel(SBJ_vars.block_name)
             eog = ft_selectdata(cfg,orig.data);
         end
         % Load event data
-        cfg.channel = {SBJ_vars.ch_lab.photod{:}};
-        evnt = ft_selectdata(cfg,orig.data);
+        if ~isfield(SBJ_vars.dirs,'nlx')
+            cfg.channel = {SBJ_vars.ch_lab.photod{:}};
+            evnt = ft_selectdata(cfg,orig.data);
+        end
     else
         % Load Neural Data
         cfg            = [];
@@ -92,8 +94,10 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         end
         
         % Load event data
-        cfg.channel = {SBJ_vars.ch_lab.photod{:}};
-        evnt = ft_preprocessing(cfg);
+        if ~isfield(SBJ_vars.dirs,'nlx')
+            cfg.channel = {SBJ_vars.ch_lab.photod{:}};
+            evnt = ft_preprocessing(cfg);
+        end
     end
     % Toss 'EDF Annotations' Channel (if it exists)
     if any(strcmp(data.label,'EDF Annotations'))
@@ -110,7 +114,9 @@ for b_ix = 1:numel(SBJ_vars.block_name)
             cfg_trim.latency = SBJ_vars.analysis_time{b_ix}{epoch_ix};
             
             data_pieces{epoch_ix} = ft_selectdata(cfg_trim, data);
-            evnt_pieces{epoch_ix} = ft_selectdata(cfg_trim, evnt);
+            if ~isfield(SBJ_vars.dirs,'nlx')
+                evnt_pieces{epoch_ix} = ft_selectdata(cfg_trim, evnt);
+            end
             if ~isempty(SBJ_vars.ch_lab.eeg)
                 eeg_pieces{epoch_ix}  = ft_selectdata(cfg_trim, eeg);
             end
@@ -121,8 +127,10 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         % Stitch them back together
         data = data_pieces{1};
         data.time{1} = data.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
-        evnt = evnt_pieces{1};
-        evnt.time{1} = evnt.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
+        if ~isfield(SBJ_vars.dirs,'nlx')
+            evnt = evnt_pieces{1};
+            evnt.time{1} = evnt.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
+        end
         if ~isempty(SBJ_vars.ch_lab.eeg)
             eeg = eeg_pieces{1};
             eeg.time{1} = eeg.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
@@ -137,9 +145,11 @@ for b_ix = 1:numel(SBJ_vars.block_name)
                 data.time{1} = horzcat(data.time{1},data_pieces{epoch_ix}.time{1}-...
                     SBJ_vars.analysis_time{b_ix}{epoch_ix}(1)+data.time{1}(end)+data.time{1}(2));
                 
-                evnt.trial{1} = horzcat(evnt.trial{1},evnt_pieces{epoch_ix}.trial{1});
-                evnt.time{1} = horzcat(evnt.time{1},evnt_pieces{epoch_ix}.time{1}-...
-                    SBJ_vars.analysis_time{b_ix}{epoch_ix}(1)+evnt.time{1}(end)+evnt.time{1}(2));
+                if ~isfield(SBJ_vars.dirs,'nlx')
+                    evnt.trial{1} = horzcat(evnt.trial{1},evnt_pieces{epoch_ix}.trial{1});
+                    evnt.time{1} = horzcat(evnt.time{1},evnt_pieces{epoch_ix}.time{1}-...
+                        SBJ_vars.analysis_time{b_ix}{epoch_ix}(1)+evnt.time{1}(end)+evnt.time{1}(2));
+                end
                 
                 if ~isempty(SBJ_vars.ch_lab.eeg)
                     eeg.trial{1} = horzcat(eeg.trial{1},eeg_pieces{epoch_ix}.trial{1});
@@ -161,7 +171,9 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         cfg.resamplefs = proc_vars.resample_freq;
         cfg.detrend = 'no';
         data = ft_resampledata(cfg, data);
-        evnt = ft_resampledata(cfg, evnt);  % only photodiode, so 1 kHz is okay
+        if ~isfield(SBJ_vars.dirs,'nlx')
+            evnt = ft_resampledata(cfg, evnt);  % only photodiode, so 1 kHz is okay
+        end
         if ~isempty(SBJ_vars.ch_lab.eeg)
             eeg = ft_resampledata(cfg, eeg);
         end
@@ -200,11 +212,13 @@ for b_ix = 1:numel(SBJ_vars.block_name)
             end
         end
     end
-    if isfield(SBJ_vars.ch_lab,'prefix')
-        evnt.label{1} = strrep(evnt.label{1},SBJ_vars.ch_lab.prefix,'');
-    end
-    if isfield(SBJ_vars.ch_lab,'suffix')
-        evnt.label{1} = strrep(evnt.label{1},SBJ_vars.ch_lab.suffix,'');
+    if ~isfield(SBJ_vars.dirs,'nlx')
+        if isfield(SBJ_vars.ch_lab,'prefix')
+            evnt.label{1} = strrep(evnt.label{1},SBJ_vars.ch_lab.prefix,'');
+        end
+        if isfield(SBJ_vars.ch_lab,'suffix')
+            evnt.label{1} = strrep(evnt.label{1},SBJ_vars.ch_lab.suffix,'');
+        end
     end
     
     % Fix any mislabeled channels
@@ -244,8 +258,10 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         save(eog_out_filename, '-v7.3', 'eog');
     end
     
-    evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
-    save(evnt_out_filename, '-v7.3', 'evnt');
+    if ~isfield(SBJ_vars.dirs,'nlx')
+        evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
+        save(evnt_out_filename, '-v7.3', 'evnt');
+    end
     
     clear data evnt eeg eog
 end

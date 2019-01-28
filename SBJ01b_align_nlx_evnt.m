@@ -37,7 +37,7 @@ macro.label = SBJ_vars.ch_lab.nlx_nk_align;
 macro_orig  = macro;
 
 % Nihon Kohden clinical channel
-load([SBJ_vars.dirs.raw,SBJ_vars.raw_file]);
+load([SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat']);
 cfgs         = [];
 cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align;
 clin         = ft_selectdata(cfgs,data);
@@ -50,13 +50,13 @@ if SBJ_vars.nlx_inverted
     macro.trial{1} = macro.trial{1}*-1;
 end
 
-% Cut clincial macro to analysis time
-if numel(SBJ_vars.analysis_time{b_ix})>1
-    error('havent set up processing for multi block concat!');
-end
-cfgs = []; cfgs.latency = SBJ_vars.analysis_time{b_ix}{1};
-clin = ft_selectdata(cfgs,clin);
-clin.time{1} = clin.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
+% % Cut clincial macro to analysis time
+% if numel(SBJ_vars.analysis_time{b_ix})>1
+%     error('havent set up processing for multi block concat!');
+% end
+% cfgs = []; cfgs.latency = SBJ_vars.analysis_time{b_ix}{1};
+% clin = ft_selectdata(cfgs,clin);
+% clin.time{1} = clin.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
 
 % Match sampling rates
 if macro.fsample > clin.fsample
@@ -88,17 +88,14 @@ fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
 saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare.png']);
 
 %% Compute cross correlation at varying time lags
-n_clin  = numel(clin.trial{1});
-n_macro = numel(macro.trial{1});
-if n_clin <= n_macro
+if numel(clin.trial{1}) <= numel(macro.trial{1})
     error('Clinical data is smaller than macro data, recut clinical block!');
 end
 
-% Arjen's way
-% synchronize nihon kohden and neuralynx timeseries
-% Find cross-variance and lags by shifting macro along clin
+% Arjen's way: synchronize nihon kohden and neuralynx timeseries
+%   Find cross-variance and lags by shifting macro along clin
 [covar, lags] = xcov(clin.trial{1}', macro.trial{1}');
-% find the sharp peak; remove very long trends with smooth (moving average) to find big spike in covariance
+%   Find the sharp peak; remove very long trends with smooth (moving average) to find big spike in covariance
 [~, idx]      = max(covar - smooth(covar, clin.fsample*10));   
 
 %% Plot match
