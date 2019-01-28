@@ -46,6 +46,17 @@ clin         = ft_selectdata(cfgs,data);
 clin_orig    = clin;
 
 %% Preprocess
+% Cut NLX to nlx_analysis_time
+if isfield(SBJ_vars,'nlx_analysis_time')
+    cfgs = [];
+    cfgs.latency = SBJ_vars.nlx_analysis_time;
+    photo = ft_selectdata(cfgs, photo);
+    macro = ft_selectdata(cfgs, macro);
+end
+if any(isnan(photo.trial{1}))
+    error('NaNs detected in photodiode, check for discontinuities!');
+end
+
 % Inversion on NLX data
 if SBJ_vars.nlx_inverted
     photo.trial{1} = photo.trial{1}*-1;

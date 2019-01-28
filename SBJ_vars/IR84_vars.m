@@ -97,7 +97,9 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-% NLX photod: first event @ 17.6, last at 1671.5s
+% NLX photod: two segments in data, using nlx_analysis_time to cut to second (and remove some scruff)
+%   first event is ~2020s, so cutting to 2005; last event ~3540s
+SBJ_vars.nlx_analysis_time = {{[2005.0 3565.0]}};
 SBJ_vars.analysis_time = {{[0.0 1685.0]}};
 
 %--------------------------------------

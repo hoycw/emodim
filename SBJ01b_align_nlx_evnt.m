@@ -1,4 +1,4 @@
-function SU00_extract_evnt(SBJ, pipeline_id)
+function SBJ01b_align_nlx_evnt(SBJ, pipeline_id)
 %% Load, preprocess, and save out photodiode
 if exist('/home/knight/','dir');root_dir='/home/knight/';app_dir=[root_dir 'hoycw/Apps/'];
 elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';app_dir = '/Users/lapate/knight/hoycw/Apps/';
@@ -44,6 +44,17 @@ clin         = ft_selectdata(cfgs,data);
 clin_orig    = clin;
 
 %% Preprocess
+% Cut NLX to nlx_analysis_time
+if isfield(SBJ_vars,'nlx_analysis_time')
+    cfgs = [];
+    cfgs.latency = SBJ_vars.nlx_analysis_time;
+    evnt = ft_selectdata(cfgs, evnt);
+    macro = ft_selectdata(cfgs, macro);
+end
+if any(isnan(evnt.trial{1})) || any(isnan(macro.trial{1}))
+    error('NaNs detected in NLX data, check for discontinuities!');
+end
+
 % Inversion on NLX data
 if SBJ_vars.nlx_inverted
     evnt.trial{1} = evnt.trial{1}*-1;
