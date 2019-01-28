@@ -166,7 +166,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     end
     
     %% Resample data
-    if strcmp(proc_vars.resample_yn,'yes') && (data.fsample ~= proc_vars.resample_freq)
+    if strcmp(proc_vars.resample_yn,'yes') && (data.fsample > proc_vars.resample_freq)
         cfg = [];
         cfg.resamplefs = proc_vars.resample_freq;
         cfg.detrend = 'no';
