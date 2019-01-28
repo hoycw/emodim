@@ -12,6 +12,8 @@ proc_vars.lp_yn         = 'yes';
 proc_vars.lp_freq       = 300;            % [] skips this step
 proc_vars.notch_type    = 'bandstop';     % method for nothc filtering out line noise
 
+proc_vars.nlx_nk_align_std_thresh = 4;      % StDev threshold for extremes in macro alignment
+
 % cleanline   = 'yes';                % Use Tim Mullen's cleanline function
 % dft_yn      = 'no';
 % bs_yn       = 'no';                % Parameters for this in SBJ_vars

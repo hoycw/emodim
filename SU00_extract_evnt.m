@@ -1,4 +1,4 @@
-function SU00_extract_evnt(SBJ)
+function SU00_extract_evnt(SBJ, pipeline_id)
 %% Load, preprocess, and save out photodiode
 if exist('/home/knight/','dir');root_dir='/home/knight/';app_dir=[root_dir 'hoycw/Apps/'];
 elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';app_dir = '/Users/lapate/knight/hoycw/Apps/';
@@ -15,7 +15,7 @@ ft_defaults
 %% SBJ vars
 b_ix = 1;   %block
 eval(['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m']);
-eval(['run ' root_dir 'emodim/scripts/proc_vars/SU_nlx_proc_vars.m']);
+eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
 
 if numel(SBJ_vars.raw_file)>1
     block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
@@ -23,76 +23,112 @@ else
     block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
 end
 
-%% Read photodiode
-inverted = 1;
-photo = ft_read_neuralynx_interp({[SBJ_vars.dirs.SU 'photo/' SBJ_vars.ch_lab.photod{1} SBJ_vars.ch_lab.SU_suffix '.ncs']});
-photo.label = {'photo'};
+%% Read photodiode, NLX macro, clinical data
+% Neuralynx photodiode
+evnt       = ft_read_neuralynx_interp({[SBJ_vars.dirs.nlx 'photo/' ...
+                            SBJ_vars.ch_lab.photod{1} SBJ_vars.ch_lab.nlx_suffix '.ncs']});
+evnt.label = {'photo'};
+evnt_orig  = evnt;
 
-% Preprocess
-if inverted
-    photo.trial{1} = photo.trial{1}*-1;
+% Neuralynx macro channel
+macro       = ft_read_neuralynx_interp({[SBJ_vars.dirs.nlx 'macro/' ...
+                            SBJ_vars.ch_lab.nlx_nk_align{1} SBJ_vars.ch_lab.nlx_suffix '.ncs']});
+macro.label = SBJ_vars.ch_lab.nlx_nk_align;
+macro_orig  = macro;
+
+% Nihon Kohden clinical channel
+load([SBJ_vars.dirs.raw,SBJ_vars.raw_file]);
+cfgs         = [];
+cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align;
+clin         = ft_selectdata(cfgs,data);
+clin_orig    = clin;
+
+%% Preprocess
+% Inversion on NLX data
+if SBJ_vars.nlx_inverted
+    evnt.trial{1} = evnt.trial{1}*-1;
+    macro.trial{1} = macro.trial{1}*-1;
 end
-cfgpp = []; cfgpp.demean = 'yes';
-photo = ft_preprocessing(cfgpp,photo);
 
-% Cut to analysis time
+% Cut clincial macro to analysis time
 if numel(SBJ_vars.analysis_time{b_ix})>1
     error('havent set up processing for multi block concat!');
 end
 cfgs = []; cfgs.latency = SBJ_vars.analysis_time{b_ix}{1};
-photo = ft_selectdata(cfgs,photo);
-photo.time{1} = photo.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
+clin = ft_selectdata(cfgs,clin);
+clin.time{1} = clin.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
 
-% Resample if at very high srate
-if proc_vars.photo_resample && photo.fsample~=proc_vars.evnt_resample_freq
-    cfg_dsmp = [];
-    cfg_dsmp.resamplefs = proc_vars.evnt_resample_freq;
-    photo = ft_resampledata(cfg_dsmp,photo);
-end    
+% Match sampling rates
+if macro.fsample > clin.fsample
+    fprintf('downsampling Neuralynx from %d to %d Hz\n', macro.fsample, clin.fsample)
+    cfgr = [];
+    cfgr.demean     = 'yes';
+    cfgr.resamplefs = clin.fsample;
+    macro = ft_resampledata(cfgr, macro);
+elseif macro.fsample < clin.fsample
+    error('Clinical data has higher sampling rate than NLX macro, whats going on?');
+end
+if evnt.fsample > clin.fsample
+    fprintf('downsampling Neuralynx photodiode from %d to %d Hz\n', evnt.fsample, clin.fsample)
+    cfgr = [];
+    cfgr.demean     = 'yes';
+    cfgr.resamplefs = clin.fsample;
+    evnt = ft_resampledata(cfgr, evnt);
+end
 
-% %% Read, downsample, and save mic
-% mic = ft_read_neuralynx_interp({[SBJ_vars.dirs.SU 'mic/' SBJ_vars.ch_lab.mic{1} SBJ_vars.ch_lab.suffix '.ncs']});
-% mic.label = {'mic'};
-% 
-% % Cut to analysis time
-% mic = ft_selectdata(cfgs,mic);
-% mic.time{1} = mic.time{1}-SBJ_vars.analysis_time{b_ix}{1}(1);
-% 
-% % Downsample
-% if proc_vars.mic_resample
-%     cfg_dsmp = [];
-%     cfg_dsmp.resamplefs = photo.fsample;
-%     mic_dsmp = ft_resampledata(cfg_dsmp,mic);
-% end
-% 
-% %% Process Microphone data
-% mic_data = mic.trial{1};
-% %rescale to prevent clipping, add 0.05 fudge factor
-% mic_data_rescale = mic_data./(max(abs(mic_data))+0.05);
-% 
-% %% Concatenate photo and mic
-% % Check that time vectors are close enough
-% dif = photo.time{1}-mic_dsmp.time{1};
-% if max(dif)>0.000001
-%     error('time vectors not aligned, check that!');
-% elseif ~isequal(photo.time{1},mic_dsmp.time{1})
-%     warning(['Mic and photo time vectors still not equal, but differences is small: ' num2str(max(dif))]);
-%     mic_dsmp.time{1} = photo.time{1};
-% end
-% 
-% % Append
-% cfga = [];
-% cfga.keepsampleinfo = 'no';
-% evnt = ft_appenddata(cfga,photo,mic_dsmp);
-% evnt.fsample = photo.fsample;
-evnt = photo;
+% Remove extreme values
+clin_thresh  = proc_vars.nlx_nk_align_std_thresh*std(clin.trial{1});
+macro_thresh = proc_vars.nlx_nk_align_std_thresh*std(macro.trial{1});
+clin.trial{1}((clin.trial{1}>median(clin.trial{1})+clin_thresh)|(clin.trial{1}<median(clin.trial{1})-clin_thresh)) = median(clin.trial{1});
+macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial{1}<median(macro.trial{1})-macro_thresh)) = median(macro.trial{1});
+
+%% Compare PSDs
+fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
+    clin.fsample,'clinical','macro');
+saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare.png']);
+
+%% Compute cross correlation at varying time lags
+n_clin  = numel(clin.trial{1});
+n_macro = numel(macro.trial{1});
+if n_clin <= n_macro
+    error('Clinical data is smaller than macro data, recut clinical block!');
+end
+
+% Arjen's way
+% synchronize nihon kohden and neuralynx timeseries
+% Find cross-variance and lags by shifting macro along clin
+[covar, lags] = xcov(clin.trial{1}', macro.trial{1}');
+% find the sharp peak; remove very long trends with smooth (moving average) to find big spike in covariance
+[~, idx]      = max(covar - smooth(covar, clin.fsample*10));   
+
+%% Plot match
+figure; subplot(2,1,1);
+hold on; plot(lags,covar);
+hold on; plot(lags(idx),covar(idx),'k*');
+ylabel('correlation');
+xlabel('lag');
+subplot(2,1,2);
+t = 1:numel(clin.time{1}); 
+hold on; plot(t, zscore(clin.trial{1}));
+t2 = lags(idx):lags(idx)+numel(macro.trial{1})-1;
+hold on; plot(t2, zscore(macro.trial{1})+10);
+t3 = lags(idx):lags(idx)+numel(evnt.time{1})-1; % ignore any offset between photo and chan
+hold on; plot(t3, zscore(evnt.trial{1})+20);
+legend('NK', 'NLX', 'NLX photo');
+saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment.fig']);
+% print([subj(1).datadir 'datafiles/sync_nk-nl_' subjectm(9:end) '_' num2str(tcgver) '_' num2str(d)], '-dpdf');
+
+%% Create photodiode channel matched to clinical data
+evnt_nlx   = evnt;
+evnt       = clin;
+evnt.label = {'photodiode'};
+% Create dummy time series of the median of the photodiode
+evnt.trial{1} = ones(1,numel(clin.trial{1})).*median(evnt.trial{1});
+% Add in photodiode data for segments when NLX overlaps
+evnt.trial{1}(t3(t3>0 & t3<numel(evnt.trial{1}))) = evnt_nlx.trial{1}(t3>0 & t3<numel(evnt.trial{1}));
 
 %% Save data out
 evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
 save(evnt_out_filename, '-v7.3', 'evnt');
-
-% % Save Microphone data separately as .wav for listening
-% mic_data_filename = strcat(SBJ_vars.dirs.import,SBJ,'_mic_recording',block_suffix,'.wav');
-% audiowrite(mic_data_filename,mic_data_rescale,evnt.fsample);
 
 end

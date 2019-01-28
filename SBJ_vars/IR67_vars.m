@@ -98,7 +98,7 @@ SBJ_vars.bs_width    = 2;
 % Time Parameters
 %--------------------------------------
 % NLX photod: first event @ 17.6, last at 1671.5s
-SBJ_vars.analysis_time = {{[0.0 1685.0]}};
+SBJ_vars.analysis_time = {{[0.0 2125.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

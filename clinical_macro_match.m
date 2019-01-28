@@ -1,6 +1,6 @@
 %% Load, preprocess, and save out photodiode
-SBJ = 'IR84';
-inverted = 1;
+SBJ = 'IR67';
+pipeline_id = 'main_ft';
 
 if exist('/home/knight/','dir');root_dir='/home/knight/';app_dir=[root_dir 'hoycw/Apps/'];
 elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';app_dir = '/Users/lapate/knight/hoycw/Apps/';
@@ -17,7 +17,7 @@ ft_defaults
 %% SBJ vars
 b_ix = 1;   %block
 eval(['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m']);
-eval(['run ' root_dir 'emodim/scripts/proc_vars/SU_nlx_proc_vars.m']);
+eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
 
 if numel(SBJ_vars.raw_file)>1
     block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
@@ -26,16 +26,19 @@ else
 end
 
 %% Read photodiode, NLX macro, clinical data
+% Neuralynx photodiode
 photo = ft_read_neuralynx_interp({[SBJ_vars.dirs.nlx 'photo/' ...
                             SBJ_vars.ch_lab.photod{1} SBJ_vars.ch_lab.nlx_suffix '.ncs']});
 photo.label = {'photo'};
 photo_orig  = photo;
 
+% Neuralynx macro channel
 macro = ft_read_neuralynx_interp({[SBJ_vars.dirs.nlx 'macro/' ...
                             SBJ_vars.ch_lab.nlx_nk_align{1} SBJ_vars.ch_lab.nlx_suffix '.ncs']});
 macro.label = SBJ_vars.ch_lab.nlx_nk_align;
 macro_orig  = macro;
 
+% Nihon Kohden clinical channel
 load([SBJ_vars.dirs.raw SBJ '_raw_emodim_clinical.mat']);
 cfgs = [];
 cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align;
@@ -68,9 +71,8 @@ if photo.fsample > clin.fsample
 end
 
 % Remove extreme values
-std_thresh   = 4;
-clin_thresh  = std_thresh*std(clin.trial{1});
-macro_thresh = std_thresh*std(macro.trial{1});
+clin_thresh  = proc_vars.nlx_nk_align_std_thresh*std(clin.trial{1});
+macro_thresh = proc_vars.nlx_nk_align_std_thresh*std(macro.trial{1});
 clin.trial{1}((clin.trial{1}>median(clin.trial{1})+clin_thresh)|(clin.trial{1}<median(clin.trial{1})-clin_thresh)) = median(clin.trial{1});
 macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial{1}<median(macro.trial{1})-macro_thresh)) = median(macro.trial{1});
 
@@ -87,12 +89,12 @@ fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
 saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare.png']);
 
 %% Plot TS
-plot_len = 10000;
-figure;
-subplot(2,1,1);
-plot(clin.time{1}(1:plot_len),clin.trial{1}(1:plot_len));
-subplot(2,1,2);
-plot(macro.time{1}(1:plot_len),macro.trial{1}(1:plot_len));
+% plot_len = 10000;
+% figure;
+% subplot(2,1,1);
+% plot(clin.time{1}(1:plot_len),clin.trial{1}(1:plot_len));
+% subplot(2,1,2);
+% plot(macro.time{1}(1:plot_len),macro.trial{1}(1:plot_len));
 
 %% Compute cross correlation at varying time lags
 n_clin  = numel(clin.trial{1});
