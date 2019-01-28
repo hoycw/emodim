@@ -246,15 +246,15 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     end
     
     %% Save data
-    nrl_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat');
+    nrl_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_',num2str(data.fsample),'hz',block_suffix,'.mat');
     save(nrl_out_filename, '-v7.3', 'data');
     
     if ~isempty(SBJ_vars.ch_lab.eeg)
-        eeg_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_eeg_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat');
+        eeg_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_eeg_',num2str(eeg.fsample),'hz',block_suffix,'.mat');
         save(eeg_out_filename, '-v7.3', 'eeg');
     end
     if ~isempty(SBJ_vars.ch_lab.eog)
-        eog_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_eog_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat');
+        eog_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_eog_',num2str(eog.fsample),'hz',block_suffix,'.mat');
         save(eog_out_filename, '-v7.3', 'eog');
     end
     

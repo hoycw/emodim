@@ -79,7 +79,7 @@ for b_ix = 1:numel(SBJ_vars.raw_file)
     end
     
     %% Resample data to speed things up
-    if (resamp_it) && (data.fsample ~= resample_freq)
+    if (resamp_it) && (data.fsample < resample_freq)
         cfg_resamp = [];
         cfg_resamp.resamplefs = resample_freq;
         cfg_resamp.detrend = 'yes';
