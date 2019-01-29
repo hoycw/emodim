@@ -12,6 +12,7 @@ SBJ_vars.SBJ        = 'IR69';
 SBJ_vars.raw_file   = {'IR69_NLX_macros.mat'};
 SBJ_vars.block_name = {''};
 SBJ_vars.restart    = {1};
+SBJ_vars.low_srate  = [0];
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];

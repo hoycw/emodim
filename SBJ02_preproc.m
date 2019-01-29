@@ -30,7 +30,11 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     else
         block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
     end
-    import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat'];
+    if any(SBJ_vars.low_srate)
+        import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(SBJ_vars.low_srate(b_ix)),'hz',block_suffix,'.mat'];
+    else
+        import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat'];
+    end
     load(import_filename);
     data_orig = data;
     
