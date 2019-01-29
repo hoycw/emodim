@@ -41,8 +41,12 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.block_name)>1
         cfg.demean = 'yes';
     end
-    cfg.lpfilter  = proc_vars.lp_yn;
-    cfg.lpfreq    = proc_vars.lp_freq;
+    if cfg.lpfreq > data.fsample/2
+        cfg.lpfilter = 'no';
+    else
+        cfg.lpfilter = proc_vars.lp_yn;
+        cfg.lpfreq   = proc_vars.lp_freq;
+    end
     cfg.hpfilter  = proc_vars.hp_yn;
     cfg.hpfreq    = proc_vars.hp_freq;
     if isfield(proc_vars,'hp_order')
