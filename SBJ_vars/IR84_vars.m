@@ -89,7 +89,7 @@ SBJ_vars.ch_lab.bad = {...
 SBJ_vars.ch_lab.eeg = {'C3','C4','CZ','FZ','OZ'};
 SBJ_vars.ch_lab.eog = {'RUC','RLC','LLC','LUC'};
 SBJ_vars.ch_lab.photod  = {'photo1'};
-SBJ_vars.photo_inverted = 1;
+SBJ_vars.photo_inverted = 0;
 
 %--------------------------------------
 % Line Noise Parameters
