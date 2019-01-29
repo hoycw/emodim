@@ -56,9 +56,11 @@ if any(isnan(evnt.trial{1})) || any(isnan(macro.trial{1}))
 end
 
 % Inversion on NLX data
-if SBJ_vars.nlx_inverted
-    evnt.trial{1} = evnt.trial{1}*-1;
+if SBJ_vars.nlx_macro_inverted
     macro.trial{1} = macro.trial{1}*-1;
+end
+if SBJ_vars.photo_inverted
+    photo.trial{1} = photo.trial{1}*-1;
 end
 
 % % Cut clincial macro to analysis time

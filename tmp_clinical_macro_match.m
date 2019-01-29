@@ -58,9 +58,11 @@ if any(isnan(photo.trial{1}))
 end
 
 % Inversion on NLX data
-if SBJ_vars.nlx_inverted
-    photo.trial{1} = photo.trial{1}*-1;
+if SBJ_vars.nlx_macro_inverted
     macro.trial{1} = macro.trial{1}*-1;
+end
+if SBJ_vars.photo_inverted
+    photo.trial{1} = photo.trial{1}*-1;
 end
 
 % Match sampling rates

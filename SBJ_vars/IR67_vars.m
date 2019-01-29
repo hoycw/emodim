@@ -76,7 +76,7 @@ SBJ_vars.ch_lab.wire_ROI   = {'all'};
 SBJ_vars.ch_lab.mislabel = {{'RPC','RPC3'}};
 SBJ_vars.ch_lab.nlx_suffix   = '';
 SBJ_vars.ch_lab.nlx_nk_align = {'RIN4'};
-SBJ_vars.nlx_inverted        = 1;
+SBJ_vars.nlx_macro_inverted  = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
@@ -87,6 +87,7 @@ SBJ_vars.ch_lab.bad = {...
 SBJ_vars.ch_lab.eeg = {'C3','C4','CZ','FZ','OZ'};
 SBJ_vars.ch_lab.eog = {'RUE','RLE','LLE','LUE'};
 SBJ_vars.ch_lab.photod = {'PH_Diode'};
+SBJ_vars.photo_inverted = 1;
 
 %--------------------------------------
 % Line Noise Parameters
