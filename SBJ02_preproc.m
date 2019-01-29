@@ -41,7 +41,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.block_name)>1
         cfg.demean = 'yes';
     end
-    if proc_vars.lpfreq > data.fsample/2
+    if proc_vars.lp_freq > data.fsample/2
         cfg.lpfilter = 'no';
     else
         cfg.lpfilter = proc_vars.lp_yn;
@@ -155,6 +155,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         cfg           = [];
         cfg.dftfilter = 'yes'; % line noise removal using discrete fourier transform
         cfg.dftfreq   = SBJ_vars.notch_freqs;
+        cfg.dftfreq(cfg.dftfreq > data.fsample/2) = [];
         data = ft_preprocessing(cfg,data);
     elseif strcmp(proc_vars.notch_type,'bandstop')
         % Calculate frequency limits
@@ -162,6 +163,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         for f_ix = 1:length(SBJ_vars.notch_freqs)
             bs_freq_lim(f_ix,:) = fn_freq_lim_from_CFBW(SBJ_vars.notch_freqs(f_ix),SBJ_vars.bs_width);
         end
+        bs_freq_lim(bs_freq_lim(:,2) > data.fsample/2, :) = [];
         cfg          = [];
         cfg.bsfilter = 'yes';
         cfg.bsfreq   = bs_freq_lim;
