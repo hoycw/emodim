@@ -41,7 +41,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     if numel(SBJ_vars.block_name)>1
         cfg.demean = 'yes';
     end
-    if cfg.lpfreq > data.fsample/2
+    if proc_vars.lpfreq > data.fsample/2
         cfg.lpfilter = 'no';
     else
         cfg.lpfilter = proc_vars.lp_yn;
