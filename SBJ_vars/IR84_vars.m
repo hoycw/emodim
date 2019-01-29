@@ -12,6 +12,7 @@ SBJ_vars.SBJ        = 'IR84';
 SBJ_vars.raw_file   = {'IR84_raw_emodim_clinical.mat'};
 SBJ_vars.block_name = {''};
 SBJ_vars.restart    = {1};
+SBJ_vars.low_srate  = [500];
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];

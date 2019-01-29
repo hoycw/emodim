@@ -37,7 +37,12 @@ macro.label = SBJ_vars.ch_lab.nlx_nk_align;
 macro_orig  = macro;
 
 % Nihon Kohden clinical channel
-load([SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat']);
+if any(SBJ_vars.low_srate)
+    clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(SBJ_vars.low_srate(b_ix)) 'hz' block_suffix '.mat'];
+else
+    clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat'];
+end
+load(clin_fname);
 cfgs         = [];
 cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align;
 clin         = ft_selectdata(cfgs,data);
@@ -60,7 +65,7 @@ if SBJ_vars.nlx_macro_inverted
     macro.trial{1} = macro.trial{1}*-1;
 end
 if SBJ_vars.photo_inverted
-    photo.trial{1} = photo.trial{1}*-1;
+    evnt.trial{1} = evnt.trial{1}*-1;
 end
 
 % % Cut clincial macro to analysis time
