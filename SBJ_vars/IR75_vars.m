@@ -58,22 +58,22 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preo
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RPC',...
-                              'LAM','LHH','LTH','LAC','LOF','LPC','PI','ASI','AII'};
-SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg',...
-                              'seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
-SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP',...
-                              'BP','BP','BP','BP','BP','BP','BP'};
+SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAP','RPP','RBH',...
+                              'LAM','LHH','LTH','LAP','LPP','LBH'};
+SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg',...
+                              'seeg','seeg','seeg','seeg','seeg','seeg'};
+SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP',...
+                              'BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
-SBJ_vars.ch_lab.nlx          = [1,1,0,1,1,0,1,1,0,1,1,0,0,0,0];
-SBJ_vars.ch_lab.wires        = {'mram','mrhh','mrac','mrof','mlam','mlhh','mlac','mlof'};
-SBJ_vars.ch_lab.wire_type    = {'su','su','su','su','su','su','su','su'};
-SBJ_vars.ch_lab.wire_ref     = {'','','','','','','',''};
+SBJ_vars.ch_lab.nlx          = [1,1,1,0,0,0,1,1,1,1,0,0];
+SBJ_vars.ch_lab.wires        = {'mram','mrhh','mrth','mlam','mlhh','mlth'};
+SBJ_vars.ch_lab.wire_type    = {'su','su','su','su','su','su'};
+SBJ_vars.ch_lab.wire_ref     = {'','','','','',''};
 SBJ_vars.ch_lab.wire_ROI     = {'all'};
-SBJ_vars.ch_lab.nlx_suffix   = '';
-SBJ_vars.ch_lab.nlx_nk_align = {'LOF4'};
+SBJ_vars.ch_lab.nlx_suffix   = '_0002';
+SBJ_vars.ch_lab.nlx_nk_align = {'LAP4','LAP5'};
 SBJ_vars.nlx_macro_inverted  = 1;
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
@@ -82,13 +82,15 @@ SBJ_vars.nlx_macro_inverted  = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'LAP9','LAP10','RBH8','RBH9','RBH10','RPP8','RPP9','RPP10',...% out of brain
+    'LBH9','LBH10','LPP8','LPP9','LPP10',...% out of brain
     'EKG',...% EKG
-    'Mark1','Mark2','xREF',...% not real data
-    'DC01','DC02','DC03','DC04','E','Events','GND',...% not real data
+    'Mark1','Mark2','REF',...% not real data
+    'DC01','DC02','DC03','DC04','E','Events','G',...% not real data
     };
 SBJ_vars.ch_lab.eeg = {'C3','C4','CZ','FZ','OZ'};
 SBJ_vars.ch_lab.eog = {'RUC','RLC','LLC','LUC'};
-SBJ_vars.ch_lab.photod  = {'photo1'};
+SBJ_vars.ch_lab.photod  = {'Photo1'};
 SBJ_vars.photo_inverted = 1;
 
 %--------------------------------------
@@ -100,10 +102,8 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-% NLX photod: two segments in data, using nlx_analysis_time to cut to second (and remove some scruff)
-%   first event is ~2020s, so cutting to 2005; last event ~3540s
-SBJ_vars.nlx_analysis_time = [2005.0 3565.0];
-SBJ_vars.analysis_time = {{[0.0 1685.0]}};
+% NLX photodiode: first event is ~5s; last event ~1782s
+SBJ_vars.analysis_time = {{[0.0 1900.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

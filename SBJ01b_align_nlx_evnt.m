@@ -1,4 +1,7 @@
-function SBJ01b_align_nlx_evnt(SBJ, pipeline_id)
+function SBJ01b_align_nlx_evnt(SBJ, pipeline_id, save_it)
+% save_it == 0: don't save plots, compare to raw data
+%         == 1: save plots and data, compare to import
+
 %% Load, preprocess, and save out photodiode
 if exist('/home/knight/','dir');root_dir='/home/knight/';app_dir=[root_dir 'hoycw/Apps/'];
 elseif exist('/Users/lapate/','dir');root_dir = '/Users/lapate/knight/';app_dir = '/Users/lapate/knight/hoycw/Apps/';
@@ -31,16 +34,24 @@ evnt.label = {'photo'};
 evnt_orig  = evnt;
 
 % Neuralynx macro channel
-macro       = ft_read_neuralynx_interp({[SBJ_vars.dirs.nlx 'macro/' ...
-                            SBJ_vars.ch_lab.nlx_nk_align{1} SBJ_vars.ch_lab.nlx_suffix '.ncs']});
+macro_fnames = SBJ_vars.ch_lab.nlx_nk_align;
+for m_ix = 1:numel(macro_fnames)
+    macro_fnames{m_ix} = [SBJ_vars.dirs.nlx 'macro/' SBJ_vars.ch_lab.nlx_nk_align{m_ix}...
+                            SBJ_vars.ch_lab.nlx_suffix '.ncs'];
+end
+macro = ft_read_neuralynx_interp(macro_fnames);
 macro.label = SBJ_vars.ch_lab.nlx_nk_align;
 macro_orig  = macro;
 
 % Nihon Kohden clinical channel
-if any(SBJ_vars.low_srate)
-    clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(SBJ_vars.low_srate(b_ix)) 'hz' block_suffix '.mat'];
+if ~save_it
+    clin_fname = SBJ_vars.dirs.raw_filename{b_ix};
 else
-    clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat'];
+    if any(SBJ_vars.low_srate)
+        clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(SBJ_vars.low_srate(b_ix)) 'hz' block_suffix '.mat'];
+    else
+        clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat'];
+    end
 end
 load(clin_fname);
 cfgs         = [];
@@ -56,7 +67,7 @@ if isfield(SBJ_vars,'nlx_analysis_time')
     evnt = ft_selectdata(cfgs, evnt);
     macro = ft_selectdata(cfgs, macro);
 end
-if any(isnan(evnt.trial{1})) || any(isnan(macro.trial{1}))
+if any(isnan(evnt.trial{1}(:))) || any(isnan(macro.trial{1}(:)))
     error('NaNs detected in NLX data, check for discontinuities!');
 end
 
@@ -66,6 +77,21 @@ if SBJ_vars.nlx_macro_inverted
 end
 if SBJ_vars.photo_inverted
     evnt.trial{1} = evnt.trial{1}*-1;
+end
+
+% Bipolar rereference
+if numel(SBJ_vars.ch_lab.nlx_nk_align)>1
+    cfg = [];
+    cfg.channel = macro.label;
+    cfg.montage.labelold = cfg.channel;
+    [cfg.montage.labelnew, cfg.montage.tra, ~] = fn_create_ref_scheme_bipolar(SBJ_vars.ch_lab.nlx_nk_align);
+    macro = ft_preprocessing(cfg,macro);
+    
+    cfg = [];
+    cfg.channel = clin.label;
+    cfg.montage.labelold = cfg.channel;
+    [cfg.montage.labelnew, cfg.montage.tra, ~] = fn_create_ref_scheme_bipolar(SBJ_vars.ch_lab.nlx_nk_align);
+    clin = ft_preprocessing(cfg,clin);
 end
 
 % % Cut clincial macro to analysis time
@@ -103,7 +129,9 @@ macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial
 %% Compare PSDs
 fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
     clin.fsample,'clinical','macro');
-saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare.png']);
+if save_it
+    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare_' macro.label{1} '.png']);
+end
 
 %% Compute cross correlation at varying time lags
 if numel(clin.trial{1}) <= numel(macro.trial{1})
@@ -130,20 +158,24 @@ hold on; plot(t2, zscore(macro.trial{1})+10);
 t3 = lags(idx):lags(idx)+numel(evnt.time{1})-1; % ignore any offset between photo and chan
 hold on; plot(t3, zscore(evnt.trial{1})+20);
 legend('NK', 'NLX', 'NLX photo');
-saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment.fig']);
-% print([subj(1).datadir 'datafiles/sync_nk-nl_' subjectm(9:end) '_' num2str(tcgver) '_' num2str(d)], '-dpdf');
+title(macro.label{1});
 
-%% Create photodiode channel matched to clinical data
-evnt_nlx   = evnt;
-evnt       = clin;
-evnt.label = {'photodiode'};
-% Create dummy time series of the median of the photodiode
-evnt.trial{1} = ones(1,numel(clin.trial{1})).*median(evnt.trial{1});
-% Add in photodiode data for segments when NLX overlaps
-evnt.trial{1}(t3(t3>0 & t3<numel(evnt.trial{1}))) = evnt_nlx.trial{1}(t3>0 & t3<numel(evnt.trial{1}));
-
-%% Save data out
-evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
-save(evnt_out_filename, '-v7.3', 'evnt');
+if save_it
+    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment_' macro.label{1} '.fig']);
+    % print([subj(1).datadir 'datafiles/sync_nk-nl_' subjectm(9:end) '_' num2str(tcgver) '_' num2str(d)], '-dpdf');
+    
+    %% Create photodiode channel matched to clinical data
+    evnt_nlx   = evnt;
+    evnt       = clin;
+    evnt.label = {'photodiode'};
+    % Create dummy time series of the median of the photodiode
+    evnt.trial{1} = ones(1,numel(clin.trial{1})).*median(evnt.trial{1});
+    % Add in photodiode data for segments when NLX overlaps
+    evnt.trial{1}(t3(t3>0 & t3<numel(evnt.trial{1}))) = evnt_nlx.trial{1}(t3>0 & t3<numel(evnt.trial{1}));
+    
+    %% Save data out
+    evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
+    save(evnt_out_filename, '-v7.3', 'evnt');
+end
 
 end
