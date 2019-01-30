@@ -1,4 +1,4 @@
-%% IR67 Processing Variables
+%% IR85 Processing Variables
 [root_dir, app_dir] = fn_get_root_dir();
 if isempty(strfind(path,'fieldtrip'))
     addpath([app_dir 'fieldtrip/']);
@@ -8,15 +8,14 @@ end
 %--------------------------------------
 % Basics
 %--------------------------------------
-SBJ_vars.SBJ        = 'IR67';
-SBJ_vars.raw_file   = {'IR67_raw_emodim_clinical.mat'};
+SBJ_vars.SBJ        = 'IR85';
+SBJ_vars.raw_file   = {'2019011416_0001.besa'};
 SBJ_vars.block_name = {''};
 SBJ_vars.restart    = {1};
-SBJ_vars.low_srate  = [500];
+SBJ_vars.low_srate  = [0];
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
-SBJ_vars.dirs.nlx     = [SBJ_vars.dirs.raw 'nlx_2018-01-25_15-29-07/'];
 SBJ_vars.dirs.import  = [SBJ_vars.dirs.SBJ '01_import/'];
 SBJ_vars.dirs.preproc = [SBJ_vars.dirs.SBJ '02_preproc/'];
 SBJ_vars.dirs.events  = [SBJ_vars.dirs.SBJ '03_events/'];
@@ -58,39 +57,38 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preo
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RIN','RPC','RPT','RSM',...
-                              'LAM','LHH','LTH','LAC','LOF','LPL'};
+SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RPC',...
+                              'LAM','LHH','LTH','LAC','LOF','LPC','PI','ASI','AII'};
 SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg',...
                               'seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP',...
                               'BP','BP','BP','BP','BP','BP','BP'};
-SBJ_vars.ch_lab.nlx        = [0,0,0,1,1,1,1,1,1,0,0,0,0,0,0];
 SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
-SBJ_vars.ch_lab.wires      = {'mram','mrhh','mrth','mlam','mlhh','mlth'};
-SBJ_vars.ch_lab.wire_type  = {'su','su','su','su','su','su','su'};
-SBJ_vars.ch_lab.wire_ref   = {'','','','','','',''};
-SBJ_vars.ch_lab.wire_ROI   = {'all'};
+
+SBJ_vars.ch_lab.nlx          = [1,1,0,1,1,0,1,1,0,1,1,0,0,0,0];
+SBJ_vars.ch_lab.wires        = {'mram','mrhh','mrac','mrof','mlam','mlhh','mlac','mlof'};
+SBJ_vars.ch_lab.wire_type    = {'su','su','su','su','su','su','su','su'};
+SBJ_vars.ch_lab.wire_ref     = {'','','','','','','',''};
+SBJ_vars.ch_lab.wire_ROI     = {'all'};
+SBJ_vars.ch_lab.nlx_suffix   = '';
+SBJ_vars.ch_lab.nlx_nk_align = {'LOF4'};%,'LOF5'};
+SBJ_vars.nlx_macro_inverted  = 1;
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
-SBJ_vars.ch_lab.mislabel = {{'RPC','RPC3'}};
-SBJ_vars.ch_lab.nlx_suffix   = '';
-SBJ_vars.ch_lab.nlx_nk_align = {'RIN4','RIN5'};
-SBJ_vars.nlx_nk_align_force  = 993222;    % Force a certain lag alignment (algorithm failed)
-SBJ_vars.nlx_macro_inverted  = 1;
+SBJ_vars.ch_lab.mislabel = {{'ASI1_103','ASI2'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
-    'RSMA9','RSMA10','RPT10',...% out of brain
     'EKG',...% EKG
-    'Mark1','Mark2','XREF',...% not real data
-    'DC01','DC02','DC03','DC04','E','Events','GRND',...% not real data
+    'Mark1','Mark2','xREF',...% not real data
+    'DC01','DC02','DC03','DC04','E','Events','GND',...% not real data
     };
 SBJ_vars.ch_lab.eeg = {'C3','C4','CZ','FZ','OZ'};
-SBJ_vars.ch_lab.eog = {'RUE','RLE','LLE','LUE'};
-SBJ_vars.ch_lab.photod = {'PH_Diode'};
-SBJ_vars.photo_inverted = 1;
+SBJ_vars.ch_lab.eog = {'RUC','RLC','LLC','LUC'};
+SBJ_vars.ch_lab.photod  = {'photo1'};
+SBJ_vars.photo_inverted = 0;
 
 %--------------------------------------
 % Line Noise Parameters
@@ -101,8 +99,7 @@ SBJ_vars.bs_width    = 2;
 %--------------------------------------
 % Time Parameters
 %--------------------------------------
-% NLX photod: first event @ 17.6, last at 1671.5s
-SBJ_vars.analysis_time = {{[0.0 2125.0]}};
+SBJ_vars.analysis_time = {{[0.0 1685.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters

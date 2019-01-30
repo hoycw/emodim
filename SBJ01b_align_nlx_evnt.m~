@@ -80,21 +80,19 @@ if SBJ_vars.photo_inverted
 end
 
 % Bipolar rereference
-cfg = [];
-cfg.channel = macro.label;
-cfg.montage.labelold = cfg.channel;
-[cfg.montage.labelnew, cfg.montage.tra, left_out_ch{d}] = fn_create_ref_scheme_bipolar(SBJ_vars.ch_lab.nlx_nk_align);
-% cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align{1};
-macro = ft_preprocessing(cfg,macro);
-% macro.trial{1} = macro.trial{1}-macro_tmp.trial{1}(2,:);
-% macro.label{1} = new_label{1};
-
-clin_tmp = clin;
-cfgs = [];
-cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align{1};
-clin = ft_selectdata(cfgs,clin);
-clin.trial{1} = clin.trial{1}-clin_tmp.trial{1}(2,:);
-clin.label{1} = new_label{1};
+if numel(SBJ_vars.ch_lab.nlx_nk_align)>1
+    cfg = [];
+    cfg.channel = macro.label;
+    cfg.montage.labelold = cfg.channel;
+    [cfg.montage.labelnew, cfg.montage.tra, ~] = fn_create_ref_scheme_bipolar(SBJ_vars.ch_lab.nlx_nk_align);
+    macro = ft_preprocessing(cfg,macro);
+    
+    cfg = [];
+    cfg.channel = clin.label;
+    cfg.montage.labelold = cfg.channel;
+    [cfg.montage.labelnew, cfg.montage.tra, ~] = fn_create_ref_scheme_bipolar(SBJ_vars.ch_lab.nlx_nk_align);
+    clin = ft_preprocessing(cfg,clin);
+end
 
 % % Cut clincial macro to analysis time
 % if numel(SBJ_vars.analysis_time{b_ix})>1
@@ -132,7 +130,7 @@ macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial
 fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
     clin.fsample,'clinical','macro');
 if save_it
-    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare_' new_label '.png']);
+    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_PSD_compare_' macro.label{1} '.png']);
 end
 
 %% Compute cross correlation at varying time lags
@@ -144,12 +142,22 @@ end
 %   Find cross-variance and lags by shifting macro along clin
 [covar, lags] = xcov(clin.trial{1}', macro.trial{1}');
 %   Find the sharp peak; remove very long trends with smooth (moving average) to find big spike in covariance
-[~, idx]      = max(covar - smooth(covar, clin.fsample*10));   
+[~, idx]      = max(covar);% - smooth(covar, clin.fsample*10));   
+if isfield(SBJ_vars,'nlx_nk_align_force')
+    algorithm_idx = idx;
+    idx = SBJ_vars.nlx_nk_align_force;
+end
 
 %% Plot match
 figure; subplot(2,1,1);
 hold on; plot(lags,covar);
 hold on; plot(lags(idx),covar(idx),'k*');
+if exist('algorithm_idx','var')
+    plot(lags(algorithm_idx),covar(algorithm_idx),'r*');
+    legend('corrected','alogrithm');
+else
+    legend('algorithm');
+end
 ylabel('correlation');
 xlabel('lag');
 subplot(2,1,2);
@@ -160,10 +168,10 @@ hold on; plot(t2, zscore(macro.trial{1})+10);
 t3 = lags(idx):lags(idx)+numel(evnt.time{1})-1; % ignore any offset between photo and chan
 hold on; plot(t3, zscore(evnt.trial{1})+20);
 legend('NK', 'NLX', 'NLX photo');
-title(new_label);
+title(macro.label{1});
 
 if save_it
-    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment_' new_label '.fig']);
+    saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment_' macro.label{1} '.fig']);
     % print([subj(1).datadir 'datafiles/sync_nk-nl_' subjectm(9:end) '_' num2str(tcgver) '_' num2str(d)], '-dpdf');
     
     %% Create photodiode channel matched to clinical data

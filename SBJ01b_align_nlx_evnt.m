@@ -120,11 +120,11 @@ if evnt.fsample > clin.fsample
     evnt = ft_resampledata(cfgr, evnt);
 end
 
-% Remove extreme values
-clin_thresh  = proc_vars.nlx_nk_align_std_thresh*std(clin.trial{1});
-macro_thresh = proc_vars.nlx_nk_align_std_thresh*std(macro.trial{1});
-clin.trial{1}((clin.trial{1}>median(clin.trial{1})+clin_thresh)|(clin.trial{1}<median(clin.trial{1})-clin_thresh)) = median(clin.trial{1});
-macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial{1}<median(macro.trial{1})-macro_thresh)) = median(macro.trial{1});
+% % Remove extreme values
+% clin_thresh  = proc_vars.nlx_nk_align_std_thresh*std(clin.trial{1});
+% macro_thresh = proc_vars.nlx_nk_align_std_thresh*std(macro.trial{1});
+% clin.trial{1}((clin.trial{1}>median(clin.trial{1})+clin_thresh)|(clin.trial{1}<median(clin.trial{1})-clin_thresh)) = median(clin.trial{1});
+% macro.trial{1}((macro.trial{1}>median(macro.trial{1})+macro_thresh)|(macro.trial{1}<median(macro.trial{1})-macro_thresh)) = median(macro.trial{1});
 
 %% Compare PSDs
 fn_plot_PSD_1by1_compare(clin.trial{1},macro.trial{1},clin.label,macro.label,...
@@ -141,13 +141,24 @@ end
 % Arjen's way: synchronize nihon kohden and neuralynx timeseries
 %   Find cross-variance and lags by shifting macro along clin
 [covar, lags] = xcov(clin.trial{1}', macro.trial{1}');
-%   Find the sharp peak; remove very long trends with smooth (moving average) to find big spike in covariance
-[~, idx]      = max(covar - smooth(covar, clin.fsample*10));   
+%   Find the peak (previously: get sharp peak; remove very long trends with
+%       smooth (moving average) to find big spike in covariance)
+[~, idx]      = max(covar);% - smooth(covar, clin.fsample*10));   
+if isfield(SBJ_vars,'nlx_nk_align_force')
+    algorithm_idx = idx;
+    idx = SBJ_vars.nlx_nk_align_force;
+end
 
 %% Plot match
 figure; subplot(2,1,1);
 hold on; plot(lags,covar);
 hold on; plot(lags(idx),covar(idx),'k*');
+if exist('algorithm_idx','var')
+    plot(lags(algorithm_idx),covar(algorithm_idx),'r*');
+    legend('corrected','alogrithm');
+else
+    legend('algorithm');
+end
 ylabel('correlation');
 xlabel('lag');
 subplot(2,1,2);

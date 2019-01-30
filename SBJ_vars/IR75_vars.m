@@ -73,7 +73,7 @@ SBJ_vars.ch_lab.wire_type    = {'su','su','su','su','su','su'};
 SBJ_vars.ch_lab.wire_ref     = {'','','','','',''};
 SBJ_vars.ch_lab.wire_ROI     = {'all'};
 SBJ_vars.ch_lab.nlx_suffix   = '_0002';
-SBJ_vars.ch_lab.nlx_nk_align = {'LAP4','LAP5'};
+SBJ_vars.ch_lab.nlx_nk_align = {'LAP4'};%,'LAP5'};
 SBJ_vars.nlx_macro_inverted  = 1;
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
