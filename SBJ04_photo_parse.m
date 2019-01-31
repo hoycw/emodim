@@ -96,8 +96,8 @@ trial_info.log_onset_time(ignore_trials) = [];
 trial_info.ignore_trials = ignore_trials;
 fprintf('\t\tIgnoring %d trials\n', length(ignore_trials));
 
-% For IR74, use log time for 1st video to be consistent with other timing
-if ismember(SBJ,{'IR71','IR74'})
+% For some SBJs, use log time for 1st video to be consistent with other timing
+if ismember(SBJ,{'IR71','IR74', 'IR75'})
     video_onsets(1) = video_onsets(2)-diff(trial_info.log_onset_time(1:2))*evnt.fsample;
 end
 % For IR78, toss ignore_trials from video_onsets here rather than zeroing

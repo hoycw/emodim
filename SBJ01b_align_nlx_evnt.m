@@ -178,7 +178,7 @@ if save_it
     %% Create photodiode channel matched to clinical data
     evnt_nlx   = evnt;
     evnt       = clin;
-    evnt.label = {'photodiode'};
+    evnt.label = SBJ_vars.ch_lab.photod;
     % Create dummy time series of the median of the photodiode
     evnt.trial{1} = ones(1,numel(clin.trial{1})).*median(evnt.trial{1});
     % Add in photodiode data for segments when NLX overlaps
