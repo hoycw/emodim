@@ -79,7 +79,8 @@ for b_ix = 1:numel(SBJ_vars.raw_file)
     end
     
     %% Resample data to speed things up
-    if (resamp_it) && (data.fsample < resample_freq)
+    if (resamp_it) && (data.fsample > resample_freq)
+        fprintf('============== Resampling %s, %s ==============\n',SBJ,SBJ_vars.raw_file{b_ix});
         cfg_resamp = [];
         cfg_resamp.resamplefs = resample_freq;
         cfg_resamp.detrend = 'yes';
@@ -87,12 +88,13 @@ for b_ix = 1:numel(SBJ_vars.raw_file)
     end
     
     %% Filter data for ease of viewing
-    fprintf('============== Bandstop filtering %s, %s ==============\n',SBJ,SBJ_vars.raw_file{b_ix});
     if (filter_it)% && (data_resamp.cfg.dftfreq ~= notch_freqs)
+        fprintf('============== Bandstop filtering %s, %s ==============\n',SBJ,SBJ_vars.raw_file{b_ix});
         cfg_bs = [];
         cfg_bs.continuous = 'yes';
         cfg_bs.bsfilter = 'yes';
         cfg_bs.bsfreq = bs_freq_lim;
+        cfg_bs.bsfiltord = 2;
         cfg_bs.demean = 'yes';
         data = ft_preprocessing(cfg_bs, data);
     end
