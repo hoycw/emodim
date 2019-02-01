@@ -7,7 +7,9 @@ cfg.hpfiltord= 4;
 evnt = ft_preprocessing(cfg,evnt);
 
 % Mark trials to ignore e.g., interruptions
-ignore_trials = []; 
+%   screen saver came on and messed up timing of 297 (2091.mp4) and also last trial
+%   tossing all 5 of those to be certain
+ignore_trials = [297:301]; 
 
 % Set zero/baseline during a block
 bsln_val = -5;
@@ -16,7 +18,7 @@ bsln_val = -5;
 bsln_times = {...
     [0.0 70.0],... % initial wandering
     [132.0 136.0],...% spike after baseline shift
-    [1593.0 1685.0]...% end of task
+    [1536.0 1685.0]...% last 5 trials + end of task
     };
 % Fix last datapoint
 evnt.trial{1}(1,end) = bsln_val;
