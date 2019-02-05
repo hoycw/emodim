@@ -105,4 +105,5 @@ bad_epochs = out.artfctdef.visual.artifact;
 
 %% Save
 save([SBJ_vars.dirs.events SBJ '_bob_bad_epochs_preclean.mat'],'-v7.3','bad_epochs');
+
 end
