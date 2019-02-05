@@ -82,9 +82,9 @@ SBJ_vars.nlx_macro_inverted  = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
-    'LHH1','LHH2',... % epileptic (source)
-    'LAP1','RBH1','RBH2','RBH3','RPP1','RPP2','RPP3',... % in the peri-ventricular heterotopias
-    'RAP1','RAP2','LBH1','LBH2','LBH3','LPP1',... % in the peri-ventricular heterotopias
+    'LHH1','LHH2','LHH3','LAM1',... % epileptic (source)
+    'LAP1','LAP2','LAP3','RBH1','RBH2','RBH3','RBH4','RPP1','RPP2','RPP3','RPP4',... % in the peri-ventricular heterotopias
+    'RAP1','RAP2','RAP3','LBH1','LBH2','LBH3','LPP1','LPP2','LPP3',... % in the peri-ventricular heterotopias
     'LAP9','LAP10','RBH8','RBH9','RBH10','RPP8','RPP9','RPP10',...% out of brain
     'LBH9','LBH10','LPP8','LPP9','LPP10',...% out of brain
     'EKG',...% EKG
