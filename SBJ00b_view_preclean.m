@@ -73,17 +73,7 @@ else
     block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
 end
 
-if strcmp(SBJ_vars.raw_file{b_ix}(end-2:end),'mat')
-    orig = load(SBJ_vars.dirs.raw_filename{b_ix});
-    data = orig.data;
-else
-    % Load Neural Data
-    cfg            = [];
-    cfg.dataset    = SBJ_vars.dirs.raw_filename{b_ix};
-    cfg.continuous = 'yes';
-%     cfg.channel    = {'all',eeg_ch_neg{:},eog_ch_neg{:},photod_ch_neg{:}};%bad_ch_neg{:},
-    data = ft_preprocessing(cfg);
-end
+load([SBJ_vars.dirs.preproc SBJ '_preclean' block_suffix '.mat']);
 data_orig = data;
 
 %% Select Neural Data

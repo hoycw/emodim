@@ -83,7 +83,8 @@ SBJ_vars.ch_lab.mislabel = {{'ASI1_103','ASI2'}};
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LHH1','LHH2','LTH1','LTH2','RTH1',... % epileptic
-    'LPC10',... % pops and saturating
+    'RHH1','RPC10','PI10','LTH10',... % out of brain
+    'LPC10',... % pops and saturating, alos out of brain
     'EKG',...% EKG
     'Mark1','Mark2','xREF',...% not real data
     'DC01','DC02','DC03','DC04','E','Events','GND',...% not real data

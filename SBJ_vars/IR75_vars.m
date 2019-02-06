@@ -86,7 +86,7 @@ SBJ_vars.ch_lab.bad = {...
     'LAP1','LAP2','LAP3','RBH1','RBH2','RBH3','RBH4','RPP1','RPP2','RPP3','RPP4',... % in the peri-ventricular heterotopias
     'RAP1','RAP2','RAP3','LBH1','LBH2','LBH3','LPP1','LPP2','LPP3',... % in the peri-ventricular heterotopias
     'LAP9','LAP10','RBH8','RBH9','RBH10','RPP8','RPP9','RPP10',...% out of brain
-    'LBH9','LBH10','LPP8','LPP9','LPP10',...% out of brain
+    'RAP8','RAP9','RAP10','LBH9','LBH10','LPP8','LPP9','LPP10',...% out of brain
     'EKG',...% EKG
     'Mark1','Mark2','REF',...% not real data
     'DC01','DC02','DC03','DC04','E','Events','G',...% not real data

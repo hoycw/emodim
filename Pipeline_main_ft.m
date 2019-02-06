@@ -262,6 +262,13 @@ fprintf('=======================================================================
 %% ========================================================================
 %   Step 9b- Choose Thresholds for Variance-Based Trial Rejection
 %  ========================================================================
+% Remove visual epochs to check for anythign I missed
+trials_all = trials; trials_dif_all = trials_dif;
+cfgs = [];
+cfgs.trials = setdiff(1:numel(trials),preproc_bad);
+trials = ft_selectdata(cfgs,trials);
+trials_dif = ft_selectdata(cfgs,trials_dif);
+
 % Visualize data to set limits for variance-based rejection
 cfg_reject = [];
 cfg_reject.method = 'summary';
