@@ -70,7 +70,7 @@ SBJ_vars.ch_lab.wire_type    = {'su','su','su','su','su'};
 SBJ_vars.ch_lab.wire_ref     = {'','','','',''};
 SBJ_vars.ch_lab.wire_ROI     = {'all'};
 SBJ_vars.ch_lab.nlx_suffix   = '_0002';
-SBJ_vars.ch_lab.nlx_nk_align = {'ROF7','ROF8'};
+SBJ_vars.ch_lab.nlx_nk_align = {'FOA3','FOA4'};
 SBJ_vars.nlx_macro_inverted  = 1;
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
@@ -99,7 +99,7 @@ SBJ_vars.bs_width    = 2;
 % Time Parameters
 %--------------------------------------
 % NLX photodiode: first event is ~5s; last event ~1782s
-SBJ_vars.analysis_time = {{[]}};
+SBJ_vars.analysis_time = {{[400.0 2160.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters
