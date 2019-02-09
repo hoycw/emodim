@@ -76,8 +76,8 @@ SBJ_vars.ch_lab.wire_ROI   = {'all'};
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
 SBJ_vars.ch_lab.mislabel = {{'RPC','RPC3'}};
 SBJ_vars.ch_lab.nlx_suffix   = '';
-SBJ_vars.ch_lab.nlx_nk_align = {'RIN4','RIN5'};
-SBJ_vars.nlx_nk_align_force  = 993222;    % Force a certain lag alignment (algorithm failed)
+SBJ_vars.ch_lab.nlx_nk_align = {'RAC8','RAC9'}; % {'RIN4','RIN5'};
+% SBJ_vars.nlx_nk_align_force  = 993222;    % Force a certain lag alignment (algorithm failed)
 SBJ_vars.nlx_macro_inverted  = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
