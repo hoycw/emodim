@@ -43,7 +43,7 @@ eval(SBJ_vars_cmd);
 %% ========================================================================
 %   Step 3- Preprocess Neural Data
 %  ========================================================================
-SBJ02_preproc(SBJ,pipeline_id)
+% SBJ02_preproc(SBJ,pipeline_id)
 
 %% ========================================================================
 %   Step 4- Second visual cleaning of preprocessed data
@@ -78,10 +78,10 @@ save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','b
 % Load data
 for b_ix = 1:numel(SBJ_vars.block_name)
     % Create a block suffix in cases with more than one recording block
-    if numel(SBJ_vars.raw_file)>1
-        block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
+    if numel(SBJ_vars.raw_file)==1 || isfield(SBJ_vars.dirs,'nlx')
+        block_suffix = '';
     else
-        block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
+        block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
     end
     evnt_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
     load(evnt_filename);

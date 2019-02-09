@@ -16,15 +16,8 @@ addpath([app_dir 'fieldtrip/']);
 ft_defaults
 
 %% SBJ vars
-b_ix = 1;   %block
 eval(['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m']);
 eval(['run ' root_dir 'emodim/scripts/proc_vars/' pipeline_id '_proc_vars.m']);
-
-if numel(SBJ_vars.raw_file)>1
-    block_suffix = strcat('_',SBJ_vars.block_name{b_ix});
-else
-    block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
-end
 
 %% Read photodiode, NLX macro, clinical data
 % Neuralynx photodiode
@@ -48,12 +41,24 @@ if ~save_it
     clin_fname = SBJ_vars.dirs.raw_filename{b_ix};
 else
     if any(SBJ_vars.low_srate)
-        clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(SBJ_vars.low_srate(b_ix)) 'hz' block_suffix '.mat'];
+        srate_str = num2str(SBJ_vars.low_srate(b_ix));
     else
-        clin_fname = [SBJ_vars.dirs.import SBJ '_' num2str(proc_vars.resample_freq) 'hz' block_suffix '.mat'];
+        srate_str = num2str(proc_vars.resample_freq);
+    end
+    if numel(SBJ_vars.raw_file)>1
+        data_blocks = {};
+        for b_ix = 1:numel(SBJ_vars.block_name)
+            load([SBJ_vars.dirs.import SBJ '_' srate_str 'hz_' SBJ_vars.block_name{b_ix} '.mat']);
+            data_blocks{b_ix} = data;
+        end
+        data = fn_concat_blocks(data_blocks);
+    else
+        block_suffix = SBJ_vars.block_name{b_ix};   % should just be ''
+        clin_fname = [SBJ_vars.dirs.import SBJ '_' srate_str 'hz' block_suffix '.mat'];
+        load(clin_fname);
     end
 end
-load(clin_fname);
+
 cfgs         = [];
 cfgs.channel = SBJ_vars.ch_lab.nlx_nk_align;
 clin         = ft_selectdata(cfgs,data);
@@ -135,7 +140,7 @@ end
 
 %% Compute cross correlation at varying time lags
 if numel(clin.trial{1}) <= numel(macro.trial{1})
-    error('Clinical data is smaller than macro data, recut clinical block!');
+    warning('Clinical data is smaller than macro data, recut clinical block!');
 end
 
 % Arjen's way: synchronize nihon kohden and neuralynx timeseries
@@ -171,6 +176,7 @@ hold on; plot(t3, zscore(evnt.trial{1})+20);
 legend('NK', 'NLX', 'NLX photo');
 title(macro.label{1});
 
+%% Save figure and data
 if save_it
     saveas(gcf,[SBJ_vars.dirs.import SBJ '_nlx_nk_macro_alignment_' macro.label{1} '.fig']);
     % print([subj(1).datadir 'datafiles/sync_nk-nl_' subjectm(9:end) '_' num2str(tcgver) '_' num2str(d)], '-dpdf');
@@ -185,7 +191,7 @@ if save_it
     evnt.trial{1}(t3(t3>0 & t3<numel(evnt.trial{1}))) = evnt_nlx.trial{1}(t3>0 & t3<numel(evnt.trial{1}));
     
     %% Save data out
-    evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt',block_suffix,'.mat');
+    evnt_out_filename = strcat(SBJ_vars.dirs.import,SBJ,'_evnt.mat');
     save(evnt_out_filename, '-v7.3', 'evnt');
 end
 
