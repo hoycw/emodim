@@ -9,10 +9,10 @@ end
 % Basics
 %--------------------------------------
 SBJ_vars.SBJ        = 'IR69';
-SBJ_vars.raw_file   = {'IR69_raw_emodim_clinical.mat'};
-SBJ_vars.block_name = {''};
-SBJ_vars.restart    = {1};
-SBJ_vars.low_srate  = [0];
+SBJ_vars.raw_file   = {'IR69_raw_emodim_clinical.mat', 'IR69_raw_emodim_clinical_R2.mat'};
+SBJ_vars.block_name = {'R1','R2'};
+SBJ_vars.restart    = {1, 0};
+SBJ_vars.low_srate  = [0, 0];
 
 SBJ_vars.dirs.SBJ     = [root_dir 'emodim/data/' SBJ_vars.SBJ '/'];
 SBJ_vars.dirs.raw     = [SBJ_vars.dirs.SBJ '00_raw/'];
@@ -99,7 +99,7 @@ SBJ_vars.bs_width    = 2;
 % Time Parameters
 %--------------------------------------
 % NLX photodiode: first event is ~5s; last event ~1782s
-SBJ_vars.analysis_time = {{[400.0 2160.0]}};
+SBJ_vars.analysis_time = {{[400.0 2160.0]}, {[0.0 750.0}};
 
 %--------------------------------------
 % Artifact Rejection Parameters
