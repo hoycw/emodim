@@ -99,7 +99,7 @@ SBJ_vars.bs_width    = 2;
 % Time Parameters
 %--------------------------------------
 % NLX photodiode: first event is ~5s; last event ~1782s
-SBJ_vars.analysis_time = {{[400.0 2160.0]}, {[0.0 750.0}};
+SBJ_vars.analysis_time = {{[400.0 2160.0]}, {[0.0 750.0]}};
 
 %--------------------------------------
 % Artifact Rejection Parameters
