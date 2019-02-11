@@ -18,8 +18,7 @@ ft_defaults
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
-%% Process channel labels
-% Keep any real but "bad" channels
+%% Keep any real but "bad" channels
 toss = ones(size(SBJ_vars.ch_lab.bad));
 for bad_ix = 1:numel(SBJ_vars.ch_lab.bad)
     ch_match = zeros(size(SBJ_vars.ch_lab.probes));
@@ -34,6 +33,7 @@ for bad_ix = 1:numel(SBJ_vars.ch_lab.bad)
 end
 SBJ_vars.ch_lab.bad = SBJ_vars.ch_lab.bad(logical(toss));
 
+%% Process channel labels
 % Handle prefix and suffix
 if isfield(SBJ_vars.ch_lab,'prefix')
     for bad_ix = 1:numel(SBJ_vars.ch_lab.bad)        
