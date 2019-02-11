@@ -75,7 +75,11 @@ if numel(SBJ_vars.raw_file)>1
 else
     block_suffix = SBJ_vars.block_name{1};   % should just be ''
 end
-import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat'];
+if any(SBJ_vars.low_srate)
+    import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(SBJ_vars.low_srate(1)),'hz',block_suffix,'.mat'];
+else
+    import_filename = [SBJ_vars.dirs.import SBJ '_',num2str(proc_vars.resample_freq),'hz',block_suffix,'.mat'];
+end
 load(import_filename);
 
 % % Original (single electrode) labels
