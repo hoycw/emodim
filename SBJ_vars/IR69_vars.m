@@ -58,9 +58,9 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preo
 %SBJ_vars.orig_srate = hdr.Fs;
 %clear hdr;
 
-SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','ROF','RIN','FOA','FOP','LES'};
-SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
-SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP'};
+SBJ_vars.ch_lab.probes     = {'RHH','RTH','ROF','RIN','FOA','FOP','LES'}; % 'RAM' was all bad
+SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
+SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP'};
 SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
@@ -79,6 +79,14 @@ SBJ_vars.nlx_macro_inverted  = 1;
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
+    'RAM*',...%crazy bad
+    'RHH1','RHH2','RHH3','RHH7',... % crazy bad
+    'RTH1','RTH2','RTH5','RTH6','RTH7','RTH8',...%crazy bad
+    'ROF3','ROF4','ROF8',...%crazy bad
+    'RIN4','RIN5','RIN6','RIN7','RIN10',...% crazy bad
+    'FOA7',... %crazy bad
+    'FOP1','FOP2','FOP5','FOP6','FOP7',...% crazy bad
+    'LES3','LES4','LES5',...%crazy bad
     'RHH8','FOA8','FOP8','FOP9','FOP10','LES8','LES9','LES10',... % out of brain
     'EKG',...% EKG
     'Mark1','Mark2','REF',...% not real data
