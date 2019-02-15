@@ -1,4 +1,4 @@
-function SBJ06_HFA_steps_save(SBJ,pipeline_id,an_id)
+function SBJ06_HFA_save(SBJ,pipeline_id,an_id)
 % Calculates high frequency activity and saves fieldtrip struct
 
 %% Set up paths
@@ -20,7 +20,7 @@ eval(an_vars_cmd);
 
 % Load Data
 load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
-load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'));
+% load(strcat(SBJ_vars.dirs.events,SBJ,'_trial_info_final.mat'));
 
 %% Select Channel(s)
 cfgs = [];
@@ -31,28 +31,26 @@ roi = ft_selectdata(cfgs,data);
 fprintf('===================================================\n');
 fprintf('------------------ HFA Calculations ---------------\n');
 fprintf('===================================================\n');
+cfg_hfa.trials = 'all';
 if strcmp(HFA_type,'multiband')
-    cfg_hfa.trials = 'all';
     hfa = ft_freqanalysis(cfg_hfa, roi);
-elseif strcmp(HFA_type,'broadband')
-    error('Stop using broadband and use multitapers you dummy!');
-    %         % Filter to HFA band
-    %         cfgpp = [];
-    %         cfgpp.hpfilter  = 'yes';
-    %         cfgpp.hpfreq    = 70;
-    %         cfgpp.lpfilter  = 'yes';
-    %         cfgpp.lpfreq    = 150;
-    %         roi = ft_preprocessing(cfgpp,roi);
-    %         % Hilbert method to extract power
+elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
+    % Hilbert method to extract power
+    if strcmp(bsln_type,'zboot')
+        error('Treating filter-hilbert output as "trials" is incompatible with baslines smapled across trials: zboot');
+    end
+    hfas = cell(size(fois));
+    for f_ix = 1:numel(fois)
+        cfg_hfa.bpfreq = bp_lim(f_ix,:);
+        fprintf('\n------> %s filtering: %.03f - %.03f\n', HFA_type, bp_lim(f_ix,1), bp_lim(f_ix,2));
+        hfas{f_ix} = ft_preprocessing(cfg_hfa,roi);
+    end
+    % Treat different freqs as trials
+        hfa = ft_appenddata([], hfas{:}); clear hfas;
+    end
 else
     error('Unknown HFA_type provided');
 end
-
-data_out_filename = strcat(SBJ_vars.dirs.proc,SBJ,'_',an_id,'_allBands.mat');
-fprintf('===================================================\n');
-fprintf('--- Saving %s ------------------\n',data_out_filename);
-fprintf('===================================================\n');
-save(data_out_filename,'-v7.3','hfa');
 
 %% Baseline Correction
 fprintf('===================================================\n');
@@ -60,7 +58,13 @@ fprintf('---------------- Baseline Correction --------------\n');
 fprintf('===================================================\n');
 switch bsln_type
     case {'zboot', 'zscore'}
-        hfa = fn_bsln_ft_tfr(hfa,bsln_lim,bsln_type,n_boots);
+        if strcmp(HFA_type,'multiband')
+            hfa = fn_bsln_ft_tfr(hfa,bsln_lim,bsln_type,n_boots);
+        elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
+            hfa = fn_bsln_ft_filtered(hfa,bsln_lim,bsln_type,n_boots);
+        else
+            error('Unknown HFA_type provided');
+        end
     case {'relchange', 'demean', 'my_relchange'}
         error(['bsln_type ' bsln_type ' is not compatible with one-sample t test bsln activation stats']);
 %         cfgbsln = [];
@@ -72,19 +76,13 @@ switch bsln_type
         error(['No baseline implemented for bsln_type: ' bsln_type]);
 end
 
-data_out_filename = strcat(SBJ_vars.dirs.proc,SBJ,'_',an_id,'_bsln.mat');
-fprintf('===================================================\n');
-fprintf('--- Saving %s ------------------\n',data_out_filename);
-fprintf('===================================================\n');
-save(data_out_filename,'-v7.3','hfa');
-
 %% Smooth Power Time Series
 if smooth_pow_ts
     fprintf('===================================================\n');
     fprintf('----------------- Filtering Power -----------------\n');
     fprintf('===================================================\n');
     for ch_ix = 1:numel(hfa.label)
-        for f_ix = 1:numel(hfa.freq)
+        for f_ix = 1:numel(fois)
             if strcmp(lp_yn,'yes') && strcmp(hp_yn,'yes')
                 hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_bandpass(...
                     hfa.powspctrm(:,ch_ix,f_ix,:), roi.fsample, hp_freq, lp_freq);
@@ -98,12 +96,6 @@ if smooth_pow_ts
             end
         end
     end
-    
-    data_out_filename = strcat(SBJ_vars.dirs.proc,SBJ,'_',an_id,'_sm.mat');
-    fprintf('===================================================\n');
-    fprintf('--- Saving %s ------------------\n',data_out_filename);
-    fprintf('===================================================\n');
-    save(data_out_filename,'-v7.3','hfa');
 end
 
 %% Merge multiple bands
@@ -112,6 +104,11 @@ if strcmp(HFA_type,'multiband')
     cfg_avg.freq = 'all';
     cfg_avg.avgoverfreq = 'yes';
     hfa = ft_selectdata(cfg_avg,hfa);
+elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
+    hfa = hfas{1};
+    for t_ix = 1:numel(hfa.trial)
+        hfa.trial{t_ix} = mean(
+    end
 end
 
 %% Save Results

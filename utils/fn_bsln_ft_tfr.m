@@ -1,4 +1,4 @@
-function bslnd_tfr = fn_bsln_ft_tfr(tfr, bsln_lim, bsln_type, n_boots)
+function norm_tfr = fn_bsln_ft_tfr(tfr, bsln_lim, bsln_type, n_boots)
 %% Baseline correct one TFR based on bsln_lim epoch, both from ft_freqanalysis
 % INPUTS:
 %   tfr [ft dataset] - full output of ft_freqanalysis
@@ -25,7 +25,7 @@ cfgs = [];
 cfgs.latency = bsln_lim;
 bsln_tfr = ft_selectdata(cfgs,tfr);
 
-bslnd_tfr = tfr;
+norm_tfr = tfr;
 for ch = 1:size(tfr.powspctrm,2)
     for f = 1:size(tfr.powspctrm,3)
         % Create bootstrap distribution if necessary
@@ -48,13 +48,13 @@ for ch = 1:size(tfr.powspctrm,2)
             trl_bsln    = bsln_tfr.powspctrm(t,ch,f,:);
             switch bsln_type
                 case 'zboot'
-                    bslnd_tfr.powspctrm(t,ch,f,:) = (trials-mean(sample_means))/mean(sample_stds);                    
+                    norm_tfr.powspctrm(t,ch,f,:) = (trials-mean(sample_means))/mean(sample_stds);                    
                 case 'zscore'
-                    bslnd_tfr.powspctrm(t,ch,f,:) = (trials-nanmean(trl_bsln))/nanstd(trl_bsln);
+                    norm_tfr.powspctrm(t,ch,f,:) = (trials-nanmean(trl_bsln))/nanstd(trl_bsln);
                 case 'demean'
-                    bslnd_tfr.powspctrm(t,ch,f,:) = trials-nanmean(trl_bsln);
+                    norm_tfr.powspctrm(t,ch,f,:) = trials-nanmean(trl_bsln);
                 case 'my_relchange'
-                    bslnd_tfr.powspctrm(t,ch,f,:) = (trials-nanmean(trl_bsln))/nanmean(trl_bsln);
+                    norm_tfr.powspctrm(t,ch,f,:) = (trials-nanmean(trl_bsln))/nanmean(trl_bsln);
                 otherwise
                     error(['Unknown bsln_type: ' bsln_type])
             end
