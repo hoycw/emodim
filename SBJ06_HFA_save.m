@@ -25,7 +25,7 @@ load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
 %% Select Channel(s)
 cfgs = [];
 cfgs.channel = SBJ_vars.ch_lab.ROI;
-roi = ft_selectdata(cfgs,data);
+roi = ft_selectdata(cfgs,data); clear data;
 
 %% Compute HFA
 fprintf('===================================================\n');
@@ -36,20 +36,21 @@ if strcmp(HFA_type,'multiband')
     hfa = ft_freqanalysis(cfg_hfa, roi);
 elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
     % Hilbert method to extract power
-    if strcmp(bsln_type,'zboot')
-        error('Treating filter-hilbert output as "trials" is incompatible with baslines smapled across trials: zboot');
-    end
     hfas = cell(size(fois));
+    orig_lab = roi.label;
     for f_ix = 1:numel(fois)
         cfg_hfa.bpfreq = bp_lim(f_ix,:);
         fprintf('\n------> %s filtering: %.03f - %.03f\n', HFA_type, bp_lim(f_ix,1), bp_lim(f_ix,2));
         hfas{f_ix} = ft_preprocessing(cfg_hfa,roi);
+        hfas{f_ix}.label = strcat(hfas{f_ix}.label,[':' num2str(fois(f_ix),4)]);
     end
-    % Treat different freqs as trials
+    % Treat different freqs as channels
+    hfa_tmp = hfas{1};      % Save to plug in averaged data
     hfa = ft_appenddata([], hfas{:}); clear hfas;
 else
     error('Unknown HFA_type provided');
 end
+roi_fsample = roi.fsample; clear roi;
 
 %% Baseline Correction
 fprintf('===================================================\n');
@@ -87,10 +88,10 @@ if smooth_pow_ts
         for f_ix = 1:numel(fois)
             if strcmp(lp_yn,'yes') && strcmp(hp_yn,'yes')
                 hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_bandpass(...
-                    hfa.powspctrm(:,ch_ix,f_ix,:), roi.fsample, hp_freq, lp_freq);
+                    hfa.powspctrm(:,ch_ix,f_ix,:), roi_fsample, hp_freq, lp_freq);
             elseif strcmp(lp_yn,'yes')
                 hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_lowpass(...
-                    squeeze(hfa.powspctrm(:,ch_ix,f_ix,:)), roi.fsample, lp_freq);
+                    squeeze(hfa.powspctrm(:,ch_ix,f_ix,:)), roi_fsample, lp_freq);
             elseif strcmp(hp_yn,'yes')
                 error('Why are you only high passing?');
             else
@@ -101,15 +102,26 @@ if smooth_pow_ts
 end
 
 %% Merge multiple bands
-cfg_avg = [];
 if strcmp(HFA_type,'multiband')
+    cfg_avg = [];
     cfg_avg.freq = 'all';
     cfg_avg.avgoverfreq = 'yes';
+    hfa = ft_selectdata(cfg_avg,hfa);
 elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
-    cfg_avg.trials = 'all';
-    cfg_avg.avgoverrpt = 'yes';
+    hfa_tmp.label = orig_lab;
+    lab_ix = 1;
+    ch_check = zeros(size(hfa.label));
+    for ch_ix = 1:numel(hfa_tmp.label)
+        ch_lab_idx = strfind(hfa.label,hfa_tmp.label{ch_ix});
+        ch_lab_ix = find(~cellfun(@isempty,ch_lab_idx));
+        ch_check(ch_lab_ix) = ch_check(ch_lab_ix)+ch_ix;
+        for t_ix = 1:numel(hfa_tmp.trial)
+            hfa_tmp.trial{t_ix}(ch_ix,:) = mean(hfa.trial{t_ix}(ch_lab_ix,:),1);
+        end
+        lab_ix = ch_lab_ix(end)+1;
+    end
+    hfa = hfa_tmp; clear hfa_tmp;
 end
-hfa = ft_selectdata(cfg_avg,hfa);
 
 %% Save Results
 data_out_filename = strcat(SBJ_vars.dirs.proc,SBJ,'_',an_id,'.mat');
