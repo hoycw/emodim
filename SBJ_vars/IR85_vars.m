@@ -73,6 +73,7 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'ROF2',... % loose
+    'RIT10','LAM8','LTH10',... % SUSPECTED out of brain, confirm when recon finished
     'EKG',...% EKG
     'DC02','DC03','DC04','E','REF'...% not real data
     };
