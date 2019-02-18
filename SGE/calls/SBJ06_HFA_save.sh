@@ -18,5 +18,7 @@ echo ${SBJ}
 echo ${func_call}
 echo $$
 echo ${func_call} > NotBackedUp/tmpSGE/${FUNCTION}_${SBJ}.m
+echo "wrote tmp.m inside SBJ06.sh call"
 time matlab -nodesktop -nosplash -nodisplay < NotBackedUp/tmpSGE/${FUNCTION}_${SBJ}.m
+echo "sent to MATLAB tmp.m inside SBJ06.sh call"
 rm NotBackedUp/tmpSGE/${FUNCTION}_${SBJ}.m
