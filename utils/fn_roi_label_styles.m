@@ -15,6 +15,7 @@ switch roi_id
         labels = all_rois;
         % Exclude FWM, '', OUT
         labels(strmatch('FWM',labels,'exact')) = [];
+        labels(strmatch('TWM',labels,'exact')) = [];
         labels(strmatch('OUT',labels,'exact')) = [];
         labels(strmatch('',labels,'exact')) = [];
         % einfo_col = 2;
@@ -27,7 +28,7 @@ switch roi_id
         labels = {'LPFC','MPFC','INS','OFC'};
         % einfo_col = 3;
     case 'gROI'
-        labels = {'LPFC','MPFC','INS','OFC','PAR','TMP','MTL'};
+        labels = {'LPFC','MPFC','INS','OFC','PAR','TMP','MTL','OCC'};
         % einfo_col = 3;
     case 'mnLPFC'
         labels = {'DLPFC','VLPFC','PM','aMCC','preSMA','SMA'};

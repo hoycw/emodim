@@ -15,7 +15,6 @@ addpath([root_dir 'emodim/scripts/utils/']);
 addpath(ft_dir);
 ft_defaults
 
-
 %% ========================================================================
 % Step 0 - Processing Variables
 % SBJ = '';
@@ -65,7 +64,13 @@ out = ft_databrowser(cfg_plot,data);
 
 % Save out the bad_epochs from the preprocessed data
 bad_epochs = out.artfctdef.visual.artifact;
-save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc.mat'),'-v7.3','bad_epochs');
+tiny_bad = find(diff(bad_epochs,1,2)<10);
+if ~isempty(tiny_bad)
+    warning('Tiny bad epochs detected:\n');
+    disp(bad_epochs(tiny_bad,:));
+    bad_epochs(tiny_bad,:) = [];
+end
+save(strcat(SBJ_vars.dirs.events,SBJ,'_colin_bad_epochs_preproc_all.mat'),'-v7.3','bad_epochs');
 
 %% ========================================================================
 %   Step 5- Process the behavioral log files
