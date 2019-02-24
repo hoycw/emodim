@@ -238,7 +238,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     
     % Check that no bad channels snuck through (e.g., mislabeled)
     for ch_ix = 1:numel(SBJ_vars.ch_lab.bad)
-        if any(strcmp(SBJ_vars.ch_lab.bad{ch_ix},elec.label))
+        if any(strcmp(SBJ_vars.ch_lab.bad{ch_ix},data.label))
             error(['ERROR: bad channel still in imported data after re-labeling: ' SBJ_vars.ch_lab.bad{ch_ix}]);
         end
     end
@@ -246,9 +246,19 @@ for b_ix = 1:numel(SBJ_vars.block_name)
     % Sort channels alphabetically
     data = fn_reorder_data(data, {});
     if ~isempty(SBJ_vars.ch_lab.eeg)
+        for ch_ix = 1:numel(SBJ_vars.ch_lab.bad)
+            if any(strcmp(SBJ_vars.ch_lab.bad{ch_ix},eeg.label))
+                error(['ERROR: bad channel still in imported data after re-labeling: ' SBJ_vars.ch_lab.bad{ch_ix}]);
+            end
+        end
         eeg = fn_reorder_data(eeg, sort(eeg.label));
     end
     if ~isempty(SBJ_vars.ch_lab.eog)
+        for ch_ix = 1:numel(SBJ_vars.ch_lab.bad)
+            if any(strcmp(SBJ_vars.ch_lab.bad{ch_ix},eog.label))
+                error(['ERROR: bad channel still in imported data after re-labeling: ' SBJ_vars.ch_lab.bad{ch_ix}]);
+            end
+        end
         eog = fn_reorder_data(eog, sort(eog.label));
     end
     
