@@ -1,4 +1,4 @@
-function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_labels, hemi, plot_out)
+function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_labels, hemi, plot_out, varargin)
 %% Plot a reconstruction with electrodes
 % INPUTS:
 %   SBJ [str] - subject ID to plot
@@ -13,7 +13,28 @@ function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_l
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
-view_angle = [-90 0];
+% Handle variable inputs
+if ~isempty(varargin)
+    for v = 1:2:numel(varargin)
+        if strcmp(varargin{v},'view_angle')
+            view_angle = varargin{v+1};
+        elseif strcmp(varargin{v},'mesh_alpha') && varargin{v+1}>0 && varargin{v+1}<=1
+            mesh_alpha = varargin{v+1};
+            mesh_alpha_set = 1;
+        else
+            error(['Unknown varargin ' num2str(v) ': ' varargin{v}]);
+        end
+    end
+end
+% Define default options
+if ~exist('view_angle','var')
+    view_angle     = [-90 0];
+end
+if ~exist('mesh_alpha','var')
+    mesh_alpha     = 0.8;
+    mesh_alpha_set = 0;
+end
+
 if strcmp(reg_type,'v') || strcmp(reg_type,'s')
     reg_suffix = ['_' reg_type];
 else
@@ -22,6 +43,9 @@ end
 
 %% Load elec struct
 load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
+if ~mesh_alpha_set && any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
+    mesh_alpha = 0.4;
+end
 
 %% Remove electrodes that aren't in hemisphere
 if ~plot_out
@@ -113,10 +137,6 @@ if strcmp(plot_type,'3d')
     h = figure;
     
     % Plot 3D mesh
-    mesh_alpha = 0.8;
-    if any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
-        mesh_alpha = 0.4;
-    end
     ft_plot_mesh(mesh, 'facecolor', [0.781 0.762 0.664], 'EdgeColor', 'none', 'facealpha', mesh_alpha);
     
     % Plot electrodes on top

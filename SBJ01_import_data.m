@@ -236,6 +236,13 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         end
     end
     
+    % Check that no bad channels snuck through (e.g., mislabeled)
+    for ch_ix = 1:numel(SBJ_vars.ch_lab.bad)
+        if any(strcmp(SBJ_vars.ch_lab.bad{ch_ix},elec.label))
+            error(['ERROR: bad channel still in imported data after re-labeling: ' SBJ_vars.ch_lab.bad{ch_ix}]);
+        end
+    end
+    
     % Sort channels alphabetically
     data = fn_reorder_data(data, {});
     if ~isempty(SBJ_vars.ch_lab.eeg)

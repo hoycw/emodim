@@ -66,14 +66,14 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
 %SBJ_vars.ch_lab.suffix = '-Ref';    % after every channel except 'EDF Annotations'
 SBJ_vars.ch_lab.mislabel = {{'RAM2-1','RSM2'},{'2MEG1','SMG1'},{'2MEG2','SMG2'},{'2MEG3','SMG3'},...% remove # in label of 2nd MEG probe
-                            {'2MEG4','SMG4'},{'2MEG5','SMG5'},{'2MEG6','SMG6'},{'2MEG7','SMG7'},...
-                            {'2MEG8','SMG8'},{'2MEG9','SMG9'},{'2MEG10','SMG10'}};
+                            {'2MEG4','SMG4'}};%,{'2MEG5','SMG5'},{'2MEG6','SMG6'},{'2MEG7','SMG7'},...
+%                            {'2MEG8','SMG8'},{'2MEG9','SMG9'},{'2MEG10','SMG10'}};
 
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
-    'RTH4','RTH5','SMG5','SMG6','SMG7','SMG8','RAC8','RAC9','RAC10',...% spiking 
+    'RTH4','RTH5','2MEG5','2MEG6','2MEG7','2MEG8','RAC8','RAC9','RAC10',...% spiking 
     'RAM10','ROF10',...% secondary spiking
-    'MEG10','SMG9','SMG10','LAC9','LAC10','RPC10','RSM10',...% out of brain
+    'MEG10','2MEG9','2MEG10','LAC9','LAC10','RPC10','RSM10',...% out of brain
     'REF','EKG','E','DC02','DC03','DC04',...% not real data
     'Z','Gnd','EKG'...% not real data
     };
