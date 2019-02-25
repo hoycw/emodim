@@ -1,5 +1,5 @@
 -o /home/knight/emodim/scripts/NotBackedUp/SGEout
 -e /home/knight/emodim/scripts/NotBackedUp/SGEout
 -v pipeline_id="main_ft",an_id="HGh_zsc1to7_sm0_fLog"
--l mem_free=24G
+-l mem_free=36G
 -N HFAsave
