@@ -93,6 +93,7 @@ for b_ix = 1:numel(SBJ_vars.block_name)
         end
     elseif numel(SBJ_vars.ch_lab.ref_type)==numel(SBJ_vars.ch_lab.probes)
         left_out_ch = {};
+        SBJ_vars.ch_lab.probes = sort(SBJ_vars.ch_lab.probes);  % keep alphabetical order
         for d = 1:numel(SBJ_vars.ch_lab.probes)
             cfg = [];
             cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), data.label);
@@ -194,7 +195,6 @@ end
 
 %% Concatenate blocks
 data = fn_concat_blocks(data_all);
-data = fn_reorder_data(data, {});   % re-sort to alphabetical
 
 %% Save data
 output_filename = strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat');

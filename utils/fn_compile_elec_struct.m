@@ -92,6 +92,7 @@ elec = fn_select_elec(cfg,elec);
 
 % Order them to match data.label
 elec = fn_reorder_elec(elec, data.label);
+SBJ_vars.ch_lab.probes = sort(SBJ_vars.ch_lab.probes);  %alphabetical, like preproc
 
 %% Apply montage per probe
 left_out_ch = {};
@@ -102,7 +103,7 @@ name_holder = cell([2 numel(SBJ_vars.ch_lab.probes)]);
 elec_reref  = cell([1 numel(SBJ_vars.ch_lab.probes)]);
 for d = 1:numel(SBJ_vars.ch_lab.probes)
     cfg = [];
-    cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), data.label);
+    cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), elec.label);
     probe_elec  = fn_select_elec(cfg,elec);
     %     probe_data = ft_selectdata(cfg,data);   % Grab data from this probe to plot in PSD comparison
     %     probe_data.elec = fn_elec_ch_select(elec,cfg.channel);
