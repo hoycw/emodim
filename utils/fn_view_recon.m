@@ -10,6 +10,8 @@ function fn_view_recon(SBJ, pipeline_id, plot_type, view_space, reg_type, show_l
 %   hemi [str] - {'l', 'r', 'b'} hemisphere to plot
 
 [root_dir, app_dir] = fn_get_root_dir(); ft_dir = [app_dir 'fieldtrip/'];
+
+%% Variable Handling
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
 eval(SBJ_vars_cmd);
 
@@ -20,31 +22,47 @@ if ~isempty(varargin)
             view_angle = varargin{v+1};
         elseif strcmp(varargin{v},'mesh_alpha') && varargin{v+1}>0 && varargin{v+1}<=1
             mesh_alpha = varargin{v+1};
-            mesh_alpha_set = 1;
         else
             error(['Unknown varargin ' num2str(v) ': ' varargin{v}]);
         end
     end
 end
+
 % Define default options
 if ~exist('view_angle','var')
     view_angle     = [-90 0];
 end
 if ~exist('mesh_alpha','var')
-    mesh_alpha     = 0.8;
-    mesh_alpha_set = 0;
+    if any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
+        mesh_alpha = 0.4;
+    else
+        mesh_alpha     = 0.8;
+    end
 end
 
 if strcmp(reg_type,'v') || strcmp(reg_type,'s')
+    % MNI space
     reg_suffix = ['_' reg_type];
 else
+    % Patient space
     reg_suffix = '';
 end
 
 %% Load elec struct
-load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
-if ~mesh_alpha_set && any(strcmp(SBJ_vars.ch_lab.probe_type,'seeg'))
-    mesh_alpha = 0.4;
+if isempty(pipeline_id)
+    % Original elec files
+    elec_fname = eval(['SBJ_vars.recon.elec_' view_space reg_suffix]);
+    slash = strfind(elec_fname,'/'); elec_suffix = elec_fname(slash(end)+numel(SBJ)+2:end-4);
+    
+    tmp = load(elec_fname);
+    elec_var_name = fieldnames(tmp);
+    if ~strcmp(elec_var_name,elec_suffix)
+        warning(['\t!!!! ' SBJ ' elec names in variable and file names do not match! file=' elec_suffix '; var=' elec_var_name{1}]);
+    end
+    eval(['elec = tmp.' elec_var_name{1} ';']); clear tmp;
+else
+    % Preprocessed (bipolar) elec files
+    load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
 end
 
 %% Remove electrodes that aren't in hemisphere

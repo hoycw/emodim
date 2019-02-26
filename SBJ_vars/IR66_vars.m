@@ -60,7 +60,7 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_post
 SBJ_vars.ch_lab.probes     = {'RAM','RHH','RTH','RAC','ROF','RPC','LAM','LHH','LTH','LAC','LOF','LPC'};
 SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP','BP'};
-SBJ_vars.ch_lab.ROI        = {'all','-RAM2-3'};
+SBJ_vars.ch_lab.ROI        = {'all'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
@@ -70,8 +70,8 @@ SBJ_vars.ch_lab.mislabel = {{'CZ ','CZ'}};
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'LHH1','LHH2','LHH3','LTH1','LTH2','LTH3','LTH4',...% epileptic
-    'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, trying to save RAM1, RAM2
-    'RAM1','LAM1','LAM2',...% rejected after preproc cleaning
+    'RHH1','RHH2','RHH3','RHH4','RTH1','RTH2','RTH3',...% epileptic, originally tried then stopped saving RAM1, RAM2
+    'RAM1','RAM2','LAM1','LAM2',...% rejected after preproc cleaning
     'LAC8','LAC9','LAC10',...% out of brain
     'DC01','DC03','DC04',...% empty analogs
     'GND','REF','EKG'...% not real data

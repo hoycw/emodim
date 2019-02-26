@@ -60,7 +60,7 @@ SBJ_vars.recon.fs_Dx      = [SBJ_vars.dirs.recon 'Scans/' SBJ_vars.SBJ '_fs_preo
 SBJ_vars.ch_lab.probes     = {'AM','HH','TH','AC','PC','OF','PST','ABT','PBT'};
 SBJ_vars.ch_lab.probe_type = {'seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg','seeg'};
 SBJ_vars.ch_lab.ref_type   = {'BP','BP','BP','BP','BP','BP','BP','BP','BP'};
-SBJ_vars.ch_lab.ROI        = {'all','-ABT8-9','-PBT9-10' ,'-AM9-10'};
+SBJ_vars.ch_lab.ROI        = {'all','-ABT8-9'};
 SBJ_vars.ch_lab.eeg_ROI    = {};
 
 %SBJ_vars.ch_lab.prefix = 'POL ';    % before every channel except 'EDF Annotations'
@@ -70,6 +70,8 @@ SBJ_vars.ch_lab.eeg_ROI    = {};
 SBJ_vars.ref_exclude = {}; %exclude from the CAR
 SBJ_vars.ch_lab.bad = {...
     'HH1',... % epileptic
+    'PBT9','PBT10',...% out of brain
+    'AM10',...%half out, shows electrical noise
     'DC02','DC03','DC04',...% not real data
     'E','EKG','XREF','GRND'...% not real data
     };
