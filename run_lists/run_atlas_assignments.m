@@ -1,5 +1,5 @@
-% SBJs = {'CP24','IR61','IR66','IR68','IR71','IR74','IR75','IR78','IR84'};
-SBJs = {'IR68','IR74','IR78','IR84'};
+SBJs = {'CP24','IR61','IR66','IR68','IR71','IR74','IR75','IR78','IR84'};
+% Jacob anat development SBJs = {'IR68','IR74','IR78','IR84'};
 
 %% Directories
 if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'hoycw/Apps/fieldtrip/'];

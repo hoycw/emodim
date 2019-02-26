@@ -123,6 +123,14 @@ elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
     hfa = hfa_tmp; clear hfa_tmp;
 end
 
+%% Downsample
+if resample_ts && hfa.fsample~=resample_freq
+    cfgrs = [];
+    cfgrs.resamplefs = resample_freq;
+    cfgrs.detrend = 'no';
+    hfa = ft_resampledata(cfgrs, hfa);
+end
+
 %% Save Results
 data_out_filename = strcat(SBJ_vars.dirs.proc,SBJ,'_',an_id,'.mat');
 fprintf('===================================================\n');
