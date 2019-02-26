@@ -144,8 +144,8 @@ end
 %   save that as tsv
 fn_compile_elec_struct(SBJ,'main_ft','pat','',1);
 fn_compile_elec_struct(SBJ,'main_ft','mni','v',1);
-fn_save_elec_atlas(SBJ,'main_ft','pat','','DK');
-fn_save_elec_atlas(SBJ,'main_ft','pat','','Dx');
+fn_save_elec_atlas(SBJ,'main_ft','pat','','DK',1);
+fn_save_elec_atlas(SBJ,'main_ft','pat','','Dx',1);
 
 %% ========================================================================
 %   Step 8- Combine Blocks and Bad Epochs
