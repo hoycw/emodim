@@ -142,8 +142,8 @@ end
 %  ========================================================================
 % look at recon and create spreadsheet of general ROI, WM/GM, etc.
 %   save that as tsv
-fn_compile_elec_struct(SBJ,'main_ft','pat','');
-fn_compile_elec_struct(SBJ,'main_ft','mni','v');
+fn_compile_elec_struct(SBJ,'main_ft','pat','',1);
+fn_compile_elec_struct(SBJ,'main_ft','mni','v',1);
 fn_save_elec_atlas(SBJ,'main_ft','pat','','DK');
 fn_save_elec_atlas(SBJ,'main_ft','pat','','Dx');
 

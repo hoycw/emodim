@@ -100,62 +100,60 @@ elec = fn_reorder_elec(elec, data.label);
 SBJ_vars.ch_lab.probes = sort(SBJ_vars.ch_lab.probes);  %alphabetical, like preproc
 
 %% Apply montage per probe
-if reref
-    left_out_ch = {};
-    elec_labels = {};
-    elec_types  = {};
-    danger_name = false([1 numel(SBJ_vars.ch_lab.probes)]);
-    name_holder = cell([2 numel(SBJ_vars.ch_lab.probes)]);
-    elec_reref  = cell([1 numel(SBJ_vars.ch_lab.probes)]);
-    for d = 1:numel(SBJ_vars.ch_lab.probes)
-        cfg = [];
-        cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), elec.label);
-        probe_elec  = fn_select_elec(cfg,elec);
-        %     probe_data = ft_selectdata(cfg,data);   % Grab data from this probe to plot in PSD comparison
-        %     probe_data.elec = fn_elec_ch_select(elec,cfg.channel);
-        
-        % Check if the names of these elecs will cause problems
-        eeg1010_match = strfind(probe_elec.label,'AF');
-        if ~isempty([eeg1010_match{:}])
-            danger_name(d)   = true;
-            name_holder{1,d} = probe_elec.label;
-            name_holder{2,d} = fn_generate_random_strings(numel(probe_elec.label),'',10);
-            probe_elec.label = name_holder{2,d};
-        end
-        
-        % Create referencing scheme
-        if strcmp(SBJ_vars.ch_lab.ref_type{d},'BP')
-            cfg.montage.labelold = cfg.channel;
-            [cfg.montage.labelnew, cfg.montage.tra, left_out_ch{d}] = fn_create_ref_scheme_bipolar(cfg.channel);
-            cfg.updatesens = 'yes';
-            elec_reref{d} = ft_apply_montage(probe_elec, cfg.montage);%, 'feedback', 'none', 'keepunused', 'no', 'balancename', bname);
-            %     data_reref{d} = ft_preprocessing(cfg, probe_data);
-        else
-            elec_reref{d} = probe_elec;
-        end
-        if d==1
-            elec_labels = elec_reref{d}.label;
-            elec_types  = repmat(SBJ_vars.ch_lab.probe_type(d),size(elec_reref{d}.label));
-        else
-            elec_labels = cat(find(size(elec_labels)>1), elec_labels, elec_reref{d}.label);
-            elec_types  = cat(find(size(elec_types)>1), elec_types, repmat(SBJ_vars.ch_lab.probe_type(d),size(elec_reref{d}.label)));
-        end
-    end
-    
-    % Recombine
+left_out_ch = {};
+elec_labels = {};
+elec_types  = {};
+danger_name = false([1 numel(SBJ_vars.ch_lab.probes)]);
+name_holder = cell([2 numel(SBJ_vars.ch_lab.probes)]);
+elec_reref  = cell([1 numel(SBJ_vars.ch_lab.probes)]);
+for d = 1:numel(SBJ_vars.ch_lab.probes)
     cfg = [];
-    elec = ft_appendsens(cfg,elec_reref{:});
+    cfg.channel = ft_channelselection(strcat(SBJ_vars.ch_lab.probes{d},'*'), elec.label);
+    probe_elec  = fn_select_elec(cfg,elec);
+    %     probe_data = ft_selectdata(cfg,data);   % Grab data from this probe to plot in PSD comparison
+    %     probe_data.elec = fn_elec_ch_select(elec,cfg.channel);
     
-    % Re-label any problematic channel labels
-    if any(danger_name)
-        for d_ix = find(danger_name)
-            for s_ix = 1:numel(name_holder{2,d_ix})
-                elec.label{strcmp(elec.label,name_holder{2,2}{s_ix})} = name_holder{1,d_ix}{s_ix};
-            end
-        end
+    % Check if the names of these elecs will cause problems
+    eeg1010_match = strfind(probe_elec.label,'AF');
+    if ~isempty([eeg1010_match{:}])
+        danger_name(d)   = true;
+        name_holder{1,d} = probe_elec.label;
+        name_holder{2,d} = fn_generate_random_strings(numel(probe_elec.label),'',10);
+        probe_elec.label = name_holder{2,d};
     end
     
+    % Create referencing scheme
+    if reref && strcmp(SBJ_vars.ch_lab.ref_type{d},'BP')
+        cfg.montage.labelold = cfg.channel;
+        [cfg.montage.labelnew, cfg.montage.tra, left_out_ch{d}] = fn_create_ref_scheme_bipolar(cfg.channel);
+        cfg.updatesens = 'yes';
+        elec_reref{d} = ft_apply_montage(probe_elec, cfg.montage);%, 'feedback', 'none', 'keepunused', 'no', 'balancename', bname);
+        %     data_reref{d} = ft_preprocessing(cfg, probe_data);
+    else
+        elec_reref{d} = probe_elec;
+    end
+    if d==1
+        elec_labels = elec_reref{d}.label;
+        elec_types  = repmat(SBJ_vars.ch_lab.probe_type(d),size(elec_reref{d}.label));
+    else
+        elec_labels = cat(find(size(elec_labels)>1), elec_labels, elec_reref{d}.label);
+        elec_types  = cat(find(size(elec_types)>1), elec_types, repmat(SBJ_vars.ch_lab.probe_type(d),size(elec_reref{d}.label)));
+    end
 end
+
+% Recombine
+cfg = [];
+elec = ft_appendsens(cfg,elec_reref{:});
+
+% Re-label any problematic channel labels
+if any(danger_name)
+    for d_ix = find(danger_name)
+        for s_ix = 1:numel(name_holder{2,d_ix})
+            elec.label{strcmp(elec.label,name_holder{2,2}{s_ix})} = name_holder{1,d_ix}{s_ix};
+        end
+    end
+end
+
 
 %% Add Channel Types
 elec.type = 'ieeg';

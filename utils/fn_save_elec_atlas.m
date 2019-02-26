@@ -1,4 +1,4 @@
-function fn_save_elec_atlas(SBJ, pipeline_id, view_space, reg_type, atlas_name)
+function fn_save_elec_atlas(SBJ, pipeline_id, view_space, reg_type, atlas_name, reref)
 %% Plot a reconstruction with electrodes
 % INPUTS:
 %   SBJ [str] - subject ID to plot
@@ -6,6 +6,7 @@ function fn_save_elec_atlas(SBJ, pipeline_id, view_space, reg_type, atlas_name)
 %   view_space [str] - {'pat', 'mni'}
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
 %   atlas_name [str] - {'DK','Dx','Yeo7','Yeo17'} are the only ones implemented so far
+%   reref [0/1] - rereferenced positions (1) or original (0)
 
 [root_dir, ~] = fn_get_root_dir();
 SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
@@ -16,9 +17,14 @@ if strcmp(reg_type,'v') || strcmp(reg_type,'s')
 else
     reg_suffix = '';
 end
+if reref
+    reref_suffix = '';
+else
+    reref_suffix = '_orig';
+end
 
 %% Load elec struct
-load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'.mat']);
+load([SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,reref_suffix,'.mat']);
 
 %% Load Atlas
 fprintf('Using atlas: %s\n',atlas_name);
@@ -43,7 +49,7 @@ atlas.name = atlas_name;
 elec = fn_atlas_lookup(elec,atlas,'min_qry_rng',1,'max_qry_rng',5);
 
 %% Save elec strcut with atlas labels
-out_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,'_',atlas_name,'.mat'];
+out_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_',view_space,reg_suffix,reref_suffix,'_',atlas_name,'.mat'];
 fprintf('Saving %s\n',out_fname);
 fprintf('==================================================================\n');
 save(out_fname,'-v7.3','elec');
