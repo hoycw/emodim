@@ -24,7 +24,7 @@ load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
 
 %% Select Channel(s)
 cfgs = [];
-cfgs.channel = SBJ_vars.ch_lab.ROI;
+cfgs.channel = SBJ_vars.ch_lab.ROI;a
 roi = ft_selectdata(cfgs,data); clear data;
 
 %% Compute HFA

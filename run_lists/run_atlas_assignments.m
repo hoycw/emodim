@@ -1,5 +1,6 @@
-SBJs = {'CP24','IR61','IR66','IR68','IR71','IR74','IR75','IR78','IR84'};
+% SBJs = {'CP24','IR61','IR66','IR68','IR71','IR74','IR75','IR78','IR84'};
 % Jacob anat development SBJs = {'IR68','IR74','IR78','IR84'};
+SBJs = {'IR61','IR71'}; % remove -ROI
 
 %% Directories
 if exist('/home/knight/','dir');root_dir='/home/knight/';ft_dir=[root_dir 'hoycw/Apps/fieldtrip/'];
@@ -14,10 +15,10 @@ ft_defaults
 
 %% Compare to atlases
 for s = 1:numel(SBJs)
-    fn_compile_elec_struct(SBJs{s},'main_ft','pat','',0);
-    fn_compile_elec_struct(SBJs{s},'main_ft','mni','v',0);
-    fn_save_elec_atlas(SBJs{s},'main_ft','pat','','DK',0);
-    fn_save_elec_atlas(SBJs{s},'main_ft','pat','','Dx',0);
+    fn_compile_elec_struct(SBJs{s},'main_ft','pat','',1);
+    fn_compile_elec_struct(SBJs{s},'main_ft','mni','v',1);
+    fn_save_elec_atlas(SBJs{s},'main_ft','pat','','DK',1);
+    fn_save_elec_atlas(SBJs{s},'main_ft','pat','','Dx',1);
 %     fn_save_elec_tissue(SBJs{s},'main_ft','pat','','Dx');
 %     fn_save_elec_tissue(SBJs{s},'main_ft','pat','','DK');
 %     fn_save_elec_atlas(SBJs{s},'main_ft','mni','v','Yeo7');

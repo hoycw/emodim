@@ -154,6 +154,10 @@ if any(danger_name)
     end
 end
 
+% Remove non-ROI (bad) electrodes (shouldn't do anything if non-reref)
+cfgs = [];
+cfgs.channel = SBJ_vars.ch_lab.ROI;
+elec = fn_select_elec(cfgs,elec);
 
 %% Add Channel Types
 elec.type = 'ieeg';
