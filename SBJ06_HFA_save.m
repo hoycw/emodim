@@ -26,6 +26,7 @@ load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
 cfgs = [];
 cfgs.channel = SBJ_vars.ch_lab.ROI;
 roi = ft_selectdata(cfgs,data); clear data;
+roi_fsample = roi.fsample; clear roi;
 
 %% Compute HFA
 fprintf('===================================================\n');
@@ -50,7 +51,6 @@ elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
 else
     error('Unknown HFA_type provided');
 end
-roi_fsample = roi.fsample; clear roi;
 
 %% Baseline Correction
 fprintf('===================================================\n');
@@ -125,8 +125,7 @@ elseif any(strcmp(HFA_type,{'broadband','hilbert'}))
     lab_ix = 1;
     ch_check = zeros(size(hfa.label));
     for ch_ix = 1:numel(hfa_tmp.label)
-        ch_lab_idx = strfind(hfa.label,hfa_tmp.label{ch_ix});
-        ch_lab_ix = find(~cellfun(@isempty,ch_lab_idx));
+        ch_lab_ix = find(~cellfun(@isempty,strfind(hfa.label,hfa_tmp.label{ch_ix})));
         ch_check(ch_lab_ix) = ch_check(ch_lab_ix)+ch_ix;
         for t_ix = 1:numel(hfa_tmp.trial)
             hfa_tmp.trial{t_ix}(ch_ix,:) = mean(hfa.trial{t_ix}(ch_lab_ix,:),1);
