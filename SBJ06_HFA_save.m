@@ -24,7 +24,7 @@ load(strcat(SBJ_vars.dirs.preproc,SBJ,'_preproc_',pipeline_id,'.mat'));
 
 %% Select Channel(s)
 cfgs = [];
-cfgs.channel = SBJ_vars.ch_lab.ROI;a
+cfgs.channel = SBJ_vars.ch_lab.ROI;
 roi = ft_selectdata(cfgs,data); clear data;
 
 %% Compute HFA
@@ -78,25 +78,38 @@ end
 
 %% Smooth Power Time Series
 if smooth_pow_ts
+    % error catches
+    if ~strcmp(lp_yn,'yes')
+        if strcmp(hp_yn,'yes')
+            error('Why are you only high passing?');
+        else
+            error('Why is smooth_pow_ts yes but no lp or hp?');
+        end
+    end
     fprintf('===================================================\n');
     fprintf('----------------- Filtering Power -----------------\n');
     fprintf('===================================================\n');
-    if ~strcmp(HFA_type,'multiband')
-        error('HFA filtering not implemented for hilbert-filter data yet!');
-    end
-    for ch_ix = 1:numel(hfa.label)
-        for f_ix = 1:numel(fois)
-            if strcmp(lp_yn,'yes') && strcmp(hp_yn,'yes')
-                hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_bandpass(...
-                    hfa.powspctrm(:,ch_ix,f_ix,:), roi_fsample, hp_freq, lp_freq);
-            elseif strcmp(lp_yn,'yes')
-                hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_lowpass(...
-                    squeeze(hfa.powspctrm(:,ch_ix,f_ix,:)), roi_fsample, lp_freq);
-            elseif strcmp(hp_yn,'yes')
-                error('Why are you only high passing?');
-            else
-                error('Why did you say yes smooth but no to both low and high pass?');
+    if isfield(hfa,'powspctrm')
+        for ch_ix = 1:numel(hfa.label)
+            for f_ix = 1:numel(fois)
+                if strcmp(lp_yn,'yes') && strcmp(hp_yn,'yes')
+                    hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_bandpass(...
+                        hfa.powspctrm(:,ch_ix,f_ix,:), roi_fsample, hp_freq, lp_freq);
+                elseif strcmp(lp_yn,'yes')
+                    hfa.powspctrm(:,ch_ix,f_ix,:) = fn_EEGlab_lowpass(...
+                        hfa.powspctrm(:,ch_ix,f_ix,:), roi_fsample, lp_freq);
+                else
+                    error('weird non-Y/N filtering options!');
+                end
             end
+        end
+    else
+        if strcmp(lp_yn,'yes') && strcmp(hp_yn,'yes')
+            hfa.trial{1} = fn_EEGlab_bandpass(hfa.trial{1}, roi_fsample, hp_freq, lp_freq);
+        elseif strcmp(lp_yn,'yes')
+            hfa.trial{1} = fn_EEGlab_lowpass(hfa.trial{1}, roi_fsample, lp_freq);
+        else
+            error('weird non-Y/N filtering options!');
         end
     end
 end

@@ -14,7 +14,7 @@ addpath(ft_dir);
 ft_defaults
 
 %% Compare to atlases
-for s = 1:numel(SBJs)
+for s = 2:numel(SBJs)
     fn_compile_elec_struct(SBJs{s},'main_ft','pat','',1);
     fn_compile_elec_struct(SBJs{s},'main_ft','mni','v',1);
     fn_save_elec_atlas(SBJs{s},'main_ft','pat','','DK',1);
