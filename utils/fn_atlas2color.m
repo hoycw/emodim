@@ -1,4 +1,4 @@
-function [RGB] = fn_atlas2color(atlas_name,rois)
+function [RGB] = fn_atlas2color(atlas_id,rois)
 %% Returns the RGB color code to plot a given ROI
 % INPUTS:
 %   label [cell array of strs] - name (or list of names) of the ROI label
@@ -7,7 +7,7 @@ function [RGB] = fn_atlas2color(atlas_name,rois)
 %   RGB [3 floats] - RGB for this ROI
 %
 
-switch atlas_name
+switch atlas_id
     case 'Yeo7'
         labels = {
             'Vis'%'7Networks_1'

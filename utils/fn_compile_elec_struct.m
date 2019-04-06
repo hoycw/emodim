@@ -155,9 +155,11 @@ if any(danger_name)
 end
 
 % Remove non-ROI (bad) electrodes (shouldn't do anything if non-reref)
-cfgs = [];
-cfgs.channel = SBJ_vars.ch_lab.ROI;
-elec = fn_select_elec(cfgs,elec);
+if ~strcmp(SBJ_vars.ch_lab.ROI,'all')
+    cfgs = [];
+    cfgs.channel = SBJ_vars.ch_lab.ROI;
+    elec = fn_select_elec(cfgs,elec);
+end
 
 %% Add Channel Types
 elec.type = 'ieeg';

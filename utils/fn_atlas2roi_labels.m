@@ -1,13 +1,13 @@
-function roi_labels = fn_atlas2roi_labels(labels, atlas_name, roi_style)
+function roi_labels = fn_atlas2roi_labels(labels, atlas_id, roi_id)
 %% Returns list of atlas ROI labels fitting a general ROI (groi)
 % INPUTS:
-%   atlas_name [str] - atlas loaded by ft_read_atlas
-%   roi_style [str] - {'gROI','ROI'} label of the ROI(s) that you want to translate into atlas roi labels
+%   atlas_id [str] - atlas loaded by ft_read_atlas
+%   roi_id [str] - {'gROI','ROI'} label of the ROI(s) that you want to translate into atlas roi labels
 
 [root_dir, ~] = fn_get_root_dir();
 
 %% Read in Atlas to ROI mappings
-tsv_filename = [root_dir 'emodim/data/atlases/atlas_mappings/atlas_ROI_mappings_' atlas_name '.tsv'];
+tsv_filename = [root_dir 'emodim/data/atlases/atlas_mappings/atlas_ROI_mappings_' atlas_id '.tsv'];
 fprintf('\tReading roi csv file: %s\n', tsv_filename);
 roi_file = fopen(tsv_filename, 'r');
 % roi.csv contents:
@@ -17,17 +17,17 @@ roi_map = textscan(roi_file, '%s %s %s %s', 'HeaderLines', 1,...
 fclose(roi_file);
 
 %% Map the labels
-switch roi_style
+switch roi_id
     case {'Yeo7','Yeo17'}
         map_ix = 2;
-    case {'mgROI','gROI','main3'}
+    case {'mgROI','gROI','main3','lat','deep'}
         map_ix = 2;
-    case {'ROI','thryROI','LPFC','MPFC','OFC','INS','MTL'}
+    case {'ROI','thryROI','LPFC','MPFC','OFC','INS','TMP','PAR','MTL'}
         map_ix = 3;
     case {'tissue', 'tissueC'}
         map_ix = 4;
     otherwise
-        error(['roi_style unknown: ' roi_style]);
+        error(['roi_id unknown: ' roi_id]);
 end
 
 n_no_label = 0;
@@ -39,7 +39,7 @@ for l = 1:numel(labels)
     end
 end
 
-% switch atlas_name
+% switch atlas_id
 %     case 'fs_DK'    % 'Desikan-Killiany' atlas, default from freesurfer (aparc+aseg.mgz file)
 % switch roi
 %     case 'MPFC'

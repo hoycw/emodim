@@ -6,11 +6,6 @@ function fn_view_recon_stat(SBJ, pipeline_id, view_space, reg_type, show_labels,
 %   SBJ [str] - subject ID to plot
 %   pipeline_id [str] - name of analysis pipeline, used to pick elec file
 %   stat_id [str] - ID of the stats
-%       'actv': red for active, blue for deactive, yellow for both
-%       NOPE: 'CI': inc vs. con via ft statistics (not run for all patients!)
-%       'RT': correlation with RT (red for significant)
-%       'CNI': ANOVA of congruence (red for sig)
-%       'pcon': ANOVA of proportion congruence (red for sig)
 %   an_id [str] - analysis ID for preprocessing, filtering, etc.
 %   view_space [str] - {'pat', 'mni'}
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
