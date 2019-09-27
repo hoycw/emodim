@@ -1,11 +1,13 @@
-function fn_view_recon_atlas_grp_stat(SBJs, pipeline_id, reg_type, show_labels, hemi,...
-                                 atlas_id, roi_id, plot_out, thresh, sig_method, varargin)%, coloring)
+function fn_view_recon_atlas_grp_stat(SBJs, proc_id, stat_id, thresh, sig_method, reg_type, show_labels,...
+                                 hemi, atlas_id, roi_id, mirror, plot_out, varargin)
 %% Plot a reconstruction with electrodes
 % INPUTS:
 %   SBJs [cell array str] - subject IDs to plot
-%   pipeline_id [str] - name of analysis pipeline, used to pick elec file
-%   stat_id [str] - ID of the stats
-%   an_id [str] - analysis ID for preprocessing, filtering, etc.
+%   proc_id [str] - name of analysis pipeline, used to pick elec file
+%   stat_id [str] - which set of results to load
+%   thresh [float] - alpha value (0.05)
+%   sig_method [str] - 'prop_boot' or 'norminv'
+%   plot_type [str] - {'ortho', '3d'} choose 3 slice orthogonal plot or 3D surface rendering
 %   reg_type [str] - {'v', 's'} choose volume-based or surface-based registration
 %   show_labels [0/1] - plot the electrode labels
 %   hemi [str] - {'l', 'r', 'b'} hemisphere to plot
@@ -15,23 +17,13 @@ function fn_view_recon_atlas_grp_stat(SBJs, pipeline_id, reg_type, show_labels, 
 %       'ROI','thryROI','LPFC','MPFC','OFC','INS' - specific ROIs (within these larger regions)
 %       'Yeo7','Yeo17' - colored by Yeo networks
 %       'tissue','tissueC' - colored by tisseu compartment, e.g., GM vs WM vs OUT
+%   mirror [0/1] - plot the other hemi reflected onto single side
 %   plot_out [0/1] - include electrodes that don't have an atlas label or in hemi?
-%   thresh [float] - alpha value (0.05)
-%   sig_method [str] - 'prop_boot' or 'norminv'
 
-% NOT USING THIS (YET), only gROI coloring
-%   coloring [str] - type of coloring to use
-%       'cnts': a continuous inferno colormap for plotting R2 individual
-%           (one brain per model)
-%       'mcmp': model comparison, using sig across 3 models as colormap
-
-[root_dir, app_dir] = fn_get_root_dir(); ft_dir = [app_dir 'fieldtrip/'];
+[root_dir, ~] = fn_get_root_dir();
 addpath([root_dir 'emodim/scripts/Colormaps/']);
 
 %% Handle variables
-stat_id  = {'OM','RM','RT'};
-stat_lab = {'OrigMean', 'ReginaMean', 'ReginaTimeAnn'};
-
 % Handle variable inputs
 if ~isempty(varargin)
     for v = 1:2:numel(varargin)
@@ -39,42 +31,56 @@ if ~isempty(varargin)
             view_angle = varargin{v+1};
         elseif strcmp(varargin{v},'mesh_alpha') && varargin{v+1}>0 && varargin{v+1}<=1
             mesh_alpha = varargin{v+1};
+        elseif strcmp(varargin{v},'mesh_type') && ischar(varargin{v+1})
+            mesh_type = varargin{v+1};
+        elseif strcmp(varargin{v},'save_fig')
+            save_fig = varargin{v+1};
+        elseif strcmp(varargin{v},'fig_ftype') && ischar(varargin{v+1})
+            fig_ftype = varargin{v+1};
         else
             error(['Unknown varargin ' num2str(v) ': ' varargin{v}]);
         end
     end
 end
 
-% Define default options
-% view_space = 'mni';
+%% Define default options
 if ~exist('view_angle','var')
-    if strcmp(hemi,'l')
-        view_angle = [-90 0];
-    elseif any(strcmp(hemi,{'r','b'}))
-        view_angle = [90 0];
-    else
-        error(['unknown hemi: ' hemi]);
+    view_angle = fn_get_view_angle(hemi,roi_id);
+    view_str = 'def';
+end
+% Adjust view angle if custom
+if ischar(view_angle)
+    view_str = view_angle;
+    switch view_angle
+        case 'med'
+            view_angle = fn_get_view_angle(hemi,'MPFC');
+        case 'lat'
+            view_angle = fn_get_view_angle(hemi,'LPFC');
+        case 'ven'
+            view_angle = fn_get_view_angle(hemi,'OFC');
     end
 end
-if ~exist('mesh_alpha','var')
-    % assume SEEG
-    mesh_alpha = 0.3;
-end
-if show_labels
-    lab_arg = 'label';
+if show_labels; lab_arg = 'label'; else; lab_arg = 'off'; end
+reg_suffix = ['_' reg_type];    % MNI space
+if ~exist('mesh_type','var'); mesh_type = 'pial'; end
+if ~exist('save_fig','var'); save_fig = 0; end
+if ~exist('fig_ftype','var'); fig_ftype = 'fig'; end
+% Assume SEEG
+if ~exist('mesh_alpha','var'); mesh_alpha = 0.3; end
+
+% ROI info
+if any(strcmp(roi_id,{'mgROI','gROI','main3','lat','deep','gPFC'}))
+    roi_field = 'gROI';
 else
-    lab_arg = 'off';
-end
-if strcmp(reg_type,'v') || strcmp(reg_type,'s')
-    reg_suffix = ['_' reg_type];    % MNI space
-else
-    reg_suffix = '';                % Patient space
+    roi_field = 'ROI';
 end
 
 %% Load and process stats
-load([root_dir 'emodim/data/predCorrEpocEx.mat']);
+load([root_dir 'emodim/data/predCorr_' stat_id '.mat']);
+if strcmp(stat_id,'EpocEx'); predCorr = predCorrEpocEx; end
+stat_lab = setdiff(fieldnames(predCorr.(SBJs{1})),{'label'});
 
-%% Load Elec
+%% Load elec struct
 cors = cell([numel(SBJs) numel(stat_lab)]);
 boot = cell([numel(SBJs) numel(stat_lab)]);
 elec_sbj = cell([numel(SBJs) numel(stat_lab)]);
@@ -86,37 +92,40 @@ for sbj_ix = 1:numel(SBJs)
     SBJ_vars_cmd = ['run ' root_dir 'emodim/scripts/SBJ_vars/' SBJ '_vars.m'];
     eval(SBJ_vars_cmd);
     
-    % Load elec struct
-    mni_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_mni',reg_suffix,'.mat'];
-    tmp = load(mni_fname); elec_sbj{sbj_ix,1} = tmp.elec;
-    roi_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_pat_' atlas_id '_' roi_id '.mat'];
-    tmp = load(roi_fname);
-    if strcmp(SBJ,'IR66')
-        error('undo this hack!');
-        tmp.elec.hemi = [tmp.elec.hemi(1:6); {'l';'l'}; tmp.elec.hemi(7:51); {'r';'r'}; tmp.elec.hemi(52:end)];
-        tmp.elec.roi  = [tmp.elec.roi(1:6); {'AMG';'AMG'}; tmp.elec.roi(7:51); {'AMG';'AMG'}; tmp.elec.roi(52:end)];
-    elseif ~all(strcmp(elec_sbj{sbj_ix,1}.label,tmp.elec.label))
-        error('pat_roi and mni elec labels mismatch!');
+    % Load MNI elecs
+    elec_mni_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',proc_id,'_mni',reg_suffix,'.mat'];
+    tmp = load(elec_mni_fname); elec_sbj{sbj_ix,1} = tmp.elec;
+    
+    % Load manually adjusted gROI labels --> !!! fix this hack once I have elec_final!
+    if ~strcmp(roi_id,'gROI'); error('only doing gROI now!'); end
+    elec_gROI_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',proc_id,'_pat_Dx_gROI.mat'];
+    tmp = load(elec_gROI_fname); elec_gROI = tmp.elec;
+%     if strcmp(SBJ,'IR66')
+% %         error('undo this hack!');
+%         elec_gROI.hemi = [elec_gROI.hemi(1:6); {'l';'l'}; elec_gROI.hemi(7:51);...
+%                             {'r';'r'}; elec_gROI.hemi(52:end)];
+%         elec_gROI.roi  = [elec_gROI.roi(1:6); {'AMG';'AMG'}; elec_gROI.roi(7:51);...
+%                             {'AMG';'AMG'}; elec_gROI.roi(52:end)];
+    if numel(elec_sbj{sbj_ix,1}.label)~=numel(elec_gROI.label) ||...
+           ~all(strcmp(elec_sbj{sbj_ix,1}.label,elec_gROI.label))
+        error('pat_gROI and mni elec labels mismatch!');
     end
-    elec_sbj{sbj_ix,1}.hemi = tmp.elec.hemi;
-    elec_sbj{sbj_ix,1}.roi  = tmp.elec.roi;
-%     try
-%         elec_fname = [SBJ_vars.dirs.recon,SBJ,'_elec_',pipeline_id,'_mni',reg_suffix,'_',atlas_id,'_full.mat'];
-%         if exist([elec_fname(1:end-4) '_' roi_id '.mat'],'file')
-%             elec_fname = [elec_fname(1:end-4) '_' roi_id '.mat'];
-%         end
-%         tmp = load(elec_fname); elec_sbj{sbj_ix} = tmp.elec;
-%     catch
-%         error([elec_fname 'doesnt exist, exiting...']);
-%     end
+    elec_sbj{sbj_ix,1}.(roi_field) = elec_gROI.roi;
+    if any(~strcmp(elec_sbj{sbj_ix,1}.hemi,elec_gROI.hemi))
+        warning([SBJ ' ' num2str(sum(~strcmp(elec_sbj{sbj_ix,1}.hemi,elec_gROI.hemi))) ...
+            ' different hemi on mni vs. gROI elecs!']);
+    end
+    elec_sbj{sbj_ix,1}.hemi = elec_gROI.hemi;
+    elec_sbj{sbj_ix,1}.color = fn_roi2color(elec_gROI.roi);
     
     % Check elec match
-    if numel(elec_sbj{sbj_ix,1}.label)~=numel(predCorrEpocEx.(SBJ).label) || ...
-            ~isempty(setdiff(elec_sbj{sbj_ix,1}.label,predCorrEpocEx.(SBJ).label))
+    if numel(elec_sbj{sbj_ix,1}.label)~=numel(predCorr.(SBJ).label) || ...
+            ~isempty(setdiff(elec_sbj{sbj_ix,1}.label,predCorr.(SBJ).label))
         warning(['WARNING!!! Mismatch in electrodes in stat (n=' ...
-            num2str(numel(predCorrEpocEx.(SBJ).label)) ') and elec (n=' num2str(numel(elec_sbj{sbj_ix,1}.label)) ')!']);
-        cfgs = []; cfgs.channel = predCorrEpocEx.(SBJ).label;
+            num2str(numel(predCorr.(SBJ).label)) ') and elec (n=' num2str(numel(elec_sbj{sbj_ix,1}.label)) ')!']);
+        cfgs = []; cfgs.channel = predCorr.(SBJ).label;
         elec_sbj{sbj_ix,1} = fn_select_elec(cfgs,elec_sbj{sbj_ix,1});
+        elec_sbj{sbj_ix,1} = fn_reorder_elec(elec_sbj{sbj_ix,1},predCorr.(SBJ).label);
         %     error('Mismatch in electrodes in stat and elec!');
     end
     
@@ -125,84 +134,81 @@ for sbj_ix = 1:numel(SBJs)
         elec_sbj{sbj_ix,1}.label{e_ix} = [SBJs{sbj_ix} '_' elec_sbj{sbj_ix,1}.label{e_ix}];
     end
     
-    % Match elecs to atlas ROIs
-    if any(strcmp(atlas_id,{'DK','Dx','Yeo7'}))
-%         if ~isfield(elec_sbj{sbj_ix,1},'man_adj')
-%             elec_sbj{sbj_ix,1}.roi       = fn_atlas2roi_labels(elec_sbj{sbj_ix,1}.atlas_lab,atlas_id,roi_id);
-%         end
-        if strcmp(roi_id,'tissueC')
-            elec_sbj{sbj_ix,1}.roi_color = fn_tissue2color(elec_sbj{sbj_ix,1});
-        elseif strcmp(atlas_id,'Yeo7')
-            elec_sbj{sbj_ix,1}.roi_color = fn_atlas2color(atlas_id,elec_sbj{sbj_ix,1}.roi);
+    if ~plot_out
+        % Remove electrodes that aren't in atlas ROIs & hemisphere
+        if mirror
+            good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix,1}, 'b', atlas_id, roi_id);
         else
-            elec_sbj{sbj_ix,1}.roi_color = fn_roi2color(elec_sbj{sbj_ix,1}.roi);
+            good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix,1}, hemi, atlas_id, roi_id);
         end
-    elseif any(strcmp(atlas_id,{'Yeo17'}))
-%         if ~isfield(elec_sbj{sbj_ix,1},'man_adj')
-%             elec_sbj{sbj_ix,1}.roi       = elec_sbj{sbj_ix,1}.atlas_lab;
-%         end
-        elec_sbj{sbj_ix,1}.roi_color = fn_atlas2color(atlas_id,elec_sbj{sbj_ix,1}.roi);
+    else
+        % Remove electrodes that aren't in hemisphere
+        if mirror
+            good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix,1}, 'b', [], []);
+        else
+            good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix,1}, hemi, [], []);
+        end
+    end
+    
+    % Mirror hemispheres
+    if mirror
+        elec_sbj{sbj_ix,1}.chanpos(~strcmp(elec_sbj{sbj_ix,1}.hemi,hemi),1) = ...
+                        -elec_sbj{sbj_ix,1}.chanpos(~strcmp(elec_sbj{sbj_ix,1}.hemi,hemi),1);
+        hemi_str = [hemi 'b'];
+    else
+        hemi_str = hemi;
     end
     
     % Copy for other conditions
-    for stat_ix = 2:numel(stat_lab)
-        elec_sbj{sbj_ix,stat_ix} = elec_sbj{sbj_ix,1};
-    end
-    
-    % Remove hemi and/or atlas elecs
-    if ~plot_out
-        % Remove electrodes that aren't in atlas ROIs & hemisphere
-        good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix}, hemi, atlas_id, roi_id);
-    else
-        % Remove electrodes that aren't in hemisphere
-        good_elecs = fn_select_elec_lab_match(elec_sbj{sbj_ix}, hemi, [], []);
+    for st_ix = 2:numel(stat_lab)
+        elec_sbj{sbj_ix,st_ix} = elec_sbj{sbj_ix,1};
     end
     
     % Select sig elecs
-    for stat_ix = 1:numel(stat_lab)
+    for st_ix = 1:numel(stat_lab)
         % Get data
-        cors{sbj_ix,stat_ix}  = predCorrEpocEx.(SBJ).(stat_lab{stat_ix}).Correlations;
-        boot{sbj_ix,stat_ix}  = predCorrEpocEx.(SBJ).(stat_lab{stat_ix}).Bootstrap;
+        cors{sbj_ix,st_ix}  = predCorr.(SBJ).(stat_lab{st_ix}).Correlations;
+        boot{sbj_ix,st_ix}  = predCorr.(SBJ).(stat_lab{st_ix}).Bootstrap;
         
         % Threshold data
-        sig  = zeros(size(elec_sbj{sbj_ix,stat_ix}.label));
-        stat = zeros(size(elec_sbj{sbj_ix,stat_ix}.label));
-        fprintf('%s Significant Electrodes:\n\t',stat_lab{stat_ix});
-        for e = 1:numel(elec_sbj{sbj_ix,stat_ix}.label)
+        sig  = false(size(elec_sbj{sbj_ix,st_ix}.label));
+        stat = zeros(size(elec_sbj{sbj_ix,st_ix}.label));
+        fprintf('%s Significant Electrodes:\n\t',stat_lab{st_ix});
+        for e = 1:numel(elec_sbj{sbj_ix,st_ix}.label)
             if strcmp(sig_method,'prop_boot')
                 % Proportion of bootstrap values above zero
-                stat(e) = 1-sum(boot{sbj_ix,stat_ix}(:,e)>0)/size(boot{sbj_ix,stat_ix},1);
+                stat(e) = 1-sum(boot{sbj_ix,st_ix}(:,e)>0)/size(boot{sbj_ix,st_ix},1);
                 if stat(e) <= thresh
-                    sig(e) = 1;
-                    fprintf('%s\t',elec_sbj{sbj_ix,stat_ix}.label{e});
+                    sig(e) = true;
+                    fprintf('%s\t',elec_sbj{sbj_ix,st_ix}.label{e});
                 end
             elseif strcmp(sig_method,'norminv')
                 error('dont use this until sure its appropriate, see email Slides ready to edit on 12/11/18');
                 % STDs of bootstrap above 0
-                sd = std(boot{sbj_ix,stat_ix}(:,e),0,1);
+                sd = std(boot{sbj_ix,st_ix}(:,e),0,1);
                 stat(e) = -norminv(thresh)*sd;
-                if cors{sbj_ix,stat_ix}(e) >= stat(e)
-                    sig(e) = 1;
-                    fprintf('%s\t',elec_sbj{sbj_ix,stat_ix}.label{e});
+                if cors{sbj_ix,st_ix}(e) >= stat(e)
+                    sig(e) = true;
+                    fprintf('%s\t',elec_sbj{sbj_ix,st_ix}.label{e});
                 end
             end
         end
-        fprintf('\nTotal n_sig = %i / %i\n',sum(sig),numel(cors{sbj_ix,stat_ix}));
+        fprintf('\nTotal n_sig = %i / %i\n',sum(sig),numel(cors{sbj_ix,st_ix}));
         
         % Select sig elecs && elecs matching atlas
         % fn_select_elec messes up if you try to toss all elecs
-        plot_elecs = intersect(good_elecs, elec_sbj{sbj_ix,stat_ix}.label(logical(sig)));
+        plot_elecs = intersect(good_elecs, elec_sbj{sbj_ix,st_ix}.label(sig));
         fprintf('\nTotal plotting: %i\n',numel(plot_elecs));
-        if numel(intersect(elec_sbj{sbj_ix,stat_ix}.label,plot_elecs))==0
-            elec_sbj{sbj_ix,stat_ix} = {};
-            good_sbj(sbj_ix,stat_ix) = false;
+        if isempty(plot_elecs)
+            elec_sbj{sbj_ix,st_ix} = {};
+            good_sbj(sbj_ix,st_ix) = false;
             warning('WARNING!!! All sig_ch are out of atlas and/or hemisphere!');
         else
             cfgs = [];
             cfgs.channel = plot_elecs;
-            elec_sbj{sbj_ix,stat_ix} = fn_select_elec(cfgs, elec_sbj{sbj_ix,stat_ix});
-            all_roi_labels{stat_ix} = [all_roi_labels{stat_ix}; elec_sbj{sbj_ix,stat_ix}.roi];
-            all_roi_colors{stat_ix} = [all_roi_colors{stat_ix}; elec_sbj{sbj_ix,stat_ix}.roi_color];
+            elec_sbj{sbj_ix,st_ix} = fn_select_elec(cfgs, elec_sbj{sbj_ix,st_ix});
+            all_roi_labels{st_ix} = [all_roi_labels{st_ix}; elec_sbj{sbj_ix,st_ix}.(roi_field)];
+            all_roi_colors{st_ix} = [all_roi_colors{st_ix}; elec_sbj{sbj_ix,st_ix}.color];
         end
     end
     clear SBJ SBJ_vars SBJ_vars_cmd
@@ -210,21 +216,27 @@ end
 
 %% Combine elec structs
 elec = cell([numel(stat_lab) 1]);
-for stat_ix = 1:numel(stat_lab)
-    elec{stat_ix} = ft_appendsens([],elec_sbj{good_sbj(:,stat_ix),stat_ix});
-    elec{stat_ix}.roi       = all_roi_labels{stat_ix};    % appendsens strips that field
-    elec{stat_ix}.roi_color = all_roi_colors{stat_ix};    % appendsens strips that field
+for st_ix = 1:numel(stat_lab)
+    elec{st_ix} = ft_appendsens([],elec_sbj{good_sbj(:,st_ix),st_ix});
+    elec{st_ix}.roi   = all_roi_labels{st_ix};    % appendsens strips that field
+    elec{st_ix}.color = all_roi_colors{st_ix};    % appendsens strips that field
 end
 
 %% Load brain recon
-mesh = fn_load_recon_mesh([],'mni',reg_type,hemi);
+mesh = fn_load_recon_mesh([],'mni',reg_type,mesh_type,hemi);
 
 %% 3D Surface + Grids (3d, pat/mni, vol/srf, 0/1)
+out_dir = [root_dir 'emodim/results/HFA/GRP_recons/' stat_id '/' sig_method '_' ...
+    num2str(thresh) '/' atlas_id '_' roi_id '/'];
+if ~exist(out_dir,'dir')
+    [~,~] = mkdir(out_dir);
+end
 % f = cell(size(stat_lab));
 % for stat_ix = 1:numel(stat_lab)
 %     plot_name = ['GRP_' stat_lab{stat_ix} '_sig_' atlas_id '_' roi_id];
 %     f{stat_ix} = figure('Name',plot_name);
-plot_name = ['GRP_allModels_sig_' atlas_id '_' roi_id];
+plot_name = ['GRP_' stat_id '_allModels_' sig_method '_' num2str(thresh) '_' ...
+                atlas_id '_' roi_id '_' hemi_str '_' view_str];
 f = figure('Name',plot_name);
 
 % Plot 3D mesh
@@ -238,7 +250,7 @@ for stat_ix = 1:numel(stat_lab)
             plotted_elecs = [plotted_elecs; elec{stat_ix}.label(e)];
             cfgs = []; cfgs.channel = elec{stat_ix}.label(e);
             elec_tmp = fn_select_elec(cfgs,elec{stat_ix});
-            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_tmp.roi_color, 'label', lab_arg);
+            ft_plot_sens(elec_tmp, 'elecshape', 'sphere', 'facecolor', elec_tmp.color, 'label', lab_arg);
         end
     end
 end
@@ -249,7 +261,9 @@ fprintf(['To reset the position of the camera light after rotating the figure,\n
     'make sure none of the figure adjustment tools (e.g., zoom, rotate) are active\n' ...
     '(i.e., uncheck them within the figure), and then hit ''l'' on the keyboard\n'])
 set(f, 'windowkeypressfcn',   @cb_keyboard);
-% set(f{stat_ix}, 'windowkeypressfcn',   @cb_keyboard);
-% end
 
+if save_fig
+    saveas(f, [out_dir plot_name '.' fig_ftype]);
+end
 
+end
